@@ -354,6 +354,55 @@
             color: #ecfeff;
         }
 
+        /* In-run compact mode on small screens: keep HUD and upgrade UI readable */
+        body.mobile-ui.playing .combat-hud {
+            width: min(58vw, 220px) !important;
+            max-height: min(46dvh, 300px) !important;
+            padding: 6px 7px !important;
+        }
+        body.mobile-ui.playing .mini-combo-panel {
+            width: min(42vw, 150px) !important;
+            padding: 5px !important;
+        }
+        body.mobile-ui.playing #bossBarContainer > div {
+            width: min(95vw, 580px) !important;
+        }
+        body.mobile-ui #levelUpModal {
+            align-items: stretch !important;
+            justify-content: flex-start !important;
+            overflow-y: auto !important;
+            padding: max(8px, env(safe-area-inset-top)) 8px max(8px, env(safe-area-inset-bottom)) 8px !important;
+        }
+        body.mobile-ui #levelUpModal h1 {
+            font-size: clamp(1.05rem, 5.5vw, 1.45rem) !important;
+            letter-spacing: .12em !important;
+            margin-bottom: 4px !important;
+        }
+        body.mobile-ui #levelUpModal p {
+            font-size: 9px !important;
+        }
+        body.mobile-ui #upgradeContainer {
+            margin-top: 64px !important;
+            max-height: 72dvh !important;
+            overflow: auto !important;
+            gap: 8px !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+        body.mobile-ui .upgrade-card {
+            min-height: 160px !important;
+            padding: 10px !important;
+        }
+        body.mobile-ui .upgrade-card h3 { font-size: 11px !important; }
+        body.mobile-ui .upgrade-card p { font-size: 8px !important; line-height: 1.25 !important; }
+        @media (max-width: 390px) {
+            body.mobile-ui #upgradeContainer {
+                grid-template-columns: 1fr !important;
+            }
+            body.mobile-ui.playing .combat-hud {
+                width: min(70vw, 210px) !important;
+            }
+        }
+
         /* Mobile-first modal usability: no clipped start screen */
         #modal {
             overflow-y: auto !important;
@@ -1398,6 +1447,8 @@ function applyResponsiveLayout() {
     const viewport = window.visualViewport;
     const w = Math.max(1, Math.round(viewport?.width || window.innerWidth || 1280));
     const h = Math.max(1, Math.round(viewport?.height || window.innerHeight || 720));
+    const mobileUI = w <= 900 || h <= 760;
+    document.body.classList.toggle('mobile-ui', mobileUI);
 
     const combo = document.querySelector('.mini-combo-panel');
     if (combo) {
@@ -1434,7 +1485,7 @@ const touchInput = {
 };
 
 function updateTouchClass() {
-    const isTouch = matchMedia('(pointer: coarse)').matches || ('ontouchstart' in window);
+    const isTouch = matchMedia('(pointer: coarse)').matches || ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
     touchInput.enabled = !!isTouch;
     document.body.classList.toggle('touch-device', touchInput.enabled);
 }
@@ -1494,7 +1545,7 @@ function setupTouchControls() {
 
     const bindHold = (btn, key) => {
         btn.addEventListener('pointerdown', e => {
-            if (!touchInput.enabled) return;
+            if (!touchInput.enabled) touchInput.enabled = true;
             e.preventDefault();
             touchInput[key] = true;
             btn.classList.add('active');
@@ -1516,6 +1567,13 @@ function setupTouchControls() {
     bindHold(weaponBtn, 'weaponHeld');
 
     updateTouchClass();
+    // Fallback: if any touch starts, force-enable touch mode for this session.
+    window.addEventListener('touchstart', () => {
+        if (!touchInput.enabled) {
+            touchInput.enabled = true;
+            document.body.classList.add('touch-device');
+        }
+    }, { passive: true });
     window.addEventListener('resize', () => touchInput.stickRect = null);
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', () => touchInput.stickRect = null);
