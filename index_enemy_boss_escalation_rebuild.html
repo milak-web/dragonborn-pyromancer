@@ -2,7 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#020205">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dragonborn Pyromancer">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="apple-touch-icon" href="./assets/ships/player_core_blue.png">
     <title>SYNTH-CORE: ABYSS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -346,6 +353,34 @@
             border-color: rgba(34, 211, 238, 0.85);
             color: #ecfeff;
         }
+
+        /* Mobile-first modal usability: no clipped start screen */
+        #modal {
+            overflow-y: auto !important;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+            align-items: flex-start !important;
+        }
+        #modal > .p-8 {
+            width: min(100%, 1040px) !important;
+            margin: 0 auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+        }
+        #startBtn, #resetBtn, #metaBtn, #settingsBtn { min-height: 44px; touch-action: manipulation; }
+        @media (max-width: 760px), (max-height: 760px) {
+            #modalTitle { font-size: clamp(1.35rem, 8.2vw, 2.4rem) !important; letter-spacing: .09em !important; }
+            #modalDesc { font-size: 11px !important; margin-bottom: 10px !important; }
+            #modal > .p-8 { padding: 10px !important; }
+            .start-controls { gap: 8px !important; margin: 0 auto 10px auto !important; }
+            .start-controls h3 { font-size: 10px !important; }
+            .start-controls p { font-size: 9px !important; line-height: 1.45 !important; }
+            #classSelection.player-setup-grid { margin: 8px auto 12px !important; max-height: none !important; overflow: visible !important; }
+            .player-setup-panel { min-height: 0 !important; padding: 10px !important; }
+            #startBtn { width: 100%; font-size: 1rem !important; letter-spacing: .14em !important; padding: 12px 10px !important; }
+            #resetBtn, #metaBtn, #settingsBtn { width: 100%; margin-top: 8px !important; margin-bottom: 0 !important; }
+        }
     </style>
 </head>
 <body>
@@ -593,6 +628,11 @@ function loadShipAssets() {
     });
 }
 loadShipAssets();
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+    });
+}
 
 // --- ULTRA ROBUST GAMEPAD DETECTION ---
 function getActiveGamepad() {
