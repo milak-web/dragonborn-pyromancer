@@ -1,9 +1,8 @@
-const CACHE_NAME = "dragonborn-pyromancer-v2";
+const CACHE_NAME = "dragonborn-pyromancer-v3";
 const ASSETS = [
   "./",
   "./index_enemy_boss_escalation_rebuild.html",
   "./manifest.webmanifest",
-  "./assets/ships/player_core_blue.png",
   "./assets/ships/icon-192.png",
   "./assets/ships/icon-512.png"
 ];

@@ -659,16 +659,82 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 
+function spriteAsset(src, options = {}) {
+    return { src, img: null, canvas: null, loaded: false, keyTransparent: !!options.keyTransparent };
+}
+
 const SHIP_ASSETS = {
-    playerCoreBlue: {
-        src: 'assets/ships/player_core_blue.png',
-        img: null,
-        loaded: false
-    }
+    playerCoreBlue: spriteAsset('assets/ships/player_core_blue.png'),
+    striker: spriteAsset('assets/ships/striker.png', { keyTransparent: true }),
+    juggernaut: spriteAsset('assets/ships/juggernaut.png', { keyTransparent: true }),
+    phantom: spriteAsset('assets/ships/phantom.png', { keyTransparent: true }),
+    engineer: spriteAsset('assets/ships/engineer.png', { keyTransparent: true })
 };
 
-function loadShipAssets() {
-    Object.values(SHIP_ASSETS).forEach(asset => {
+const ENEMY_ASSETS = {
+    blinkStriker: spriteAsset('assets/enemies/blinkStriker.png', { keyTransparent: true }),
+    blockader: spriteAsset('assets/enemies/blockader.png', { keyTransparent: true }),
+    gravitySkimmer: spriteAsset('assets/enemies/gravitySkimmer.png', { keyTransparent: true }),
+    juggernautElite: spriteAsset('assets/enemies/juggernautElite.png', { keyTransparent: true }),
+    lancer: spriteAsset('assets/enemies/lancer.png', { keyTransparent: true }),
+    laserSentry: spriteAsset('assets/enemies/laserSentry.png', { keyTransparent: true }),
+    nullifier: spriteAsset('assets/enemies/nullifier.png', { keyTransparent: true }),
+    orbitalGunner: spriteAsset('assets/enemies/orbitalGunner.png', { keyTransparent: true }),
+    phaseRogue: spriteAsset('assets/enemies/phaseRogue.png', { keyTransparent: true }),
+    pincer: spriteAsset('assets/enemies/pincer.png', { keyTransparent: true }),
+    repairDrone: spriteAsset('assets/enemies/repairDrone.png', { keyTransparent: true }),
+    sapper: spriteAsset('assets/enemies/sapper.png', { keyTransparent: true }),
+    sentinel: spriteAsset('assets/enemies/sentinel.png', { keyTransparent: true }),
+    shieldbearer: spriteAsset('assets/enemies/shieldbearer.png', { keyTransparent: true }),
+    swarmMother: spriteAsset('assets/enemies/swarmMother.png', { keyTransparent: true }),
+    voidLeech: spriteAsset('assets/enemies/voidLeech.png', { keyTransparent: true })
+};
+
+const BOSS_ASSETS = {
+    construct: spriteAsset('assets/bosses/construct.png', { keyTransparent: true })
+};
+
+function knockOutBorderBlack(img, threshold = 28) {
+    const w = img.naturalWidth || img.width;
+    const h = img.naturalHeight || img.height;
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const c = canvas.getContext('2d', { willReadFrequently: true });
+    c.drawImage(img, 0, 0);
+    const imageData = c.getImageData(0, 0, w, h);
+    const data = imageData.data;
+    const visited = new Uint8Array(w * h);
+    const queue = new Int32Array(w * h);
+    let head = 0, tail = 0;
+    const isBlack = idx => {
+        const p = idx * 4;
+        return data[p + 3] > 0 && data[p] <= threshold && data[p + 1] <= threshold && data[p + 2] <= threshold;
+    };
+    const push = idx => {
+        if (idx < 0 || idx >= visited.length || visited[idx] || !isBlack(idx)) return;
+        visited[idx] = 1;
+        queue[tail++] = idx;
+    };
+    for (let x = 0; x < w; x++) { push(x); push((h - 1) * w + x); }
+    for (let y = 0; y < h; y++) { push(y * w); push(y * w + w - 1); }
+    while (head < tail) {
+        const idx = queue[head++];
+        const x = idx % w;
+        if (x > 0) push(idx - 1);
+        if (x < w - 1) push(idx + 1);
+        if (idx >= w) push(idx - w);
+        if (idx < w * (h - 1)) push(idx + w);
+    }
+    for (let i = 0; i < visited.length; i++) {
+        if (visited[i]) data[i * 4 + 3] = 0;
+    }
+    c.putImageData(imageData, 0, 0);
+    return canvas;
+}
+
+function loadAssetCollection(collection) {
+    Object.values(collection).forEach(asset => {
         const img = new Image();
         img.onload = () => { asset.loaded = true; };
         img.onerror = () => { asset.loaded = false; };
@@ -676,10 +742,33 @@ function loadShipAssets() {
         asset.img = img;
     });
 }
+
+function loadShipAssets() {
+    loadAssetCollection(SHIP_ASSETS);
+    loadAssetCollection(ENEMY_ASSETS);
+    loadAssetCollection(BOSS_ASSETS);
+}
+
+function getLoadedSprite(collection, key) {
+    const asset = collection && collection[key];
+    const image = asset && (asset.canvas || asset.img);
+    const width = image && (image.naturalWidth || image.width || 0);
+    return asset && asset.loaded && image && width > 0 ? asset : null;
+}
+
+function getSpriteImage(asset) {
+    if (!asset || !asset.loaded || !asset.img) return null;
+    if (asset.keyTransparent && !asset.canvas) {
+        try { asset.canvas = knockOutBorderBlack(asset.img); }
+        catch(e) { asset.canvas = null; }
+    }
+    return asset.canvas || asset.img;
+}
+
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=2').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=3').then(reg => reg.update()).catch(() => {});
     });
 }
 
@@ -2221,7 +2310,7 @@ class Player {
         this.damageReductionLevel = 0;
         this.xpGainBonus = 0;
         this.lastDamageTime = -99999;
-        this.shipSpriteKey = 'playerCoreBlue';
+        this.shipSpriteKey = SHIP_ASSETS[className] ? className : 'playerCoreBlue';
         this.shipScaleMul = 4.2;
         // Sprite is authored nose-up; gameplay angle is nose-right, so rotate by +90deg.
         this.shipSpriteAngleOffset = Math.PI * 0.5;
@@ -2921,7 +3010,10 @@ class Player {
         ctx.rotate(this.angle + (this.shipSpriteAngleOffset || 0));
 
         const shipAsset = SHIP_ASSETS[this.shipSpriteKey];
-        const canDrawShip = !!(shipAsset && shipAsset.loaded && shipAsset.img && shipAsset.img.naturalWidth > 0);
+        const shipImage = getSpriteImage(shipAsset);
+        const shipW = shipImage && (shipImage.naturalWidth || shipImage.width || 0);
+        const shipH = shipImage && (shipImage.naturalHeight || shipImage.height || 0);
+        const canDrawShip = !!(shipAsset && shipAsset.loaded && shipImage && shipW > 0);
         if (canDrawShip) {
             ctx.shadowBlur = (this.isSurging || this.hitFlash > 1000) ? 30 : 12;
             ctx.shadowColor = (this.hitFlash > 1000) ? '#ef4444' : (this.isSurging ? PALETTE.surge : '#38bdf8');
@@ -2929,9 +3021,9 @@ class Player {
                 ctx.globalAlpha = this.hitFlash > 1000 ? 0.72 : 0.88;
             }
             const targetW = Math.max(56, this.radius * this.shipScaleMul);
-            const ratio = shipAsset.img.naturalHeight / shipAsset.img.naturalWidth;
+            const ratio = shipH / shipW;
             const targetH = targetW * ratio;
-            ctx.drawImage(shipAsset.img, -targetW / 2, -targetH / 2, targetW, targetH);
+            ctx.drawImage(shipImage, -targetW / 2, -targetH / 2, targetW, targetH);
             ctx.globalAlpha = 1;
         } else {
             ctx.shadowBlur = (this.isSurging || this.hitFlash > 1000) ? 30 : 15;
@@ -4516,6 +4608,55 @@ class Enemy {
         if (!lowPerfMode || this.enemyType === 'boss' || this.mutator || this.isChampion) {
             ctx.shadowBlur = (this.mutator || this.isChampion) ? 25 : 15; 
             ctx.shadowColor = this.mutator ? this.mutator.color : this.glow;
+        }
+
+        const sprite = this.enemyType === 'boss'
+            ? getLoadedSprite(BOSS_ASSETS, this.bossType)
+            : getLoadedSprite(ENEMY_ASSETS, this.enemyType);
+        if (sprite) {
+            const spriteImage = getSpriteImage(sprite);
+            if (!spriteImage) { ctx.restore(); return; }
+            const spriteW = spriteImage.naturalWidth || spriteImage.width;
+            const spriteH = spriteImage.naturalHeight || spriteImage.height;
+            ctx.shadowBlur = this.enemyType === 'boss' ? 26 : (this.isChampion || this.mutator ? 22 : 12);
+            ctx.shadowColor = this.mutator ? this.mutator.color : this.glow;
+            if (this.hitFlash > 0) ctx.globalAlpha = 0.86;
+            const targetW = Math.max(
+                this.enemyType === 'boss' ? 170 : 34,
+                this.radius * (this.enemyType === 'boss' ? 3.65 : 3.15)
+            );
+            const ratio = spriteH / spriteW;
+            const targetH = targetW * ratio;
+            ctx.save();
+            ctx.rotate(Math.PI * 0.5);
+            ctx.drawImage(spriteImage, -targetW / 2, -targetH / 2, targetW, targetH);
+            ctx.restore();
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+
+            if (this.mutator || this.isChampion) {
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 10px "Orbitron"';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.isChampion ? (CHAMPION_ROLES[this.championRole]?.icon || '*') + ' ' + this.championName : (this.isElite ? this.eliteName : this.mutator.icon), 0, -this.radius - 15);
+                if (this.isElite || this.isChampion) {
+                    const barWidth = this.radius * 2;
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(-barWidth/2, -this.radius - 10, barWidth, 4);
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(-barWidth/2, -this.radius - 10, barWidth * (this.hp / (this.maxHp || this.hp)), 4);
+                }
+            }
+
+            if (this.mutator && this.mutator.name === 'SHIELDED') {
+                ctx.strokeStyle = this.mutator.color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius + 10, 0, Math.PI*2);
+                ctx.stroke();
+            }
+            ctx.restore();
+            return;
         }
 
         ctx.fillStyle = this.hitFlash > 0 ? '#ffffff' : (this.mutator ? this.mutator.color : this.color);
