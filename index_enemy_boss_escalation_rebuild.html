@@ -768,7 +768,7 @@ function getSpriteImage(asset) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=3').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=4').then(reg => reg.update()).catch(() => {});
     });
 }
 
