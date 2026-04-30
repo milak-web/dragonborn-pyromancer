@@ -1,4 +1,4 @@
-const CACHE_NAME = "dragonborn-pyromancer-v4";
+const CACHE_NAME = "dragonborn-pyromancer-v5";
 const ASSETS = [
   "./",
   "./index_enemy_boss_escalation_rebuild.html",
@@ -49,13 +49,12 @@ self.addEventListener("fetch", event => {
   }
 
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request).then(resp => {
+    caches.match(event.request).then(cached =>
+      fetch(event.request).then(resp => {
         const copy = resp.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
         return resp;
-      });
-    }).catch(() => caches.match("./index_enemy_boss_escalation_rebuild.html"))
+      }).catch(() => cached || Response.error())
+    )
   );
 });

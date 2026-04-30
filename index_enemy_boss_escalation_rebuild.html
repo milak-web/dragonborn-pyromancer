@@ -659,8 +659,14 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 
+const ASSET_VERSION = '2026-05-01-v5';
+
+function versionedAssetSrc(src) {
+    return src.includes('?') ? `${src}&v=${ASSET_VERSION}` : `${src}?v=${ASSET_VERSION}`;
+}
+
 function spriteAsset(src, options = {}) {
-    return { src, img: null, canvas: null, loaded: false, keyTransparent: !!options.keyTransparent };
+    return { src: versionedAssetSrc(src), img: null, canvas: null, loaded: false, keyTransparent: !!options.keyTransparent };
 }
 
 const SHIP_ASSETS = {
@@ -672,6 +678,20 @@ const SHIP_ASSETS = {
 };
 
 const ENEMY_ASSETS = {
+    // Real gameplay enemy type aliases. These must match Enemy.enemyType exactly,
+    // otherwise the game silently falls back to old vector shapes.
+    drone: spriteAsset('assets/enemies/pincer.png', { keyTransparent: true }),
+    stalker: spriteAsset('assets/enemies/blinkStriker.png', { keyTransparent: true }),
+    tank: spriteAsset('assets/enemies/blockader.png', { keyTransparent: true }),
+    weaver: spriteAsset('assets/enemies/swarmMother.png', { keyTransparent: true }),
+    sniper: spriteAsset('assets/enemies/lancer.png', { keyTransparent: true }),
+    flanker: spriteAsset('assets/enemies/phaseRogue.png', { keyTransparent: true }),
+    railgun: spriteAsset('assets/enemies/orbitalGunner.png', { keyTransparent: true }),
+    mineLayer: spriteAsset('assets/enemies/sapper.png', { keyTransparent: true }),
+    splitter: spriteAsset('assets/enemies/nullifier.png', { keyTransparent: true }),
+    bomber: spriteAsset('assets/enemies/sapper.png', { keyTransparent: true }),
+    predator: spriteAsset('assets/enemies/blinkStriker.png', { keyTransparent: true }),
+    carrier: spriteAsset('assets/enemies/juggernautElite.png', { keyTransparent: true }),
     blinkStriker: spriteAsset('assets/enemies/blinkStriker.png', { keyTransparent: true }),
     blockader: spriteAsset('assets/enemies/blockader.png', { keyTransparent: true }),
     gravitySkimmer: spriteAsset('assets/enemies/gravitySkimmer.png', { keyTransparent: true }),
@@ -768,7 +788,7 @@ function getSpriteImage(asset) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=4').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=5').then(reg => reg.update()).catch(() => {});
     });
 }
 
