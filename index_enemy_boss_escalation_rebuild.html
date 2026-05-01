@@ -5079,7 +5079,7 @@ class Enemy {
             if (this.hitFlash > 0) ctx.globalAlpha = 0.86;
             const { w: targetW, h: targetH } = getEntitySpriteDrawSize(this, spriteImage);
             ctx.save();
-            ctx.rotate(-Math.PI * 0.5);
+            ctx.rotate(Math.PI * 0.5);
             ctx.drawImage(spriteImage, -targetW / 2, -targetH / 2, targetW, targetH);
             ctx.restore();
             ctx.globalAlpha = 1;
