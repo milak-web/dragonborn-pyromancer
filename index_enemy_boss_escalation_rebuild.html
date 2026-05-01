@@ -659,7 +659,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 
-const ASSET_VERSION = '2026-05-01-v7';
+const ASSET_VERSION = '2026-05-01-v8';
 
 function versionedAssetSrc(src) {
     return src.includes('?') ? `${src}&v=${ASSET_VERSION}` : `${src}?v=${ASSET_VERSION}`;
@@ -1002,7 +1002,7 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=7').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=8').then(reg => reg.update()).catch(() => {});
     });
 }
 
@@ -2034,23 +2034,23 @@ const UPGRADES_DB = [
     { id: 'dmg', name: 'Kinetic Tuning', desc: '+9% weapon damage. Small alone, dangerous with crit/pierce/weapons.', icon: '💥', rarity: 'common', maxLevel: 10, apply: () => { player.damage *= 1.09; player.upgradeLevels['dmg']++; } },
     { id: 'fireRate', name: 'Accelerator', desc: '+10% fire rate. Smooth ladder scaling, not instant boss deletion.', icon: '⚡', rarity: 'common', maxLevel: 10, apply: () => { player.fireRate *= 0.90; player.upgradeLevels['fireRate']++; } },
     { id: 'speed', name: 'Slipstream', desc: '+7% glide speed and acceleration. Helps dodging, not pure invincibility.', icon: '🚀', rarity: 'common', maxLevel: 8, apply: () => { player.maxSpeed *= 1.07; player.accel *= 1.07; player.upgradeLevels['speed']++; } },
-    { id: 'hp', name: 'Aegis Plating', desc: '+32 Max HP and heal 25% missing HP.', icon: '🛡️', rarity: 'common', maxLevel: 9, apply: () => { const missing = player.maxHp - player.hp; player.maxHp += 32; player.hp = Math.min(player.maxHp, player.hp + 24 + missing * 0.25); player.upgradeLevels['hp']++; } },
+    { id: 'hp', name: 'Aegis Plating', desc: '+30 Max HP and heal 25% missing HP.', icon: '🛡️', rarity: 'common', maxLevel: 9, apply: () => { const missing = player.maxHp - player.hp; player.maxHp += 30; player.hp = Math.min(player.maxHp, player.hp + 22 + missing * 0.25); player.upgradeLevels['hp']++; } },
     { id: 'repairNanites', name: 'Repair Nanites', desc: 'Slowly regenerates HP after avoiding damage for 3.2s. Safe sustain, not immortality.', icon: '🧬', rarity: 'common', maxLevel: 4, apply: () => { player.coreRegenLevel = (player.coreRegenLevel || 0) + 1; player.upgradeLevels['repairNanites'] = (player.upgradeLevels['repairNanites'] || 0) + 1; } },
     { id: 'targetingMatrix', name: 'Targeting Matrix', desc: '+10% attack range and faster main-shot velocity. Makes weapons feel reliable early.', icon: '🎯', rarity: 'common', maxLevel: 4, apply: () => { player.attackRange *= 1.10; player.projectileSpeedBonus = (player.projectileSpeedBonus || 0) + 0.08; player.upgradeLevels['targetingMatrix'] = (player.upgradeLevels['targetingMatrix'] || 0) + 1; } },
     { id: 'stabilizedReactor', name: 'Stabilized Reactor', desc: '+7% max HP and 4% damage resistance. Good survival core for wave 8+.', icon: '🧿', rarity: 'common', maxLevel: 4, apply: () => { player.maxHp *= 1.07; player.hp = Math.min(player.maxHp, player.hp + player.maxHp * 0.07); player.damageReductionLevel = (player.damageReductionLevel || 0) + 1; player.upgradeLevels['stabilizedReactor'] = (player.upgradeLevels['stabilizedReactor'] || 0) + 1; } },
     { id: 'xpCondenser', name: 'XP Condenser', desc: '+12% XP pickup value and +12% magnet range. Faster builds without raw damage abuse.', icon: '🔷', rarity: 'common', maxLevel: 3, apply: () => { player.xpGainBonus = (player.xpGainBonus || 0) + 0.12; player.baseMagnetRange *= 1.12; player.upgradeLevels['xpCondenser'] = (player.upgradeLevels['xpCondenser'] || 0) + 1; } },
     { id: 'pierce', name: 'Tungsten Dart', desc: 'Main shots pierce +1 target. Strong with lined-up swarms.', icon: '☄️', rarity: 'rare', maxLevel: 4, apply: () => { player.pierce += 1; player.upgradeLevels['pierce']++; } },
-    { id: 'projectiles', name: 'Split Chamber', desc: '+1 projectile, but -10% damage per shot. Strong only with support upgrades.', icon: '🔱', rarity: 'rare', maxLevel: 4, apply: () => { player.multishot += 1; player.damage *= 0.90; player.upgradeLevels['projectiles']++; } },
+    { id: 'projectiles', name: 'Split Chamber', desc: '+1 projectile, but only -5% damage per shot. Strong with support upgrades.', icon: '🔱', rarity: 'rare', maxLevel: 4, apply: () => { player.multishot += 1; player.damage *= 0.95; player.upgradeLevels['projectiles']++; } },
 
     { id: 'rocketLauncher', weapon: true, name: 'Rocket Launcher', desc: 'Passive weapon. Auto-fires stronger homing rockets with splash. Lv.5 = dual rockets.', icon: '🚀', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('rocketLauncher'); player.upgradeLevels['rocketLauncher'] = (player.upgradeLevels['rocketLauncher'] || 0) + 1; } },
-    { id: 'pulseMines', weapon: true, name: 'Pulse Mines', desc: 'Passive weapon. Drops stronger shock mines that control chasing swarms.', icon: '💣', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('pulseMines'); player.upgradeLevels['pulseMines'] = (player.upgradeLevels['pulseMines'] || 0) + 1; } },
-    { id: 'railgun', weapon: true, name: 'Railgun Array', desc: 'Passive weapon. Fires high-damage piercing rail shots at distant threats.', icon: '▰', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('railgun'); player.upgradeLevels['railgun'] = (player.upgradeLevels['railgun'] || 0) + 1; } },
-    { id: 'teslaCoil', weapon: true, name: 'Tesla Coil', desc: 'Passive weapon. Zaps multiple nearby enemies and slows evolved targets.', icon: '⚡', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('teslaCoil'); player.upgradeLevels['teslaCoil'] = (player.upgradeLevels['teslaCoil'] || 0) + 1; } },
-    { id: 'plasmaRing', weapon: true, name: 'Plasma Ring', desc: 'Passive weapon. Emits wider expanding rings that punish surround swarms.', icon: '⭕', rarity: 'legendary', maxLevel: 5, apply: () => { player.addPassiveWeapon('plasmaRing'); player.upgradeLevels['plasmaRing'] = (player.upgradeLevels['plasmaRing'] || 0) + 1; } },
-    { id: 'droneBay', weapon: true, name: 'Drone Bay', desc: 'Passive weapon. Deploys longer-lived combat drones around you.', icon: '🛠️', rarity: 'legendary', maxLevel: 5, apply: () => { player.addPassiveWeapon('droneBay'); player.upgradeLevels['droneBay'] = (player.upgradeLevels['droneBay'] || 0) + 1; } },
-    { id: 'flakCannon', weapon: true, name: 'Flak Cannon', desc: 'Passive weapon. Fires heavier cone bursts when enemies close in.', icon: '✹', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('flakCannon'); player.upgradeLevels['flakCannon'] = (player.upgradeLevels['flakCannon'] || 0) + 1; } },
-    { id: 'ionScythe', weapon: true, name: 'Ion Scythe', desc: 'Passive weapon. Sweeping energy wave around the ship every few seconds.', icon: '☾', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('ionScythe'); player.upgradeLevels['ionScythe'] = (player.upgradeLevels['ionScythe'] || 0) + 1; } },
-    { id: 'gravityEmitter', weapon: true, name: 'Gravity Emitter', desc: 'Passive weapon. Creates stronger pull pulses that group enemies for combos.', icon: '🕳️', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('gravityEmitter'); player.upgradeLevels['gravityEmitter'] = (player.upgradeLevels['gravityEmitter'] || 0) + 1; } },
+    { id: 'pulseMines', weapon: true, name: 'Pulse Mines', desc: 'Passive weapon. Drops stronger shock mines that control chasing swarms. Lv.5 = twin mines.', icon: '💣', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('pulseMines'); player.upgradeLevels['pulseMines'] = (player.upgradeLevels['pulseMines'] || 0) + 1; } },
+    { id: 'railgun', weapon: true, name: 'Railgun Array', desc: 'Passive weapon. Fires high-damage piercing rail shots at distant threats. Lv.5 = double rail.', icon: '▰', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('railgun'); player.upgradeLevels['railgun'] = (player.upgradeLevels['railgun'] || 0) + 1; } },
+    { id: 'teslaCoil', weapon: true, name: 'Tesla Coil', desc: 'Passive weapon. Zaps multiple nearby enemies. Lv.5 = brief shock slow.', icon: '⚡', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('teslaCoil'); player.upgradeLevels['teslaCoil'] = (player.upgradeLevels['teslaCoil'] || 0) + 1; } },
+    { id: 'plasmaRing', weapon: true, name: 'Plasma Ring', desc: 'Passive weapon. Emits wider expanding rings that punish surround swarms. Lv.5 = echo ring.', icon: '⭕', rarity: 'legendary', maxLevel: 5, apply: () => { player.addPassiveWeapon('plasmaRing'); player.upgradeLevels['plasmaRing'] = (player.upgradeLevels['plasmaRing'] || 0) + 1; } },
+    { id: 'droneBay', weapon: true, name: 'Drone Bay', desc: 'Passive weapon. Deploys longer-lived combat drones around you. Lv.5 = sixth drone.', icon: '🛠️', rarity: 'legendary', maxLevel: 5, apply: () => { player.addPassiveWeapon('droneBay'); player.upgradeLevels['droneBay'] = (player.upgradeLevels['droneBay'] || 0) + 1; } },
+    { id: 'flakCannon', weapon: true, name: 'Flak Cannon', desc: 'Passive weapon. Fires heavier cone bursts when enemies close in. Lv.5 = piercing pellets.', icon: '✹', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('flakCannon'); player.upgradeLevels['flakCannon'] = (player.upgradeLevels['flakCannon'] || 0) + 1; } },
+    { id: 'ionScythe', weapon: true, name: 'Ion Scythe', desc: 'Passive weapon. Sweeping energy wave around the ship every few seconds. Lv.5 = echo sweep.', icon: '☾', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('ionScythe'); player.upgradeLevels['ionScythe'] = (player.upgradeLevels['ionScythe'] || 0) + 1; } },
+    { id: 'gravityEmitter', weapon: true, name: 'Gravity Emitter', desc: 'Passive weapon. Creates stronger pull pulses that group enemies for combos. Lv.5 = secondary pull.', icon: '🕳️', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('gravityEmitter'); player.upgradeLevels['gravityEmitter'] = (player.upgradeLevels['gravityEmitter'] || 0) + 1; } },
 
     { id: 'blade', name: 'Orbitals', desc: 'Adds a defensive blade. Blocks bullets and rewards close dodging.', icon: '🌀', rarity: 'rare', maxLevel: 5, apply: () => { player.blades++; player.upgradeLevels['blade']++; } },
     { id: 'lightning', name: 'Volt Chain', desc: 'Bullets arc to a nearby foe for 30% damage.', icon: '🌩️', rarity: 'rare', maxLevel: 1, apply: () => { player.hasLightning = true; player.upgradeLevels['lightning']++; } },
@@ -2082,7 +2082,7 @@ const UPGRADES_DB = [
 
     { id: 'lifesteal', name: 'Vampiric Link', desc: '+3.5% chance to heal 1 HP on kill. Survival tool, not immortality.', icon: '🧛', rarity: 'rare', maxLevel: 6, apply: () => { player.lifesteal = (player.lifesteal || 0) + 0.035; player.upgradeLevels['lifesteal'] = (player.upgradeLevels['lifesteal'] || 0) + 1; } },
     { id: 'bounce', name: 'Ricochet', desc: 'Bullets bounce once. Best with pierce, weak alone.', icon: '🎾', rarity: 'legendary', maxLevel: 1, apply: () => { player.hasBounce = true; player.upgradeLevels['bounce'] = (player.upgradeLevels['bounce'] || 0) + 1; } },
-    { id: 'slow', name: 'Temporal Field', desc: 'Enemies near you are 16% slower. Positioning tool, not freeze aura.', icon: '⏳', rarity: 'legendary', maxLevel: 1, apply: () => { player.hasSlowField = true; player.upgradeLevels['slow'] = (player.upgradeLevels['slow'] || 0) + 1; } },
+    { id: 'slow', name: 'Temporal Field', desc: 'Enemies near you are 10% slower per level. Max 30% at Lv.3.', icon: '⏳', rarity: 'legendary', maxLevel: 3, apply: () => { player.hasSlowField = true; player.slowFieldLevel = Math.min(3, (player.slowFieldLevel || 0) + 1); player.upgradeLevels['slow'] = (player.upgradeLevels['slow'] || 0) + 1; } },
     { id: 'crit', name: 'Focus Chip', desc: '+5% chance for 2.3x critical damage.', icon: '🎯', rarity: 'rare', maxLevel: 7, apply: () => { player.critChance = (player.critChance || 0) + 0.05; player.critMult = Math.max(player.critMult || 2.3, 2.3); player.upgradeLevels['crit'] = (player.upgradeLevels['crit'] || 0) + 1; } },
     { id: 'shield', name: 'Energy Shield', desc: '+1 bullet block. Max 5 blocks.', icon: '💠', rarity: 'rare', maxLevel: 5, apply: () => { player.shieldHits = Math.min(5, player.shieldHits + 1); player.maxShieldHits = Math.max(player.maxShieldHits, player.shieldHits); player.upgradeLevels['shield'] = (player.upgradeLevels['shield'] || 0) + 1; } }
 ];
@@ -2103,12 +2103,12 @@ function getUpgradeCategory(upg, isEvo = false) {
     if (upg.weapon) return 'WEAPON';
     if (upg.name && upg.name.startsWith('EVO:')) return 'EVOLUTION';
     const id = upg.id;
-    const surgeIds = new Set(['surgeUp','surgeConduit','surgeGuard','surgeEcho','coreDetonation','emergencySurge','surgeField']);
-    const dashIds = new Set(['dashTrail','vectorBrake','closeCall','phaseCut','momentumCore','phase']);
+    const surgeIds = new Set(['surgeConduit','surgeGuard','surgeEcho','coreDetonation','closeCall']);
+    const dashIds = new Set(['dashTrail','vectorBrake','phaseCut']);
     const envIds = new Set(['gravityAnchor','solarCapacitor','empInsulation']);
-    const defenseIds = new Set(['hp','shield','lifesteal','slow']);
-    const coreIds = new Set(['dmg','fireRate','speed','repairNanites','targetingMatrix','stabilizedReactor','xpCondenser']);
-    const bulletIds = new Set(['pierce','projectiles','bounce','crit','lightning','shatter','blade']);
+    const defenseIds = new Set(['hp','shield','lifesteal','slow','phase','emergencySurge','surgeField']);
+    const coreIds = new Set(['dmg','fireRate','speed','repairNanites','targetingMatrix','stabilizedReactor','xpCondenser','surgeUp']);
+    const bulletIds = new Set(['pierce','projectiles','bounce','crit','lightning','shatter','blade','momentumCore']);
     if (surgeIds.has(id)) return 'SURGE';
     if (dashIds.has(id)) return 'DASH';
     if (envIds.has(id)) return 'ENVIRONMENT';
@@ -2508,6 +2508,7 @@ class Player {
         this.hasVoidPulse = false;
         this.hasBounce = false;
         this.hasSlowField = false;
+        this.slowFieldLevel = 0;
         this.lifesteal = 0;
         this.critChance = 0;
         this.shieldHits = 0;
@@ -3044,9 +3045,14 @@ class Player {
         const mineLevel = this.passiveWeapons.pulseMines || 0;
         if (mineLevel > 0 && tick('pulseMines', Math.max(950, 3200 - mineLevel * 390))) {
             const back = this.angle + Math.PI;
-            const mine = new PulseMine(this.x + Math.cos(back) * 36, this.y + Math.sin(back) * 36, this.damage * (1.55 + mineLevel * 0.25), 170 + mineLevel * 22, '#ec4899');
-            playerProjectiles.push(mine);
-            createParticles(mine.x, mine.y, '#ec4899', 8, 250);
+            const mineCount = mineLevel >= 5 ? 2 : 1;
+            for (let i = 0; i < mineCount; i++) {
+                const spread = mineCount === 1 ? 0 : (i === 0 ? -0.55 : 0.55);
+                const dropAngle = back + spread;
+                const mine = new PulseMine(this.x + Math.cos(dropAngle) * 44, this.y + Math.sin(dropAngle) * 44, this.damage * (1.55 + mineLevel * 0.25), 170 + mineLevel * 22, '#ec4899');
+                playerProjectiles.push(mine);
+                createParticles(mine.x, mine.y, '#ec4899', 8, 250);
+            }
         }
 
         const railLevel = this.passiveWeapons.railgun || 0;
@@ -3054,11 +3060,15 @@ class Player {
             const target = this.findTarget(1350);
             if (target) {
                 const angle = Math.atan2(target.y - this.y, target.x - this.x);
-                const p = new Projectile(this.x, this.y, angle, this.damage * (1.40 + railLevel * 0.22), 2 + railLevel, true, 2400);
-                p.life = 0.9;
-                playerProjectiles.push(p);
+                const rails = railLevel >= 5 ? 2 : 1;
+                for (let i = 0; i < rails; i++) {
+                    const railAngle = angle + (rails === 1 ? 0 : (i === 0 ? -0.045 : 0.045));
+                    const p = new Projectile(this.x, this.y, railAngle, this.damage * (1.40 + railLevel * 0.22), 2 + railLevel, true, 2400);
+                    p.life = 0.9;
+                    playerProjectiles.push(p);
+                }
                 if (this.weaponEvolutions.railgun === 'overcharge') playerProjectiles.push(new PulseWave(target.x, target.y, this.damage * 0.62, 120, '#f8fafc'));
-                createParticles(this.x, this.y, '#f8fafc', 8, 200, angle);
+                createParticles(this.x, this.y, '#f8fafc', 8 + rails * 2, 200, angle);
             }
         }
 
@@ -3066,30 +3076,34 @@ class Player {
         if (teslaLevel > 0 && tick('teslaCoil', Math.max(760, 2350 - teslaLevel * 290))) {
             let hits = 0;
             const range = 270 + teslaLevel * 42;
-            const maxHits = 2 + teslaLevel;
+            const maxHits = 2 + teslaLevel + (teslaLevel >= 5 ? 2 : 0);
             let targets = entities.filter(e => e.type === TYPE.ENEMY && Math.hypot(e.x - this.x, e.y - this.y) < range)
                                   .sort((a,b) => Math.hypot(a.x-this.x,a.y-this.y) - Math.hypot(b.x-this.x,b.y-this.y))
                                   .slice(0, maxHits);
             targets.forEach(e => {
                 e.takeDamage(this.damage * (0.65 + teslaLevel * 0.12));
                 if (this.weaponEvolutions.teslaCoil === 'web') e.vectorBrakeTimer = Math.max(e.vectorBrakeTimer || 0, 900);
+                else if (teslaLevel >= 5) e.vectorBrakeTimer = Math.max(e.vectorBrakeTimer || 0, 350);
                 hits++;
                 if (!lowPerfMode) {
                     particles.push(new Particle(e.x, e.y, '#38bdf8', 0.8, 180));
                 }
             });
-            if (hits) { createParticles(this.x, this.y, '#38bdf8', 10, 220); addShake(3); }
+            if (hits) { createParticles(this.x, this.y, '#38bdf8', 10 + teslaLevel, 220); addShake(3); }
         }
 
         const ringLevel = this.passiveWeapons.plasmaRing || 0;
         if (ringLevel > 0 && tick('plasmaRing', Math.max(this.weaponEvolutions.plasmaRing === 'nova' ? 1750 : 1150, 3800 - ringLevel * 460))) {
-            playerProjectiles.push(new PulseWave(this.x, this.y, this.damage * (1.15 + ringLevel * 0.19) * (this.weaponEvolutions.plasmaRing === 'nova' ? 1.18 : 1), 285 + ringLevel * 55 + (this.weaponEvolutions.plasmaRing === 'nova' ? 90 : 0), '#a855f7'));
-            addShake(6);
+            const ringDamage = this.damage * (1.15 + ringLevel * 0.19) * (this.weaponEvolutions.plasmaRing === 'nova' ? 1.18 : 1);
+            const ringRadius = 285 + ringLevel * 55 + (this.weaponEvolutions.plasmaRing === 'nova' ? 90 : 0);
+            playerProjectiles.push(new PulseWave(this.x, this.y, ringDamage, ringRadius, '#a855f7'));
+            if (ringLevel >= 5) playerProjectiles.push(new PulseWave(this.x, this.y, ringDamage * 0.48, ringRadius * 0.68, '#f0abfc'));
+            addShake(ringLevel >= 5 ? 8 : 6);
         }
 
         const droneLevel = this.passiveWeapons.droneBay || 0;
         if (droneLevel > 0 && tick('droneBay', Math.max(1700, 5600 - droneLevel * 610))) {
-            const maxDrones = 1 + Math.min(4, droneLevel);
+            const maxDrones = droneLevel >= 5 ? 6 : 1 + Math.min(4, droneLevel);
             const currentPassive = this.drones.filter(d => d.fromWeapon).length;
             if (currentPassive < maxDrones) {
                 let d = new Drone(this.x, this.y, this);
@@ -3111,19 +3125,21 @@ class Player {
                 const pellets = 4 + Math.min(5, flakLevel);
                 for (let i = 0; i < pellets; i++) {
                     const spread = (i - (pellets - 1) / 2) * 0.16;
-                    const p = new Projectile(this.x, this.y, base + spread, this.damage * (0.46 + flakLevel * 0.06), 0, true, 980 + flakLevel * 50);
-                    p.life = 0.45;
+                    const p = new Projectile(this.x, this.y, base + spread, this.damage * (0.46 + flakLevel * 0.06), flakLevel >= 5 ? 1 : 0, true, 980 + flakLevel * 50);
+                    p.life = flakLevel >= 5 ? 0.52 : 0.45;
                     playerProjectiles.push(p);
                 }
-                createParticles(this.x, this.y, '#fb923c', 7, 160, base);
+                createParticles(this.x, this.y, '#fb923c', flakLevel >= 5 ? 11 : 7, 160, base);
             }
         }
 
         const scytheLevel = this.passiveWeapons.ionScythe || 0;
         if (scytheLevel > 0 && tick('ionScythe', Math.max(1150, 3350 - scytheLevel * 360))) {
             const radius = 150 + scytheLevel * 30;
-            playerProjectiles.push(new PulseWave(this.x, this.y, this.damage * (0.75 + scytheLevel * 0.11), radius, '#67e8f9'));
-            createParticles(this.x, this.y, '#67e8f9', 12, 220);
+            const sweepDamage = this.damage * (0.75 + scytheLevel * 0.11);
+            playerProjectiles.push(new PulseWave(this.x, this.y, sweepDamage, radius, '#67e8f9'));
+            if (scytheLevel >= 5) playerProjectiles.push(new PulseWave(this.x, this.y, sweepDamage * 0.55, radius + 70, '#cffafe'));
+            createParticles(this.x, this.y, '#67e8f9', scytheLevel >= 5 ? 18 : 12, 220);
         }
 
         const gravityLevel = this.passiveWeapons.gravityEmitter || 0;
@@ -3134,7 +3150,14 @@ class Player {
                 s.life = 1250 + gravityLevel * 170;
                 s.radius = 120 + gravityLevel * 18;
                 playerProjectiles.push(s);
-                createParticles(target.x, target.y, '#a855f7', 10, 220);
+                if (gravityLevel >= 5) {
+                    const splitAngle = Math.atan2(target.y - this.y, target.x - this.x) + Math.PI / 2;
+                    const echo = new Singularity(target.x + Math.cos(splitAngle) * 95, target.y + Math.sin(splitAngle) * 95, this.damage * 0.85);
+                    echo.life = 900;
+                    echo.radius = 95;
+                    playerProjectiles.push(echo);
+                }
+                createParticles(target.x, target.y, '#a855f7', gravityLevel >= 5 ? 16 : 10, 220);
             }
         }
     }
@@ -4644,8 +4667,9 @@ class Enemy {
         if (isChronoActive || this.isFrozen) timeScale = 0; // Freeze in time
 
         if (target.hasSlowField && distToPlayer < 400) {
-            timeScale *= 0.7; // 30% slower
-            if (Math.random() < 0.05) createParticles(this.x, this.y, '#3b82f6', 1, 100);
+            const slowLevel = Math.min(3, target.slowFieldLevel || target.upgradeLevels?.slow || 1);
+            timeScale *= Math.max(0.7, 1 - slowLevel * 0.10);
+            if (Math.random() < 0.035 + slowLevel * 0.008) createParticles(this.x, this.y, '#3b82f6', 1, 100);
         }
 
         if (speed > this.maxSpeed) {
