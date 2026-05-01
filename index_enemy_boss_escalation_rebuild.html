@@ -659,14 +659,21 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 
-const ASSET_VERSION = '2026-05-01-v5';
+const ASSET_VERSION = '2026-05-01-v6';
 
 function versionedAssetSrc(src) {
     return src.includes('?') ? `${src}&v=${ASSET_VERSION}` : `${src}?v=${ASSET_VERSION}`;
 }
 
 function spriteAsset(src, options = {}) {
-    return { src: versionedAssetSrc(src), img: null, canvas: null, loaded: false, keyTransparent: !!options.keyTransparent };
+    return {
+        src: versionedAssetSrc(src),
+        img: null,
+        canvas: null,
+        loaded: false,
+        keyTransparent: !!options.keyTransparent,
+        maxSize: options.maxSize || 512
+    };
 }
 
 const SHIP_ASSETS = {
@@ -678,41 +685,60 @@ const SHIP_ASSETS = {
 };
 
 const ENEMY_ASSETS = {
-    // Real gameplay enemy type aliases. These must match Enemy.enemyType exactly,
-    // otherwise the game silently falls back to old vector shapes.
-    drone: spriteAsset('assets/enemies/pincer.png', { keyTransparent: true }),
-    stalker: spriteAsset('assets/enemies/blinkStriker.png', { keyTransparent: true }),
-    tank: spriteAsset('assets/enemies/blockader.png', { keyTransparent: true }),
-    weaver: spriteAsset('assets/enemies/swarmMother.png', { keyTransparent: true }),
-    sniper: spriteAsset('assets/enemies/lancer.png', { keyTransparent: true }),
-    flanker: spriteAsset('assets/enemies/phaseRogue.png', { keyTransparent: true }),
-    railgun: spriteAsset('assets/enemies/orbitalGunner.png', { keyTransparent: true }),
-    mineLayer: spriteAsset('assets/enemies/sapper.png', { keyTransparent: true }),
-    splitter: spriteAsset('assets/enemies/nullifier.png', { keyTransparent: true }),
-    bomber: spriteAsset('assets/enemies/sapper.png', { keyTransparent: true }),
-    predator: spriteAsset('assets/enemies/blinkStriker.png', { keyTransparent: true }),
-    carrier: spriteAsset('assets/enemies/juggernautElite.png', { keyTransparent: true }),
-    blinkStriker: spriteAsset('assets/enemies/blinkStriker.png', { keyTransparent: true }),
-    blockader: spriteAsset('assets/enemies/blockader.png', { keyTransparent: true }),
-    gravitySkimmer: spriteAsset('assets/enemies/gravitySkimmer.png', { keyTransparent: true }),
-    juggernautElite: spriteAsset('assets/enemies/juggernautElite.png', { keyTransparent: true }),
-    lancer: spriteAsset('assets/enemies/lancer.png', { keyTransparent: true }),
-    laserSentry: spriteAsset('assets/enemies/laserSentry.png', { keyTransparent: true }),
-    nullifier: spriteAsset('assets/enemies/nullifier.png', { keyTransparent: true }),
-    orbitalGunner: spriteAsset('assets/enemies/orbitalGunner.png', { keyTransparent: true }),
-    phaseRogue: spriteAsset('assets/enemies/phaseRogue.png', { keyTransparent: true }),
-    pincer: spriteAsset('assets/enemies/pincer.png', { keyTransparent: true }),
-    repairDrone: spriteAsset('assets/enemies/repairDrone.png', { keyTransparent: true }),
-    sapper: spriteAsset('assets/enemies/sapper.png', { keyTransparent: true }),
-    sentinel: spriteAsset('assets/enemies/sentinel.png', { keyTransparent: true }),
-    shieldbearer: spriteAsset('assets/enemies/shieldbearer.png', { keyTransparent: true }),
-    swarmMother: spriteAsset('assets/enemies/swarmMother.png', { keyTransparent: true }),
-    voidLeech: spriteAsset('assets/enemies/voidLeech.png', { keyTransparent: true })
+    // One-to-one gameplay mappings. These keys must match Enemy.enemyType.
+    drone: spriteAsset('assets/enemies/drone.png'),
+    stalker: spriteAsset('assets/enemies/stalker.png'),
+    tank: spriteAsset('assets/enemies/tank.png'),
+    flanker: spriteAsset('assets/enemies/flanker.png'),
+    pincer: spriteAsset('assets/enemies/pincer.png'),
+    bomber: spriteAsset('assets/enemies/bomber.png'),
+    weaver: spriteAsset('assets/enemies/weaver.png'),
+    blockader: spriteAsset('assets/enemies/blockader.png'),
+    lancer: spriteAsset('assets/enemies/lancer.png'),
+    sniper: spriteAsset('assets/enemies/sniper.png'),
+    shieldbearer: spriteAsset('assets/enemies/shieldbearer.png'),
+    shieldbearerBroken: spriteAsset('assets/enemies/shieldbearerBroken.png'),
+    repairDrone: spriteAsset('assets/enemies/repairDrone.png'),
+    predator: spriteAsset('assets/enemies/predator.png'),
+    blinkStriker: spriteAsset('assets/enemies/blinkStriker.png'),
+    nullifier: spriteAsset('assets/enemies/nullifier.png'),
+    phaseRogue: spriteAsset('assets/enemies/phaseRogue.png'),
+    orbitalGunner: spriteAsset('assets/enemies/orbitalGunner.png'),
+    carrier: spriteAsset('assets/enemies/carrier.png'),
+    voidLeech: spriteAsset('assets/enemies/voidLeech.png'),
+    gravitySkimmer: spriteAsset('assets/enemies/gravitySkimmer.png'),
+    splitter: spriteAsset('assets/enemies/splitter.png'),
+    laserSentry: spriteAsset('assets/enemies/laserSentry.png'),
+    juggernautElite: spriteAsset('assets/enemies/juggernautElite.png'),
+    sapper: spriteAsset('assets/enemies/sapper.png'),
+    swarmMother: spriteAsset('assets/enemies/swarmMother.png'),
+    railgun: spriteAsset('assets/enemies/railgun.png'),
+    mineLayer: spriteAsset('assets/enemies/mineLayer.png'),
+    sentinel: spriteAsset('assets/enemies/sentinel.png')
 };
 
 const BOSS_ASSETS = {
-    construct: spriteAsset('assets/bosses/construct.png', { keyTransparent: true })
+    construct: spriteAsset('assets/bosses/construct.png', { keyTransparent: true }),
+    sentinel: spriteAsset('assets/bosses/sentinel.png', { keyTransparent: true }),
+    hypercore: spriteAsset('assets/bosses/hypercore.png', { keyTransparent: true }),
+    vortex: spriteAsset('assets/bosses/vortex.png', { keyTransparent: true }),
+    artillery: spriteAsset('assets/bosses/artillery.png', { keyTransparent: true })
 };
+
+function scaleSpriteSource(img, maxSize = 512) {
+    const w = img.naturalWidth || img.width;
+    const h = img.naturalHeight || img.height;
+    if (!w || !h || Math.max(w, h) <= maxSize) return img;
+    const scale = maxSize / Math.max(w, h);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(w * scale));
+    canvas.height = Math.max(1, Math.round(h * scale));
+    const c = canvas.getContext('2d');
+    c.imageSmoothingEnabled = true;
+    c.imageSmoothingQuality = 'high';
+    c.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas;
+}
 
 function knockOutBorderBlack(img, threshold = 28) {
     const w = img.naturalWidth || img.width;
@@ -776,11 +802,28 @@ function getLoadedSprite(collection, key) {
     return asset && asset.loaded && image && width > 0 ? asset : null;
 }
 
+function getEnemySpriteKey(enemy) {
+    if (!enemy) return null;
+    if (enemy.enemyType === 'shieldbearer') {
+        const shieldGone = enemy.guardShieldBroken || (enemy.guardShieldHp !== undefined && enemy.guardShieldHp <= 0);
+        const badlyDamaged = enemy.maxHp && enemy.hp <= enemy.maxHp * 0.45;
+        if (shieldGone || badlyDamaged) return 'shieldbearerBroken';
+    }
+    return enemy.enemyType;
+}
+
 function getSpriteImage(asset) {
-    if (!asset || !asset.loaded || !asset.img) return null;
-    if (asset.keyTransparent && !asset.canvas) {
-        try { asset.canvas = knockOutBorderBlack(asset.img); }
-        catch(e) { asset.canvas = null; }
+    if (!asset || !asset.loaded) return null;
+    if (asset.canvas) return asset.canvas;
+    if (!asset.img) return null;
+    if (!asset.canvas) {
+        try {
+            const scaled = scaleSpriteSource(asset.img, asset.maxSize);
+            asset.canvas = asset.keyTransparent ? knockOutBorderBlack(scaled) : scaled;
+            if (asset.canvas !== asset.img) asset.img = null;
+        } catch(e) {
+            asset.canvas = null;
+        }
     }
     return asset.canvas || asset.img;
 }
@@ -788,7 +831,7 @@ function getSpriteImage(asset) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=5').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=6').then(reg => reg.update()).catch(() => {});
     });
 }
 
@@ -4460,6 +4503,20 @@ class Enemy {
 
     takeDamage(amount) {
         if (this.spawnTimer > 0) return;
+        if (this.enemyType === 'shieldbearer' && (this.guardShieldHp || 0) > 0) {
+            this.guardShieldHp -= amount;
+            this.hitFlash = 120;
+            createParticles(this.x, this.y, '#38bdf8', 8, 240);
+            if (this.guardShieldHp <= 0) {
+                this.guardShieldHp = 0;
+                this.guardShieldBroken = true;
+                floatingTexts.push(new FloatingText(this.x, this.y - this.radius - 10, "SHIELD BROKEN", '#38bdf8'));
+                amount *= 0.35;
+            } else {
+                floatingTexts.push(new FloatingText(this.x, this.y - this.radius - 10, "GUARDED", '#38bdf8'));
+                return;
+            }
+        }
         if (this.mutator && this.mutator.name === 'SHIELDED' && this.shield > 0) {
             this.shield--;
             this.hitFlash = 100;
@@ -4632,7 +4689,7 @@ class Enemy {
 
         const sprite = this.enemyType === 'boss'
             ? getLoadedSprite(BOSS_ASSETS, this.bossType)
-            : getLoadedSprite(ENEMY_ASSETS, this.enemyType);
+            : getLoadedSprite(ENEMY_ASSETS, getEnemySpriteKey(this));
         if (sprite) {
             const spriteImage = getSpriteImage(sprite);
             if (!spriteImage) { ctx.restore(); return; }
@@ -6738,6 +6795,11 @@ function applyEnemyV4Stats(e) {
     e.maxHp = e.hp;
     e.maxSpeed *= speedMult;
     e.xpValue = Math.max(1, Math.floor(e.xpValue * xpMult));
+    if (e.enemyType === 'shieldbearer') {
+        e.guardShieldMax = Math.max(70, e.maxHp * 0.28);
+        e.guardShieldHp = e.guardShieldMax;
+        e.guardShieldBroken = false;
+    }
 
     // Role tags used by the new pack-pressure system.
     if (['pincer','flanker','predator','phaseRogue','blinkStriker','lancer'].includes(e.enemyType)) e.aiRole = 'surround';
