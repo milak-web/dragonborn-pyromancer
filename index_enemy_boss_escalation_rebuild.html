@@ -1145,9 +1145,18 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
     const h = sourceH * scale;
     const x = (WORLD_WIDTH - w) * 0.5;
     const y = (WORLD_HEIGHT - h) * 0.5;
+    // Draw only the visible camera area from the map image to keep frame time stable.
+    const sxRaw = (drawCamX - x) * (sourceW / w);
+    const syRaw = (drawCamY - y) * (sourceH / h);
+    const swRaw = viewW * (sourceW / w);
+    const shRaw = viewH * (sourceH / h);
+    const sx = Math.max(0, Math.min(sourceW - 1, sxRaw));
+    const sy = Math.max(0, Math.min(sourceH - 1, syRaw));
+    const sw = Math.max(1, Math.min(sourceW - sx, swRaw));
+    const sh = Math.max(1, Math.min(sourceH - sy, shRaw));
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(img, x, y, w, h);
+    ctx.drawImage(img, sx, sy, sw, sh, drawCamX, drawCamY, viewW, viewH);
     const grad = ctx.createRadialGradient(cam.x, cam.y, Math.min(viewW, viewH) * 0.22, cam.x, cam.y, Math.max(viewW, viewH) * 0.82);
     grad.addColorStop(0, 'rgba(0,0,0,0)');
     grad.addColorStop(1, 'rgba(0,0,0,0.36)');
@@ -1158,7 +1167,7 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=14').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=15').then(reg => reg.update()).catch(() => {});
     });
 }
 
@@ -1954,9 +1963,9 @@ function getResponsiveStartZoom() {
 
 function getScreenEnemyPressureFactor() {
     const { shortSide, area } = getViewportSize();
-    if (shortSide <= 420 || area <= 260000) return 0.60;
-    if (shortSide <= 560 || area <= 420000) return 0.72;
-    if (shortSide <= 760 || area <= 700000) return 0.84;
+    if (shortSide <= 420 || area <= 260000) return 0.48;
+    if (shortSide <= 560 || area <= 420000) return 0.60;
+    if (shortSide <= 760 || area <= 700000) return 0.74;
     return 1;
 }
 
@@ -2288,10 +2297,24 @@ function getRangedEnemyCap() {
 }
 
 function getEnemyProjectilePressureCap() {
-    if (wave < 10) return 28;
-    if (wave < 15) return 45;
-    if (wave < 20) return 75;
-    return activeBoss ? PERF_LIMITS.maxEnemyProjectilesBoss : PERF_LIMITS.maxEnemyProjectiles;
+    let base = 0;
+    if (wave < 10) base = 28;
+    else if (wave < 15) base = 45;
+    else if (wave < 20) base = 75;
+    else base = activeBoss ? PERF_LIMITS.maxEnemyProjectilesBoss : PERF_LIMITS.maxEnemyProjectiles;
+    const pressure = getScreenEnemyPressureFactor();
+    return Math.max(activeBoss ? 22 : 18, Math.floor(base * pressure));
+}
+
+function getPlayerProjectilePressureCap() {
+    const pressure = getScreenEnemyPressureFactor();
+    return Math.max(95, Math.floor(PERF_LIMITS.maxPlayerProjectiles * (0.70 + pressure * 0.30)));
+}
+
+function getParticlePressureCap() {
+    const pressure = getScreenEnemyPressureFactor();
+    const base = activeBoss ? PERF_LIMITS.maxParticlesBoss : PERF_LIMITS.maxParticlesNormal;
+    return Math.max(120, Math.floor(base * (0.68 + pressure * 0.32)));
 }
 
 
@@ -6722,8 +6745,8 @@ function gameLoop(currentTime) {
     } catch (err) {
         // Runtime safety net: never let one bad frame permanently freeze the run.
         console.error('Frame error recovered:', err);
-        trimArrayOldest(enemyProjectiles, Math.max(40, Math.floor(getEnemyProjectilePressureCap() * 0.6)));
-        trimArrayOldest(particles, Math.max(120, Math.floor((activeBoss ? PERF_LIMITS.maxParticlesBoss : PERF_LIMITS.maxParticlesNormal) * 0.6)));
+        trimArrayOldest(enemyProjectiles, Math.max(32, Math.floor(getEnemyProjectilePressureCap() * 0.6)));
+        trimArrayOldest(particles, Math.max(95, Math.floor(getParticlePressureCap() * 0.6)));
         entities = entities.filter(e => e && !e.dead);
         floatingTexts.push(new FloatingText((player?.x || WORLD_WIDTH/2), (player?.y || WORLD_HEIGHT/2) - 90, 'SYSTEM RECOVERED', '#f59e0b'));
     }
@@ -6872,9 +6895,9 @@ function update(dt) {
 
     updateUI();
 
-    trimArrayOldest(playerProjectiles, PERF_LIMITS.maxPlayerProjectiles);
+    trimArrayOldest(playerProjectiles, getPlayerProjectilePressureCap());
     trimArrayOldest(enemyProjectiles, getEnemyProjectilePressureCap());
-    trimArrayOldest(particles, activeBoss ? PERF_LIMITS.maxParticlesBoss : PERF_LIMITS.maxParticlesNormal);
+    trimArrayOldest(particles, getParticlePressureCap());
 
     for (let i = 0; i < entities.length; i++) {
         const ent = entities[i];
@@ -6913,7 +6936,7 @@ function update(dt) {
 
     trimTransientEntityPressure();
 
-    trimArrayOldest(particles, activeBoss ? PERF_LIMITS.maxParticlesBoss : MAX_PARTICLES);
+    trimArrayOldest(particles, Math.min(getParticlePressureCap(), MAX_PARTICLES));
     if (floatingTexts.length > 50) floatingTexts.splice(0, floatingTexts.length - 50);
 
     entities = entities.filter(ent => !ent.dead);
@@ -6981,7 +7004,11 @@ function updateCamera(dt) {
             : Math.max(shortSide <= 760 ? 0.42 : 0.62, 0.74 - mobileZoomOut - pressureZoomOut));
     const maxZoom = activeBoss ? (shortSide <= 760 ? 0.68 : 0.82) : (living.length > 1 ? (shortSide <= 760 ? 0.74 : 0.90) : (shortSide <= 760 ? 0.78 : 0.98));
     targetCamZoom = Math.max(minZoom, Math.min(maxZoom, desiredZoom - pressureZoomOut));
+    // Never allow camera zoom to show outside world bounds.
+    const worldFitZoom = Math.max(canvas.width / WORLD_WIDTH, canvas.height / WORLD_HEIGHT);
+    targetCamZoom = Math.max(worldFitZoom + 0.002, targetCamZoom);
     camZoom = lerp(camZoom, targetCamZoom, activeBoss ? 0.045 : 0.055);
+    camZoom = Math.max(worldFitZoom + 0.002, camZoom);
 
     // Smooth shake decay. Random shake is applied only in draw and never changes the real camera target.
     if (cam.shake > 0) cam.shake *= 0.78;
