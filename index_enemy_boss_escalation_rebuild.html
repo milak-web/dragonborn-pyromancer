@@ -1183,7 +1183,7 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=16').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=17').then(reg => reg.update()).catch(() => {});
     });
 }
 
@@ -2283,6 +2283,7 @@ let coopMode = false;
 let coopJoinLatch = {};
 let camZoom = 1;
 let targetCamZoom = 1;
+let camEnemyPressure = 0;
 let entities = [];    
 let playerProjectiles = []; 
 let enemyProjectiles = [];
@@ -6649,7 +6650,7 @@ async function startGame() {
     modal.style.opacity = '0';
     setTimeout(() => modal.style.display = 'none', 500);
     
-    score = 0; wave = 1; spawnRate = BALANCE.baseSpawnRate; nextWaveScore = 0; activeBoss = null; coopMode = false; coopJoinLatch = {}; camZoom = getResponsiveStartZoom(); targetCamZoom = camZoom;
+    score = 0; wave = 1; spawnRate = BALANCE.baseSpawnRate; nextWaveScore = 0; activeBoss = null; coopMode = false; coopJoinLatch = {}; camZoom = getResponsiveStartZoom(); targetCamZoom = camZoom; camEnemyPressure = 0;
     waveKills = 0; waveStartTime = performance.now(); bossRewardPending = false; lastWaveProgressCheck = 0; activeSpaceDisaster = null; disasterCooldown = getNextDisasterCooldown(); disasterEventsThisWave = 0; disasterLastWave = -99;
     directorPressure = 0; lastEnemyPressureSpawn = 0; lastXpMergeTime = 0;
     resetDirectorV2State();
@@ -7002,15 +7003,34 @@ function updateCamera(dt) {
 
     // Mobile needs breathing room. Enemy pressure eases the camera out instead of letting swarms fill the screen.
     const { shortSide } = getViewportSize();
+    const isMobileView = shortSide <= 760;
     let nearbyEnemies = 0;
+    let pressureScore = 0;
+    const threatRadius = activeBoss ? 1250 : 960;
     for (const e of entities) {
         if (!e || e.type !== TYPE.ENEMY || e.dead) continue;
+        let minDist = Infinity;
         for (const p of living) {
-            if (Math.hypot(e.x - p.x, e.y - p.y) < (activeBoss ? 1050 : 820)) { nearbyEnemies++; break; }
+            const d = Math.hypot(e.x - p.x, e.y - p.y);
+            minDist = Math.min(minDist, d);
+            if (d < (activeBoss ? 1080 : 860)) { nearbyEnemies++; break; }
+        }
+        if (isFinite(minDist) && minDist < threatRadius) {
+            const proximity = 1 - (minDist / threatRadius);
+            let weight = 0.34 + proximity * 0.96;
+            if (e.isChampion) weight += 0.30;
+            if (e.isElite) weight += 0.16;
+            pressureScore += weight;
         }
     }
+    const targetPressure = Math.min(1, pressureScore / (isMobileView ? 9.5 : 13.5));
+    const pressureLerp = targetPressure > camEnemyPressure
+        ? (isMobileView ? 0.125 : 0.10)
+        : (isMobileView ? 0.065 : 0.05);
+    camEnemyPressure = lerp(camEnemyPressure, targetPressure, pressureLerp);
     const mobileZoomOut = shortSide <= 420 ? 0.22 : shortSide <= 560 ? 0.17 : shortSide <= 760 ? 0.11 : 0;
-    const pressureZoomOut = Math.min(shortSide <= 760 ? 0.20 : 0.11, nearbyEnemies * (shortSide <= 760 ? 0.006 : 0.0035));
+    const enemyCountZoomOut = Math.min(isMobileView ? 0.11 : 0.06, nearbyEnemies * (isMobileView ? 0.0038 : 0.0024));
+    const pressureZoomOut = camEnemyPressure * (isMobileView ? 0.24 : 0.14) + enemyCountZoomOut;
     const minZoom = activeBoss
         ? Math.max(shortSide <= 760 ? 0.30 : 0.36, 0.46 - mobileZoomOut - pressureZoomOut * 0.65)
         : (living.length > 1
