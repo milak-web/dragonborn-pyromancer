@@ -659,7 +659,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 
-const ASSET_VERSION = '2026-05-01-v6';
+const ASSET_VERSION = '2026-05-01-v7';
 
 function versionedAssetSrc(src) {
     return src.includes('?') ? `${src}&v=${ASSET_VERSION}` : `${src}?v=${ASSET_VERSION}`;
@@ -672,7 +672,8 @@ function spriteAsset(src, options = {}) {
         canvas: null,
         loaded: false,
         keyTransparent: !!options.keyTransparent,
-        maxSize: options.maxSize || 512
+        maxSize: options.maxSize || 512,
+        collidable: options.collidable !== false
     };
 }
 
@@ -722,7 +723,18 @@ const BOSS_ASSETS = {
     sentinel: spriteAsset('assets/bosses/sentinel.png', { keyTransparent: true }),
     hypercore: spriteAsset('assets/bosses/hypercore.png', { keyTransparent: true }),
     vortex: spriteAsset('assets/bosses/vortex.png', { keyTransparent: true }),
-    artillery: spriteAsset('assets/bosses/artillery.png', { keyTransparent: true })
+    artillery: spriteAsset('assets/bosses/artillery.png', { keyTransparent: true }),
+    hivequeen: spriteAsset('assets/bosses/hivequeen.png'),
+    mirror: spriteAsset('assets/bosses/mirror.png'),
+    reaper: spriteAsset('assets/bosses/reaper.png'),
+    bulwark: spriteAsset('assets/bosses/bulwark.png'),
+    storm: spriteAsset('assets/bosses/storm.png')
+};
+
+const MAP_ASSETS = {
+    NEON: spriteAsset('assets/maps/neon_abyss.png', { maxSize: 2048, collidable: false }),
+    MAGMA: spriteAsset('assets/maps/magma_core.png', { maxSize: 2048, collidable: false }),
+    HIVE: spriteAsset('assets/maps/toxic_hive.png', { maxSize: 2048, collidable: false })
 };
 
 function scaleSpriteSource(img, maxSize = 512) {
@@ -779,6 +791,36 @@ function knockOutBorderBlack(img, threshold = 28) {
     return canvas;
 }
 
+function buildSpriteCollider(asset) {
+    const img = asset && asset.canvas;
+    if (!img || asset.collider) return;
+    const w = img.width || img.naturalWidth || 0;
+    const h = img.height || img.naturalHeight || 0;
+    if (!w || !h) return;
+    const c = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+    c.canvas.width = w;
+    c.canvas.height = h;
+    c.drawImage(img, 0, 0);
+    const data = c.getImageData(0, 0, w, h).data;
+    let minX = w, minY = h, maxX = -1, maxY = -1;
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+            const p = (y * w + x) * 4;
+            if (data[p + 3] > 28) {
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
+                maxX = Math.max(maxX, x);
+                maxY = Math.max(maxY, y);
+            }
+        }
+    }
+    if (maxX < minX || maxY < minY) return;
+    asset.collider = {
+        widthRatio: Math.max(0.08, Math.min(1, (maxX - minX + 1) / w)),
+        heightRatio: Math.max(0.08, Math.min(1, (maxY - minY + 1) / h))
+    };
+}
+
 function loadAssetCollection(collection) {
     Object.values(collection).forEach(asset => {
         const img = new Image();
@@ -793,6 +835,7 @@ function loadShipAssets() {
     loadAssetCollection(SHIP_ASSETS);
     loadAssetCollection(ENEMY_ASSETS);
     loadAssetCollection(BOSS_ASSETS);
+    loadAssetCollection(MAP_ASSETS);
 }
 
 function getLoadedSprite(collection, key) {
@@ -820,6 +863,7 @@ function getSpriteImage(asset) {
         try {
             const scaled = scaleSpriteSource(asset.img, asset.maxSize);
             asset.canvas = asset.keyTransparent ? knockOutBorderBlack(scaled) : scaled;
+            if (asset.collidable) buildSpriteCollider(asset);
             if (asset.canvas !== asset.img) asset.img = null;
         } catch(e) {
             asset.canvas = null;
@@ -828,10 +872,137 @@ function getSpriteImage(asset) {
     return asset.canvas || asset.img;
 }
 
+const PLAYER_COLLIDER_PROFILES = {
+    striker: { side: 0.74, forward: 0.82, minSide: 12, minForward: 16 },
+    juggernaut: { side: 0.82, forward: 0.80, minSide: 16, minForward: 18 },
+    phantom: { side: 0.62, forward: 0.88, minSide: 10, minForward: 16 },
+    engineer: { side: 0.76, forward: 0.78, minSide: 13, minForward: 16 },
+    playerCoreBlue: { side: 0.74, forward: 0.82, minSide: 12, minForward: 16 }
+};
+
+const ENEMY_COLLIDER_PROFILES = {
+    drone: { side: 0.58, forward: 0.68 }, stalker: { side: 0.48, forward: 0.82 },
+    tank: { side: 0.78, forward: 0.72 }, flanker: { side: 0.52, forward: 0.82 },
+    pincer: { side: 0.55, forward: 0.78 }, bomber: { side: 0.66, forward: 0.76 },
+    weaver: { side: 0.64, forward: 0.72 }, blockader: { side: 0.78, forward: 0.74 },
+    lancer: { side: 0.46, forward: 0.90 }, sniper: { side: 0.44, forward: 0.92 },
+    shieldbearer: { side: 0.78, forward: 0.78 }, shieldbearerBroken: { side: 0.72, forward: 0.74 },
+    repairDrone: { side: 0.58, forward: 0.64 }, predator: { side: 0.50, forward: 0.84 },
+    blinkStriker: { side: 0.48, forward: 0.88 }, nullifier: { side: 0.70, forward: 0.72 },
+    phaseRogue: { side: 0.48, forward: 0.86 }, orbitalGunner: { side: 0.60, forward: 0.78 },
+    carrier: { side: 0.76, forward: 0.76 }, voidLeech: { side: 0.54, forward: 0.78 },
+    gravitySkimmer: { side: 0.66, forward: 0.76 }, splitter: { side: 0.62, forward: 0.76 },
+    laserSentry: { side: 0.56, forward: 0.88 }, juggernautElite: { side: 0.82, forward: 0.82 },
+    sapper: { side: 0.58, forward: 0.78 }, swarmMother: { side: 0.82, forward: 0.76 },
+    railgun: { side: 0.46, forward: 0.92 }, mineLayer: { side: 0.62, forward: 0.76 },
+    sentinel: { side: 0.82, forward: 0.82 },
+    boss: { side: 0.78, forward: 0.82, minSide: 34, minForward: 40 }
+};
+
+function getEntitySpriteAsset(entity) {
+    if (!entity) return null;
+    if (entity.type === TYPE.PLAYER) return SHIP_ASSETS[entity.shipSpriteKey] || SHIP_ASSETS.playerCoreBlue;
+    if (entity.enemyType === 'boss') return BOSS_ASSETS[entity.bossType];
+    return ENEMY_ASSETS[getEnemySpriteKey(entity)];
+}
+
+function getEntitySpriteDrawSize(entity, image) {
+    const imgW = image && (image.naturalWidth || image.width || 0);
+    const imgH = image && (image.naturalHeight || image.height || 0);
+    const ratio = imgW > 0 ? imgH / imgW : 1;
+    if (entity.type === TYPE.PLAYER) {
+        const w = Math.max(56, entity.radius * (entity.shipScaleMul || 4.2));
+        return { w, h: w * ratio };
+    }
+    const isBoss = entity.enemyType === 'boss';
+    const w = Math.max(isBoss ? 170 : 34, entity.radius * (isBoss ? 3.65 : 3.15));
+    return { w, h: w * ratio };
+}
+
+function getEntityColliderProfile(entity) {
+    if (!entity) return {};
+    if (entity.type === TYPE.PLAYER) return PLAYER_COLLIDER_PROFILES[entity.shipSpriteKey] || PLAYER_COLLIDER_PROFILES.playerCoreBlue;
+    if (entity.enemyType === 'boss') return ENEMY_COLLIDER_PROFILES.boss;
+    return ENEMY_COLLIDER_PROFILES[getEnemySpriteKey(entity)] || {};
+}
+
+function getEntityCollider(entity) {
+    const profile = getEntityColliderProfile(entity);
+    const asset = getEntitySpriteAsset(entity);
+    const image = getSpriteImage(asset);
+    if (image && asset && asset.collider) {
+        const size = getEntitySpriteDrawSize(entity, image);
+        const side = Math.max(profile.minSide || 7, size.w * asset.collider.widthRatio * 0.5 * (profile.side || 0.68));
+        const forward = Math.max(profile.minForward || 9, size.h * asset.collider.heightRatio * 0.5 * (profile.forward || 0.76));
+        return { side, forward };
+    }
+    const fallback = entity && entity.radius ? entity.radius : 14;
+    return {
+        side: Math.max(profile.minSide || 7, fallback * (profile.side || 0.78)),
+        forward: Math.max(profile.minForward || 9, fallback * (profile.forward || 0.86))
+    };
+}
+
+function pointHitsEntityCollider(x, y, entity, padding = 0) {
+    if (!entity) return false;
+    const c = getEntityCollider(entity);
+    const a = entity.angle || 0;
+    const cos = Math.cos(a), sin = Math.sin(a);
+    const dx = x - entity.x, dy = y - entity.y;
+    const forward = dx * cos + dy * sin;
+    const side = -dx * sin + dy * cos;
+    const hf = Math.max(1, c.forward + padding);
+    const hs = Math.max(1, c.side + padding);
+    return (forward * forward) / (hf * hf) + (side * side) / (hs * hs) <= 1;
+}
+
+function supportRadiusForCollider(entity, dirX, dirY) {
+    const c = getEntityCollider(entity);
+    const a = entity.angle || 0;
+    const cos = Math.cos(a), sin = Math.sin(a);
+    const forward = dirX * cos + dirY * sin;
+    const side = -dirX * sin + dirY * cos;
+    const denom = (forward * forward) / Math.max(1, c.forward * c.forward) + (side * side) / Math.max(1, c.side * c.side);
+    return denom > 0 ? 1 / Math.sqrt(denom) : Math.min(c.forward, c.side);
+}
+
+function entityCollidersOverlap(a, b, padding = 0) {
+    if (!a || !b) return false;
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist <= 0.001) return true;
+    const nx = dx / dist, ny = dy / dist;
+    const broadA = Math.max(a.radius || 0, getEntityCollider(a).forward, getEntityCollider(a).side);
+    const broadB = Math.max(b.radius || 0, getEntityCollider(b).forward, getEntityCollider(b).side);
+    if (dist > broadA + broadB + padding + 18) return false;
+    return dist <= supportRadiusForCollider(a, nx, ny) + supportRadiusForCollider(b, -nx, -ny) + padding;
+}
+
+function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
+    const asset = MAP_ASSETS[currentBiome.mapKey || 'NEON'];
+    const img = getSpriteImage(asset);
+    if (!img) {
+        ctx.fillStyle = currentBiome.bg;
+        ctx.fillRect(drawCamX, drawCamY, viewW, viewH);
+        return;
+    }
+    const scale = Math.max(WORLD_WIDTH / img.width, WORLD_HEIGHT / img.height);
+    const w = img.width * scale;
+    const h = img.height * scale;
+    const x = (WORLD_WIDTH - w) * 0.5;
+    const y = (WORLD_HEIGHT - h) * 0.5;
+    ctx.drawImage(img, x, y, w, h);
+    const grad = ctx.createRadialGradient(cam.x, cam.y, Math.min(viewW, viewH) * 0.22, cam.x, cam.y, Math.max(viewW, viewH) * 0.82);
+    grad.addColorStop(0, 'rgba(0,0,0,0)');
+    grad.addColorStop(1, 'rgba(0,0,0,0.36)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(drawCamX, drawCamY, viewW, viewH);
+}
+
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=6').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=7').then(reg => reg.update()).catch(() => {});
     });
 }
 
@@ -2231,9 +2402,9 @@ const AudioManager = {
 };
 
 const BIOMES = {
-    NEON: { name: 'NEON ABYSS', grid: '#0f172a', bg: '#020205', particle: '#0ea5e9' },
-    MAGMA: { name: 'MAGMA CORE', grid: '#450a0a', bg: '#0c0202', particle: '#ef4444' },
-    HIVE: { name: 'TOXIC HIVE', grid: '#064e3b', bg: '#020502', particle: '#10b981' }
+    NEON: { name: 'NEON ABYSS', mapKey: 'NEON', grid: '#0f172a', bg: '#020205', particle: '#0ea5e9' },
+    MAGMA: { name: 'MAGMA CORE', mapKey: 'MAGMA', grid: '#450a0a', bg: '#0c0202', particle: '#ef4444' },
+    HIVE: { name: 'TOXIC HIVE', mapKey: 'HIVE', grid: '#064e3b', bg: '#020502', particle: '#10b981' }
 };
 
 const WORLD_MUTATORS = {
@@ -4493,7 +4664,7 @@ class Enemy {
             this.angle += diff * 5 * (dt/1000);
         }
 
-        if (distToPlayer < this.radius + target.radius && this.atkCooldown <= 0 && this.enemyType !== 'sniper') {
+        if (entityCollidersOverlap(this, target, 2) && this.atkCooldown <= 0 && this.enemyType !== 'sniper') {
             let dmg = this.enemyType === 'boss' ? 42 : (this.enemyType === 'tank' ? 20 : 11);
             target.takeDamage(dmg + Math.floor(wave * 0.8));
             this.atkCooldown = 1000;
@@ -4898,8 +5069,11 @@ class Projectile {
 
                         let distSq = (e.x - this.x)**2 + (e.y - this.y)**2;
                         let minDist = e.radius + 10;
-                        
-                        if (distSq < minDist * minDist) {
+                        const hitShape = e.type === TYPE.ENEMY
+                            ? pointHitsEntityCollider(this.x, this.y, e, 9)
+                            : distSq < minDist * minDist;
+
+                        if (hitShape) {
                             if (e.type === TYPE.PROP) {
                                 // Environment hazards are non-blocking. Only explicitly blocking props can stop bullets.
                                 if (e.blocksProjectiles && typeof e.takeDamage === 'function') {
@@ -4970,7 +5144,7 @@ class Projectile {
             }
         } else {
             const target = getNearestLivingPlayer(this.x, this.y);
-            if (target && Math.hypot(target.x - this.x, target.y - this.y) < target.radius + 8) {
+            if (target && pointHitsEntityCollider(this.x, this.y, target, 8)) {
                 target.takeDamage(this.damage);
                 createParticles(this.x, this.y, PALETTE.eBullet, 10, 200);
                 this.dead = true;
@@ -5042,7 +5216,7 @@ class RocketProjectile {
             let cell = spatialGrid.get((cx+dx) + ((cy+dy)*1000));
             if (!cell) continue;
             for (let e of cell) {
-                if (e.type === TYPE.ENEMY && Math.hypot(e.x-this.x, e.y-this.y) < e.radius + 14) { this.explode(); return; }
+                if (e.type === TYPE.ENEMY && pointHitsEntityCollider(this.x, this.y, e, 14)) { this.explode(); return; }
             }
         }
     }
@@ -6509,14 +6683,6 @@ function draw() {
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = currentBiome.bg; 
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Atmospheric "fog"
-    if (getLivingPlayers().some(p => p.isSurging)) {
-        ctx.fillStyle = `rgba(2, 2, 5, 0.3)`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    drawDisasterOverlay(ctx);
 
     if (glitchTimer > 0) {
         ctx.save();
@@ -6538,7 +6704,13 @@ function draw() {
     ctx.scale(camZoom, camZoom);
     ctx.translate(-drawCamX, -drawCamY);
 
+    drawBiomeBackground(drawCamX, drawCamY, viewW, viewH);
 
+    // Atmospheric "fog"
+    if (getLivingPlayers().some(p => p.isSurging)) {
+        ctx.fillStyle = `rgba(2, 2, 5, 0.24)`;
+        ctx.fillRect(drawCamX, drawCamY, viewW, viewH);
+    }
 
     items.forEach(i => i.draw(ctx));
     entities.forEach(e => {
@@ -6553,6 +6725,7 @@ function draw() {
 
     ctx.restore();
     if (glitchTimer > 0) ctx.restore();
+    drawDisasterOverlay(ctx);
 }
 
 document.getElementById('startBtn').addEventListener('click', startGame);
