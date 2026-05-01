@@ -1139,8 +1139,8 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
     }
     const sourceW = img.naturalWidth || img.width;
     const sourceH = img.naturalHeight || img.height;
-    // Fit entire biome art into the world without cropping.
-    const scale = Math.min(WORLD_WIDTH / sourceW, WORLD_HEIGHT / sourceH);
+    // Cover the world fully so there are no dark borders at map edges.
+    const scale = Math.max(WORLD_WIDTH / sourceW, WORLD_HEIGHT / sourceH);
     const w = sourceW * scale;
     const h = sourceH * scale;
     const x = (WORLD_WIDTH - w) * 0.5;
@@ -1158,7 +1158,7 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=13').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=14').then(reg => reg.update()).catch(() => {});
     });
 }
 
@@ -1965,6 +1965,7 @@ const touchInput = {
     moveX: 0,
     moveY: 0,
     stickPointerId: null,
+    stickTouchId: null,
     stickRect: null,
     freeStick: false,
     freeStickX: 0,
@@ -1992,6 +1993,7 @@ function setupTouchControls() {
         touchInput.moveX = 0;
         touchInput.moveY = 0;
         touchInput.stickPointerId = null;
+        touchInput.stickTouchId = null;
         touchInput.freeStick = false;
         knob.style.transform = 'translate3d(0,0,0)';
     };
@@ -2033,6 +2035,35 @@ function setupTouchControls() {
     };
     stick.addEventListener('pointerup', endStick);
     stick.addEventListener('pointercancel', endStick);
+    stick.addEventListener('touchstart', e => {
+        if (!isPlaying) return;
+        if (!touchInput.enabled) {
+            touchInput.enabled = true;
+            document.body.classList.add('touch-device');
+        }
+        const t = e.changedTouches && e.changedTouches[0];
+        if (!t) return;
+        e.preventDefault();
+        touchInput.stickRect = stick.getBoundingClientRect();
+        touchInput.stickPointerId = null;
+        touchInput.stickTouchId = t.identifier;
+        touchInput.freeStick = false;
+        updateStick(t.clientX, t.clientY);
+    }, { passive: false });
+    stick.addEventListener('touchmove', e => {
+        const t = Array.from(e.changedTouches || []).find(x => x.identifier === touchInput.stickTouchId);
+        if (!t) return;
+        e.preventDefault();
+        updateStick(t.clientX, t.clientY);
+    }, { passive: false });
+    const endStickTouch = e => {
+        const t = Array.from(e.changedTouches || []).find(x => x.identifier === touchInput.stickTouchId);
+        if (!t) return;
+        e.preventDefault();
+        resetStick();
+    };
+    stick.addEventListener('touchend', endStickTouch, { passive: false });
+    stick.addEventListener('touchcancel', endStickTouch, { passive: false });
 
     const bindHold = (btn, key) => {
         btn.addEventListener('pointerdown', e => {
@@ -2052,6 +2083,22 @@ function setupTouchControls() {
             touchInput[key] = false;
             btn.classList.remove('active');
         });
+        btn.addEventListener('touchstart', e => {
+            if (!touchInput.enabled) {
+                touchInput.enabled = true;
+                document.body.classList.add('touch-device');
+            }
+            e.preventDefault();
+            touchInput[key] = true;
+            btn.classList.add('active');
+        }, { passive: false });
+        const releaseTouch = e => {
+            e.preventDefault();
+            touchInput[key] = false;
+            btn.classList.remove('active');
+        };
+        btn.addEventListener('touchend', releaseTouch, { passive: false });
+        btn.addEventListener('touchcancel', releaseTouch, { passive: false });
     };
     bindHold(dashBtn, 'dashHeld');
     bindHold(surgeBtn, 'surgeHeld');
@@ -2079,6 +2126,40 @@ function setupTouchControls() {
     }, { passive: false });
     window.addEventListener('pointerup', e => { if (e.pointerId === touchInput.stickPointerId) resetStick(); }, { passive: false });
     window.addEventListener('pointercancel', e => { if (e.pointerId === touchInput.stickPointerId) resetStick(); }, { passive: false });
+    window.addEventListener('touchstart', e => {
+        if (!isPlaying) return;
+        if (!touchInput.enabled) {
+            touchInput.enabled = true;
+            document.body.classList.add('touch-device');
+        }
+        if (e.target && e.target.closest && (e.target.closest('#touchStick') || e.target.closest('.touch-actions'))) return;
+        const t = e.changedTouches && e.changedTouches[0];
+        if (!t) return;
+        const { w } = getViewportSize();
+        if (t.clientX > w * 0.58) return;
+        e.preventDefault();
+        touchInput.stickRect = touchInput.stickRect || stick.getBoundingClientRect();
+        touchInput.freeStick = true;
+        touchInput.freeStickX = t.clientX;
+        touchInput.freeStickY = t.clientY;
+        touchInput.stickPointerId = null;
+        touchInput.stickTouchId = t.identifier;
+        updateStick(t.clientX, t.clientY);
+    }, { passive: false });
+    window.addEventListener('touchmove', e => {
+        const t = Array.from(e.changedTouches || []).find(x => x.identifier === touchInput.stickTouchId);
+        if (!t || (!touchInput.freeStick && !touchInput.stickRect)) return;
+        e.preventDefault();
+        updateStick(t.clientX, t.clientY);
+    }, { passive: false });
+    const endWindowTouchStick = e => {
+        const t = Array.from(e.changedTouches || []).find(x => x.identifier === touchInput.stickTouchId);
+        if (!t) return;
+        e.preventDefault();
+        resetStick();
+    };
+    window.addEventListener('touchend', endWindowTouchStick, { passive: false });
+    window.addEventListener('touchcancel', endWindowTouchStick, { passive: false });
 
     updateTouchClass();
     // Fallback: if any touch starts, force-enable touch mode for this session.
