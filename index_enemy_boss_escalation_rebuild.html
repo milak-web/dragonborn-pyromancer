@@ -20,6 +20,7 @@
             background-color: #020205; overflow: hidden;
             font-family: 'Orbitron', sans-serif;
             user-select: none; color: white;
+            overscroll-behavior: none;
         }
         canvas { display: block; }
         
@@ -300,7 +301,7 @@
             position: absolute;
             left: max(10px, calc(10px + var(--safe-left)));
             bottom: max(12px, calc(12px + var(--safe-bottom)));
-            width: clamp(110px, 24vw, 170px);
+            width: clamp(88px, 20vw, 128px);
             aspect-ratio: 1/1;
             border-radius: 999px;
             background: rgba(2, 6, 23, 0.32);
@@ -329,8 +330,8 @@
             bottom: max(12px, calc(12px + var(--safe-bottom)));
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
-            width: clamp(160px, 40vw, 250px);
+            gap: 6px;
+            width: clamp(130px, 34vw, 188px);
             pointer-events: auto;
             touch-action: none;
         }
@@ -339,12 +340,12 @@
             border-radius: 14px;
             background: rgba(2, 6, 23, 0.45);
             color: #e2e8f0;
-            font-size: clamp(10px, 2.5vw, 12px);
+            font-size: clamp(9px, 2.1vw, 11px);
             font-weight: 900;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            padding: 12px 10px;
-            min-height: 44px;
+            padding: 9px 8px;
+            min-height: 36px;
             pointer-events: auto;
             touch-action: none;
         }
@@ -356,17 +357,25 @@
 
         /* In-run compact mode on small screens: keep HUD and upgrade UI readable */
         body.mobile-ui.playing .combat-hud {
-            width: min(58vw, 220px) !important;
-            max-height: min(46dvh, 300px) !important;
-            padding: 6px 7px !important;
+            width: min(46vw, 165px) !important;
+            max-height: min(34dvh, 180px) !important;
+            padding: 4px 5px !important;
+            border-radius: 8px !important;
         }
         body.mobile-ui.playing .mini-combo-panel {
-            width: min(42vw, 150px) !important;
-            padding: 5px !important;
+            display: none !important;
         }
         body.mobile-ui.playing #bossBarContainer > div {
-            width: min(95vw, 580px) !important;
+            width: min(94vw, 420px) !important;
         }
+        body.mobile-ui.playing .combat-hud .text-2xl { font-size: 0.82rem !important; }
+        body.mobile-ui.playing .combat-hud .text-sm { font-size: 9px !important; }
+        body.mobile-ui.playing .combat-hud .text-xs { font-size: 8px !important; }
+        body.mobile-ui.playing .combat-hud .text-\[10px\] { font-size: 7px !important; }
+        body.mobile-ui.playing .combat-hud .bar-lg { height: 4px !important; }
+        body.mobile-ui.playing .combat-hud .bar-sm { height: 3px !important; }
+        body.mobile-ui.playing #gamepadStatus,
+        body.mobile-ui.playing #coopStatus { display: none !important; }
         body.mobile-ui #levelUpModal {
             align-items: stretch !important;
             justify-content: flex-start !important;
@@ -422,6 +431,7 @@
             #modalTitle { font-size: clamp(1.35rem, 8.2vw, 2.4rem) !important; letter-spacing: .09em !important; }
             #modalDesc { font-size: 11px !important; margin-bottom: 10px !important; }
             #modal > .p-8 { padding: 10px !important; }
+            #modal > .p-8 { width: min(100%, 560px) !important; }
             .start-controls { gap: 8px !important; margin: 0 auto 10px auto !important; }
             .start-controls h3 { font-size: 10px !important; }
             .start-controls p { font-size: 9px !important; line-height: 1.45 !important; }
@@ -429,6 +439,12 @@
             .player-setup-panel { min-height: 0 !important; padding: 10px !important; }
             #startBtn { width: 100%; font-size: 1rem !important; letter-spacing: .14em !important; padding: 12px 10px !important; }
             #resetBtn, #metaBtn, #settingsBtn { width: 100%; margin-top: 8px !important; margin-bottom: 0 !important; }
+            .start-controls { display: none !important; }
+            #leaderboardWrap { display: none !important; }
+            .class-mini-card { padding: 8px !important; }
+            .class-mini-card .text-2xl { font-size: 1rem !important; margin-bottom: 2px !important; }
+            .class-mini-card .text-sm { font-size: 0.72rem !important; }
+            .class-mini-card .text-\[10px\] { font-size: 8px !important; line-height: 1.2 !important; }
         }
 
         /* Asset preload and mobile input polish */
@@ -567,7 +583,7 @@
             </div>
             
             <!-- Leaderboard Mini -->
-            <div class="flex justify-center mb-8">
+            <div id="leaderboardWrap" class="flex justify-center mb-8">
                 <div class="glass-panel p-4 rounded-lg w-64 border-cyan-500/20">
                     <p class="text-[10px] text-cyan-500 font-black tracking-widest uppercase mb-2">High Score Logs</p>
                     <div id="leaderboardList" class="space-y-1">
@@ -1167,7 +1183,7 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=15').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=16').then(reg => reg.update()).catch(() => {});
     });
 }
 
@@ -1916,7 +1932,6 @@ window.addEventListener('keyup', e => keys[e.code] = false);
 window.addEventListener('resize', resizeCanvas);
 if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', resizeCanvas);
-    window.visualViewport.addEventListener('scroll', resizeCanvas);
 }
 
 function resizeCanvas() {
@@ -2181,7 +2196,6 @@ function setupTouchControls() {
     window.addEventListener('resize', () => touchInput.stickRect = null);
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', () => touchInput.stickRect = null);
-        window.visualViewport.addEventListener('scroll', () => touchInput.stickRect = null);
     }
 }
 setupTouchControls();
@@ -2862,7 +2876,7 @@ class Player {
         let gp = getGamepadByIndex(this.gamepadIndex);
         let gpDash = gp && (gp.buttons[0]?.pressed || gp.buttons[7]?.pressed); 
         let gpSurge = gp && (gp.buttons[2]?.pressed || gp.buttons[3]?.pressed || gp.buttons[5]?.pressed); 
-        const touchForP1 = touchInput.enabled && this.id === 1;
+        const touchForP1 = touchInput.enabled && this.playerId === 1;
         let wantsSurge = (this.useKeyboard && keys['KeyE']) || gpSurge || (touchForP1 && touchInput.surgeHeld);
         let wantsDash = (this.useKeyboard && keys['Space']) || gpDash || (touchForP1 && touchInput.dashHeld);
         let wantsActive = (this.useKeyboard && keys['KeyQ']) || (gp && gp.buttons[4]?.pressed) || (touchForP1 && touchInput.weaponHeld); // Q or L1/LB
