@@ -541,7 +541,7 @@
                     <p class="text-pink-500 font-black text-lg tracking-tighter italic"><span id="comboCount">0</span>x COMBO</p>
                     <div class="w-full bg-slate-900 h-1 mt-1 overflow-hidden rounded"><div id="comboBar" class="bg-pink-500 h-full w-full"></div></div>
                 </div>
-                <p id="gamepadStatus" class="text-[9px] mt-2 tracking-widest text-blue-400 font-black uppercase transition-opacity duration-300 opacity-0"> GAMEPAD</p>
+                <p id="gamepadStatus" class="text-[9px] mt-2 tracking-widest text-blue-400 font-black uppercase transition-opacity duration-300 opacity-0">ðŸŽ® GAMEPAD</p>
                 <p id="coopStatus" class="text-[9px] mt-1 tracking-widest text-purple-400 font-black uppercase opacity-80">P2 START</p>
             </div>
         </div>
@@ -606,17 +606,17 @@
             <div class="meta-header">
                 <div class="flex justify-between items-start gap-4">
                     <div class="text-left">
-                        <h2 class="text-4xl font-black text-yellow-500 tracking-widest uppercase"> CORE PERMANENCE</h2>
+                        <h2 class="text-4xl font-black text-yellow-500 tracking-widest uppercase">âš™ï¸ CORE PERMANENCE</h2>
                         <p class="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">Scroll with mouse wheel / right stick. Press B or Esc to go back.</p>
                     </div>
-                    <button onclick="closeMeta()" class="menu-action text-slate-300 hover:text-white border border-slate-700 hover:border-cyan-400 rounded-lg px-3 py-2 font-black text-xs uppercase"></button>
+                    <button onclick="closeMeta()" class="menu-action text-slate-300 hover:text-white border border-slate-700 hover:border-cyan-400 rounded-lg px-3 py-2 font-black text-xs uppercase">âœ•</button>
                 </div>
             </div>
             <div id="metaUpgradesList" class="space-y-2">
                 <!-- Meta items injected -->
             </div>
             <div class="meta-footer flex justify-between items-center gap-4">
-                <p class="text-yellow-500 font-bold tracking-widest"> DATA CORES: <span id="metaCoresCount">0</span></p>
+                <p class="text-yellow-500 font-bold tracking-widest">ðŸ’Ž DATA CORES: <span id="metaCoresCount">0</span></p>
                 <button id="closeMetaBtn" onclick="closeMeta()" class="menu-action bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded font-black uppercase tracking-widest">Back / Close</button>
             </div>
         </div>
@@ -1231,9 +1231,9 @@ const RUN_CONTRACTS_DB = [
 ];
 
 const CHAMPION_ROLES = {
-    bulwark: { name: 'BULWARK MARAUDER', icon: '[*]', color: '#f97316', glow: '#7c2d12', desc: 'armored charger' },
-    pulsar: { name: 'PULSAR ADEPT', icon: '[*]', color: '#38bdf8', glow: '#075985', desc: 'radial pulse shooter' },
-    warden: { name: 'HIVE WARDEN', icon: '[*]', color: '#a855f7', glow: '#581c87', desc: 'summons escorts' }
+    bulwark: { name: 'BULWARK MARAUDER', icon: 'â—†', color: '#f97316', glow: '#7c2d12', desc: 'armored charger' },
+    pulsar: { name: 'PULSAR ADEPT', icon: 'âœ¹', color: '#38bdf8', glow: '#075985', desc: 'radial pulse shooter' },
+    warden: { name: 'HIVE WARDEN', icon: 'âœ¦', color: '#a855f7', glow: '#581c87', desc: 'summons escorts' }
 };
 
 const BALANCE = {
@@ -1337,23 +1337,23 @@ function showAchievementPopup(ach) {
 }
 
 const META_UPGRADES = [
-    { id: 'hp', icon: '[*]', name: 'Reinforced Hull', cost: 1, maxLevel: 6, bonus: 0.07, desc: '+7% Max HP per level. Cheap early, expensive later.' },
-    { id: 'dmg', icon: '[*]', name: 'Overclocked Core', cost: 1, maxLevel: 6, bonus: 0.05, desc: '+5% Damage per level. Controlled scaling, not free god mode.' },
-    { id: 'magnet', icon: '[*]', name: 'Flux Magnet', cost: 1, maxLevel: 5, bonus: 0.10, desc: '+10% Pickup Range per level. Comfort upgrade, not a win button.' }
+    { id: 'hp', icon: 'ðŸ›¡ï¸', name: 'Reinforced Hull', cost: 1, maxLevel: 6, bonus: 0.07, desc: '+7% Max HP per level. Cheap early, expensive later.' },
+    { id: 'dmg', icon: 'ðŸ”¥', name: 'Overclocked Core', cost: 1, maxLevel: 6, bonus: 0.05, desc: '+5% Damage per level. Controlled scaling, not free god mode.' },
+    { id: 'magnet', icon: 'ðŸ§²', name: 'Flux Magnet', cost: 1, maxLevel: 5, bonus: 0.10, desc: '+10% Pickup Range per level. Comfort upgrade, not a win button.' }
 ];
 
 const META_WEAPON_BLUEPRINTS = [
-    { id: 'railgun', icon: '[*]', name: 'Railgun Array', cost: 1, desc: 'Unlocks a piercing passive rail weapon in level-up choices.' },
-    { id: 'teslaCoil', icon: '[*]', name: 'Tesla Coil', cost: 1, desc: 'Unlocks close-range chain lightning pulses.' },
-    { id: 'plasmaRing', icon: '[*]', name: 'Plasma Ring', cost: 2, desc: 'Unlocks expanding nova rings that punish swarms.' },
-    { id: 'droneBay', icon: '[*]', name: 'Drone Bay', cost: 2, desc: 'Unlocks temporary combat drones as a passive weapon.' },
-    { id: 'flakCannon', icon: '[*]', name: 'Flak Cannon', cost: 1, desc: 'Unlocks short-range cone bursts that protect your sides.' },
-    { id: 'ionScythe', icon: '[*]', name: 'Ion Scythe', cost: 2, desc: 'Unlocks rotating energy cuts that sweep nearby enemies.' },
-    { id: 'gravityEmitter', icon: '[*]', name: 'Gravity Emitter', cost: 2, desc: 'Unlocks small pull pulses that group enemies without deleting them.' }
+    { id: 'railgun', icon: 'â–°', name: 'Railgun Array', cost: 1, desc: 'Unlocks a piercing passive rail weapon in level-up choices.' },
+    { id: 'teslaCoil', icon: 'âš¡', name: 'Tesla Coil', cost: 1, desc: 'Unlocks close-range chain lightning pulses.' },
+    { id: 'plasmaRing', icon: 'â­•', name: 'Plasma Ring', cost: 2, desc: 'Unlocks expanding nova rings that punish swarms.' },
+    { id: 'droneBay', icon: 'ðŸ› ï¸', name: 'Drone Bay', cost: 2, desc: 'Unlocks temporary combat drones as a passive weapon.' },
+    { id: 'flakCannon', icon: 'âœ¹', name: 'Flak Cannon', cost: 1, desc: 'Unlocks short-range cone bursts that protect your sides.' },
+    { id: 'ionScythe', icon: 'â˜¾', name: 'Ion Scythe', cost: 2, desc: 'Unlocks rotating energy cuts that sweep nearby enemies.' },
+    { id: 'gravityEmitter', icon: 'ðŸ•³ï¸', name: 'Gravity Emitter', cost: 2, desc: 'Unlocks small pull pulses that group enemies without deleting them.' }
 ];
 
-function getClassIcon(classId) { return ({ striker: '', juggernaut: '', phantom: '', engineer: '' })[classId] || '[*]'; }
-function getSkillIcon(skillId) { const map = { s1:'', s2:'', j1:'', j2:'', p1:'', p2:'', e1:'', e2:'' }; return map[skillId] || '[*]'; }
+function getClassIcon(classId) { return ({ striker: 'âš¡', juggernaut: 'ðŸ›¡ï¸', phantom: 'ðŸ‘»', engineer: 'ðŸ› ï¸' })[classId] || 'ðŸ§¬'; }
+function getSkillIcon(skillId) { const map = { s1:'ðŸƒ', s2:'ðŸ”', j1:'ðŸ›¡ï¸', j2:'ðŸ’¢', p1:'ðŸŒ«ï¸', p2:'ðŸŒ‘', e1:'âš™ï¸', e2:'ðŸ’£' }; return map[skillId] || 'ðŸ§¬'; }
 
 const META_STORAGE_KEY = 'synth_core_meta';
 const SETTINGS_STORAGE_KEY = 'synth_core_settings';
@@ -1519,7 +1519,7 @@ function updateMetaUI() {
         // --- Stat Upgrades Section ---
         const statHeader = document.createElement('h3');
         statHeader.className = 'meta-section-title text-cyan-400 font-black text-xs tracking-widest uppercase';
-        statHeader.innerHTML = ' CORE ATTRIBUTES';
+        statHeader.innerHTML = 'ðŸ’  CORE ATTRIBUTES';
         list.appendChild(statHeader);
 
         META_UPGRADES.forEach(u => {
@@ -1529,9 +1529,9 @@ function updateMetaUI() {
             const item = document.createElement('div');
             item.className = `meta-item bg-slate-900/50 rounded-lg border mb-2 ${maxed ? 'border-emerald-700/60 opacity-80' : 'border-slate-700'}`;
             item.innerHTML = `
-                <div class="meta-icon">${u.icon || '[*]'}</div>
+                <div class="meta-icon">${u.icon || 'â¬†ï¸'}</div>
                 <div>
-                    <h4 class="text-white font-bold uppercase tracking-wider">${u.name} (Lv. ${level}/${u.maxLevel || '[*]'})</h4>
+                    <h4 class="text-white font-bold uppercase tracking-wider">${u.name} (Lv. ${level}/${u.maxLevel || 'âˆž'})</h4>
                     <p class="text-[10px] text-slate-400 font-bold">${u.desc}</p>
                     <p class="text-[9px] text-yellow-500/80 font-black uppercase tracking-widest mt-1">Next cost scales: ${nextCost} cores</p>
                 </div>
@@ -1546,7 +1546,7 @@ function updateMetaUI() {
         // --- Weapon Blueprint Section ---
         const weaponHeader = document.createElement('h3');
         weaponHeader.className = 'meta-section-title text-orange-400 font-black text-xs tracking-widest uppercase';
-        weaponHeader.innerHTML = ' WEAPON BLUEPRINTS';
+        weaponHeader.innerHTML = 'ðŸ”“ WEAPON BLUEPRINTS';
         list.appendChild(weaponHeader);
 
         META_WEAPON_BLUEPRINTS.forEach(w => {
@@ -1554,7 +1554,7 @@ function updateMetaUI() {
             const item = document.createElement('div');
             item.className = `meta-item bg-slate-900/50 rounded-lg border mb-2 ${unlocked ? 'border-orange-500/50' : 'border-slate-700'}`;
             item.innerHTML = `
-                <div class="meta-icon">${w.icon || '[*]'}</div>
+                <div class="meta-icon">${w.icon || 'ðŸ”“'}</div>
                 <div>
                     <h4 class="text-white font-bold uppercase tracking-wider">${w.name}</h4>
                     <p class="text-[10px] text-slate-400 font-bold">${w.desc}</p>
@@ -1570,7 +1570,7 @@ function updateMetaUI() {
         // --- Class Skills Section ---
         const skillHeader = document.createElement('h3');
         skillHeader.className = 'meta-section-title text-purple-400 font-black text-xs tracking-widest uppercase';
-        skillHeader.innerHTML = ' CLASS SPECIALIZATIONS';
+        skillHeader.innerHTML = 'ðŸ§¬ CLASS SPECIALIZATIONS';
         list.appendChild(skillHeader);
 
         Object.keys(PLAYER_CLASSES).forEach(classId => {
@@ -1809,10 +1809,10 @@ function updateClassSelectionUI() {
     container.innerHTML = '';
 
     const classList = [
-        { id: 'striker', icon: '[*]', color: 'border-cyan-500' },
-        { id: 'juggernaut', icon: '[*]', color: 'border-red-500' },
-        { id: 'phantom', icon: '[*]', color: 'border-purple-500' },
-        { id: 'engineer', icon: '[*]', color: 'border-emerald-500' }
+        { id: 'striker', icon: 'âš¡', color: 'border-cyan-500' },
+        { id: 'juggernaut', icon: 'ðŸ›¡ï¸', color: 'border-red-500' },
+        { id: 'phantom', icon: 'ðŸ‘»', color: 'border-purple-500' },
+        { id: 'engineer', icon: 'ðŸ› ï¸', color: 'border-emerald-500' }
     ];
 
     const makeClassGrid = (playerId) => {
@@ -1824,7 +1824,7 @@ function updateClassSelectionUI() {
             const ach = !unlocked ? Object.values(metaData.achievements).find(a => a.reward === c.id) : null;
             return `
                 <div class="class-mini-card menu-action ${selected ? 'selected' : ''} ${!unlocked ? 'locked opacity-50 grayscale' : ''}" data-player="${playerId}" data-class="${c.id}">
-                    <div class="text-2xl mb-1">${unlocked ? c.icon : ''}</div>
+                    <div class="text-2xl mb-1">${unlocked ? c.icon : 'ðŸ”’'}</div>
                     <div class="font-black text-white uppercase tracking-widest text-xs">${stats.name}</div>
                     <div class="text-[9px] text-slate-400 font-bold uppercase mt-1">${unlocked ? stats.desc : ('Unlock: ' + (ach ? ach.desc : 'Locked'))}</div>
                 </div>
@@ -1844,7 +1844,7 @@ function updateClassSelectionUI() {
                 <div class="text-cyan-400 text-[10px] font-black tracking-[0.25em] uppercase">Player 1</div>
                 <div class="text-white text-sm font-black uppercase">Keyboard ${pads.length ? '+ Controller option' : ''}</div>
             </div>
-            <div class="text-2xl"></div>
+            <div class="text-2xl">ðŸŽ®</div>
         </div>
         ${makeClassGrid(1)}
     `;
@@ -1859,7 +1859,7 @@ function updateClassSelectionUI() {
                     <div class="text-purple-400 text-[10px] font-black tracking-[0.25em] uppercase">Player 2</div>
                     <div class="text-white text-sm font-black uppercase">Optional Local Co-op</div>
                 </div>
-                <div class="text-2xl"></div>
+                <div class="text-2xl">âž•</div>
             </div>
             <p class="text-slate-400 text-[11px] font-bold uppercase tracking-widest mb-4">Press START on a controller or click join. P2 chooses their own class and upgrades.</p>
             <button id="joinP2Btn" class="menu-action w-full border border-purple-500/50 hover:bg-purple-500 hover:text-black text-purple-300 px-5 py-3 rounded font-black uppercase tracking-widest">Join Player 2</button>
@@ -2217,71 +2217,71 @@ const MAX_PARTICLES = 400;
 
 // --- UPGRADES DB ---
 const UPGRADES_DB = [
-    { id: 'dmg', name: 'Kinetic Tuning', desc: '+9% weapon damage. Small alone, dangerous with crit/pierce/weapons.', icon: '[*]', rarity: 'common', maxLevel: 10, apply: () => { player.damage *= 1.09; player.upgradeLevels['dmg']++; } },
-    { id: 'fireRate', name: 'Accelerator', desc: '+10% fire rate. Smooth ladder scaling, not instant boss deletion.', icon: '[*]', rarity: 'common', maxLevel: 10, apply: () => { player.fireRate *= 0.90; player.upgradeLevels['fireRate']++; } },
-    { id: 'speed', name: 'Slipstream', desc: '+7% glide speed and acceleration. Helps dodging, not pure invincibility.', icon: '[*]', rarity: 'common', maxLevel: 8, apply: () => { player.maxSpeed *= 1.07; player.accel *= 1.07; player.upgradeLevels['speed']++; } },
-    { id: 'hp', name: 'Aegis Plating', desc: '+30 Max HP and heal 25% missing HP.', icon: '[*]', rarity: 'common', maxLevel: 9, apply: () => { const missing = player.maxHp - player.hp; player.maxHp += 30; player.hp = Math.min(player.maxHp, player.hp + 22 + missing * 0.25); player.upgradeLevels['hp']++; } },
-    { id: 'repairNanites', name: 'Repair Nanites', desc: 'Slowly regenerates HP after avoiding damage for 3.2s. Safe sustain, not immortality.', icon: '[*]', rarity: 'common', maxLevel: 4, apply: () => { player.coreRegenLevel = (player.coreRegenLevel || 0) + 1; player.upgradeLevels['repairNanites'] = (player.upgradeLevels['repairNanites'] || 0) + 1; } },
-    { id: 'targetingMatrix', name: 'Targeting Matrix', desc: '+10% attack range and faster main-shot velocity. Makes weapons feel reliable early.', icon: '[*]', rarity: 'common', maxLevel: 4, apply: () => { player.attackRange *= 1.10; player.projectileSpeedBonus = (player.projectileSpeedBonus || 0) + 0.08; player.upgradeLevels['targetingMatrix'] = (player.upgradeLevels['targetingMatrix'] || 0) + 1; } },
-    { id: 'stabilizedReactor', name: 'Stabilized Reactor', desc: '+7% max HP and 4% damage resistance. Good survival core for wave 8+.', icon: '[*]', rarity: 'common', maxLevel: 4, apply: () => { player.maxHp *= 1.07; player.hp = Math.min(player.maxHp, player.hp + player.maxHp * 0.07); player.damageReductionLevel = (player.damageReductionLevel || 0) + 1; player.upgradeLevels['stabilizedReactor'] = (player.upgradeLevels['stabilizedReactor'] || 0) + 1; } },
-    { id: 'xpCondenser', name: 'XP Condenser', desc: '+12% XP pickup value and +12% magnet range. Faster builds without raw damage abuse.', icon: '[*]', rarity: 'common', maxLevel: 3, apply: () => { player.xpGainBonus = (player.xpGainBonus || 0) + 0.12; player.baseMagnetRange *= 1.12; player.upgradeLevels['xpCondenser'] = (player.upgradeLevels['xpCondenser'] || 0) + 1; } },
-    { id: 'pierce', name: 'Tungsten Dart', desc: 'Main shots pierce +1 target. Strong with lined-up swarms.', icon: '[*]', rarity: 'rare', maxLevel: 4, apply: () => { player.pierce += 1; player.upgradeLevels['pierce']++; } },
-    { id: 'projectiles', name: 'Split Chamber', desc: '+1 projectile, but only -5% damage per shot. Strong with support upgrades.', icon: '[*]', rarity: 'rare', maxLevel: 4, apply: () => { player.multishot += 1; player.damage *= 0.95; player.upgradeLevels['projectiles']++; } },
+    { id: 'dmg', name: 'Kinetic Tuning', desc: '+9% weapon damage. Small alone, dangerous with crit/pierce/weapons.', icon: 'ðŸ’¥', rarity: 'common', maxLevel: 10, apply: () => { player.damage *= 1.09; player.upgradeLevels['dmg']++; } },
+    { id: 'fireRate', name: 'Accelerator', desc: '+10% fire rate. Smooth ladder scaling, not instant boss deletion.', icon: 'âš¡', rarity: 'common', maxLevel: 10, apply: () => { player.fireRate *= 0.90; player.upgradeLevels['fireRate']++; } },
+    { id: 'speed', name: 'Slipstream', desc: '+7% glide speed and acceleration. Helps dodging, not pure invincibility.', icon: 'ðŸš€', rarity: 'common', maxLevel: 8, apply: () => { player.maxSpeed *= 1.07; player.accel *= 1.07; player.upgradeLevels['speed']++; } },
+    { id: 'hp', name: 'Aegis Plating', desc: '+30 Max HP and heal 25% missing HP.', icon: 'ðŸ›¡ï¸', rarity: 'common', maxLevel: 9, apply: () => { const missing = player.maxHp - player.hp; player.maxHp += 30; player.hp = Math.min(player.maxHp, player.hp + 22 + missing * 0.25); player.upgradeLevels['hp']++; } },
+    { id: 'repairNanites', name: 'Repair Nanites', desc: 'Slowly regenerates HP after avoiding damage for 3.2s. Safe sustain, not immortality.', icon: 'ðŸ§¬', rarity: 'common', maxLevel: 4, apply: () => { player.coreRegenLevel = (player.coreRegenLevel || 0) + 1; player.upgradeLevels['repairNanites'] = (player.upgradeLevels['repairNanites'] || 0) + 1; } },
+    { id: 'targetingMatrix', name: 'Targeting Matrix', desc: '+10% attack range and faster main-shot velocity. Makes weapons feel reliable early.', icon: 'ðŸŽ¯', rarity: 'common', maxLevel: 4, apply: () => { player.attackRange *= 1.10; player.projectileSpeedBonus = (player.projectileSpeedBonus || 0) + 0.08; player.upgradeLevels['targetingMatrix'] = (player.upgradeLevels['targetingMatrix'] || 0) + 1; } },
+    { id: 'stabilizedReactor', name: 'Stabilized Reactor', desc: '+7% max HP and 4% damage resistance. Good survival core for wave 8+.', icon: 'ðŸ§¿', rarity: 'common', maxLevel: 4, apply: () => { player.maxHp *= 1.07; player.hp = Math.min(player.maxHp, player.hp + player.maxHp * 0.07); player.damageReductionLevel = (player.damageReductionLevel || 0) + 1; player.upgradeLevels['stabilizedReactor'] = (player.upgradeLevels['stabilizedReactor'] || 0) + 1; } },
+    { id: 'xpCondenser', name: 'XP Condenser', desc: '+12% XP pickup value and +12% magnet range. Faster builds without raw damage abuse.', icon: 'ðŸ”·', rarity: 'common', maxLevel: 3, apply: () => { player.xpGainBonus = (player.xpGainBonus || 0) + 0.12; player.baseMagnetRange *= 1.12; player.upgradeLevels['xpCondenser'] = (player.upgradeLevels['xpCondenser'] || 0) + 1; } },
+    { id: 'pierce', name: 'Tungsten Dart', desc: 'Main shots pierce +1 target. Strong with lined-up swarms.', icon: 'â˜„ï¸', rarity: 'rare', maxLevel: 4, apply: () => { player.pierce += 1; player.upgradeLevels['pierce']++; } },
+    { id: 'projectiles', name: 'Split Chamber', desc: '+1 projectile, but only -5% damage per shot. Strong with support upgrades.', icon: 'ðŸ”±', rarity: 'rare', maxLevel: 4, apply: () => { player.multishot += 1; player.damage *= 0.95; player.upgradeLevels['projectiles']++; } },
 
-    { id: 'rocketLauncher', weapon: true, name: 'Rocket Launcher', desc: 'Passive weapon. Auto-fires stronger homing rockets with splash. Lv.5 = dual rockets.', icon: '[*]', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('rocketLauncher'); player.upgradeLevels['rocketLauncher'] = (player.upgradeLevels['rocketLauncher'] || 0) + 1; } },
-    { id: 'pulseMines', weapon: true, name: 'Pulse Mines', desc: 'Passive weapon. Drops stronger shock mines that control chasing swarms. Lv.5 = twin mines.', icon: '[*]', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('pulseMines'); player.upgradeLevels['pulseMines'] = (player.upgradeLevels['pulseMines'] || 0) + 1; } },
-    { id: 'railgun', weapon: true, name: 'Railgun Array', desc: 'Passive weapon. Fires high-damage piercing rail shots at distant threats. Lv.5 = double rail.', icon: '[*]', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('railgun'); player.upgradeLevels['railgun'] = (player.upgradeLevels['railgun'] || 0) + 1; } },
-    { id: 'teslaCoil', weapon: true, name: 'Tesla Coil', desc: 'Passive weapon. Zaps multiple nearby enemies. Lv.5 = brief shock slow.', icon: '[*]', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('teslaCoil'); player.upgradeLevels['teslaCoil'] = (player.upgradeLevels['teslaCoil'] || 0) + 1; } },
-    { id: 'plasmaRing', weapon: true, name: 'Plasma Ring', desc: 'Passive weapon. Emits wider expanding rings that punish surround swarms. Lv.5 = echo ring.', icon: '[*]', rarity: 'legendary', maxLevel: 5, apply: () => { player.addPassiveWeapon('plasmaRing'); player.upgradeLevels['plasmaRing'] = (player.upgradeLevels['plasmaRing'] || 0) + 1; } },
-    { id: 'droneBay', weapon: true, name: 'Drone Bay', desc: 'Passive weapon. Deploys longer-lived combat drones around you. Lv.5 = sixth drone.', icon: '[*]', rarity: 'legendary', maxLevel: 5, apply: () => { player.addPassiveWeapon('droneBay'); player.upgradeLevels['droneBay'] = (player.upgradeLevels['droneBay'] || 0) + 1; } },
-    { id: 'flakCannon', weapon: true, name: 'Flak Cannon', desc: 'Passive weapon. Fires heavier cone bursts when enemies close in. Lv.5 = piercing pellets.', icon: '[*]', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('flakCannon'); player.upgradeLevels['flakCannon'] = (player.upgradeLevels['flakCannon'] || 0) + 1; } },
-    { id: 'ionScythe', weapon: true, name: 'Ion Scythe', desc: 'Passive weapon. Sweeping energy wave around the ship every few seconds. Lv.5 = echo sweep.', icon: '[*]', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('ionScythe'); player.upgradeLevels['ionScythe'] = (player.upgradeLevels['ionScythe'] || 0) + 1; } },
-    { id: 'gravityEmitter', weapon: true, name: 'Gravity Emitter', desc: 'Passive weapon. Creates stronger pull pulses that group enemies for combos. Lv.5 = secondary pull.', icon: '[*]', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('gravityEmitter'); player.upgradeLevels['gravityEmitter'] = (player.upgradeLevels['gravityEmitter'] || 0) + 1; } },
+    { id: 'rocketLauncher', weapon: true, name: 'Rocket Launcher', desc: 'Passive weapon. Auto-fires stronger homing rockets with splash. Lv.5 = dual rockets.', icon: 'ðŸš€', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('rocketLauncher'); player.upgradeLevels['rocketLauncher'] = (player.upgradeLevels['rocketLauncher'] || 0) + 1; } },
+    { id: 'pulseMines', weapon: true, name: 'Pulse Mines', desc: 'Passive weapon. Drops stronger shock mines that control chasing swarms. Lv.5 = twin mines.', icon: 'ðŸ’£', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('pulseMines'); player.upgradeLevels['pulseMines'] = (player.upgradeLevels['pulseMines'] || 0) + 1; } },
+    { id: 'railgun', weapon: true, name: 'Railgun Array', desc: 'Passive weapon. Fires high-damage piercing rail shots at distant threats. Lv.5 = double rail.', icon: 'â–°', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('railgun'); player.upgradeLevels['railgun'] = (player.upgradeLevels['railgun'] || 0) + 1; } },
+    { id: 'teslaCoil', weapon: true, name: 'Tesla Coil', desc: 'Passive weapon. Zaps multiple nearby enemies. Lv.5 = brief shock slow.', icon: 'âš¡', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('teslaCoil'); player.upgradeLevels['teslaCoil'] = (player.upgradeLevels['teslaCoil'] || 0) + 1; } },
+    { id: 'plasmaRing', weapon: true, name: 'Plasma Ring', desc: 'Passive weapon. Emits wider expanding rings that punish surround swarms. Lv.5 = echo ring.', icon: 'â­•', rarity: 'legendary', maxLevel: 5, apply: () => { player.addPassiveWeapon('plasmaRing'); player.upgradeLevels['plasmaRing'] = (player.upgradeLevels['plasmaRing'] || 0) + 1; } },
+    { id: 'droneBay', weapon: true, name: 'Drone Bay', desc: 'Passive weapon. Deploys longer-lived combat drones around you. Lv.5 = sixth drone.', icon: 'ðŸ› ï¸', rarity: 'legendary', maxLevel: 5, apply: () => { player.addPassiveWeapon('droneBay'); player.upgradeLevels['droneBay'] = (player.upgradeLevels['droneBay'] || 0) + 1; } },
+    { id: 'flakCannon', weapon: true, name: 'Flak Cannon', desc: 'Passive weapon. Fires heavier cone bursts when enemies close in. Lv.5 = piercing pellets.', icon: 'âœ¹', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('flakCannon'); player.upgradeLevels['flakCannon'] = (player.upgradeLevels['flakCannon'] || 0) + 1; } },
+    { id: 'ionScythe', weapon: true, name: 'Ion Scythe', desc: 'Passive weapon. Sweeping energy wave around the ship every few seconds. Lv.5 = echo sweep.', icon: 'â˜¾', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('ionScythe'); player.upgradeLevels['ionScythe'] = (player.upgradeLevels['ionScythe'] || 0) + 1; } },
+    { id: 'gravityEmitter', weapon: true, name: 'Gravity Emitter', desc: 'Passive weapon. Creates stronger pull pulses that group enemies for combos. Lv.5 = secondary pull.', icon: 'ðŸ•³ï¸', rarity: 'rare', maxLevel: 5, apply: () => { player.addPassiveWeapon('gravityEmitter'); player.upgradeLevels['gravityEmitter'] = (player.upgradeLevels['gravityEmitter'] || 0) + 1; } },
 
-    { id: 'blade', name: 'Orbitals', desc: 'Adds a defensive blade. Blocks bullets and rewards close dodging.', icon: '[*]', rarity: 'rare', maxLevel: 5, apply: () => { player.blades++; player.upgradeLevels['blade']++; } },
-    { id: 'lightning', name: 'Volt Chain', desc: 'Bullets arc to a nearby foe for 30% damage.', icon: '[*]', rarity: 'rare', maxLevel: 1, apply: () => { player.hasLightning = true; player.upgradeLevels['lightning']++; } },
-    { id: 'shatter', name: 'Fracture', desc: 'Killed enemies fire weak shrapnel. Good with crit, not free screen wipe.', icon: '[*]', rarity: 'rare', maxLevel: 1, apply: () => { player.hasShatter = true; player.upgradeLevels['shatter']++; } },
-    { id: 'phase', name: 'Phase Decoy', desc: 'Dash leaves an explosive clone. Great with dash classes.', icon: '[*]', rarity: 'legendary', maxLevel: 1, apply: () => { player.hasPhaseDecoy = true; player.upgradeLevels['phase']++; } },
-    { id: 'surgeUp', name: 'Surge Capacitor', desc: '+18% Core Surge duration, but +10% future charge requirement.', icon: '[*]', rarity: 'legendary', maxLevel: 3, apply: () => { player.surgeDurationMax *= 1.18; player.surgeMax *= 1.10; player.upgradeLevels['surgeUp']++; } },
-    { id: 'surgeConduit', name: 'Surge Conduit', desc: '+10% Surge charge gained from damaging enemies. Boss gain stays controlled.', icon: '[*]', rarity: 'rare', maxLevel: 4, apply: () => { player.surgeChargeBonus = (player.surgeChargeBonus || 0) + 0.10; player.upgradeLevels['surgeConduit'] = (player.upgradeLevels['surgeConduit'] || 0) + 1; } },
-    { id: 'surgeGuard', name: 'Surge Guard', desc: 'Core Surge grants damage resistance and +1 shield block on activation.', icon: '[*]', rarity: 'rare', maxLevel: 3, apply: () => { player.surgeGuardLevel = (player.surgeGuardLevel || 0) + 1; player.upgradeLevels['surgeGuard'] = (player.upgradeLevels['surgeGuard'] || 0) + 1; } },
-    { id: 'surgeEcho', name: 'Surge Echo', desc: 'After Surge ends, keep a small speed/fire-rate echo for a few seconds.', icon: '[*]', rarity: 'rare', maxLevel: 3, apply: () => { player.surgeEchoLevel = (player.surgeEchoLevel || 0) + 1; player.upgradeLevels['surgeEcho'] = (player.upgradeLevels['surgeEcho'] || 0) + 1; } },
-    { id: 'coreDetonation', name: 'Core Detonation', desc: 'Activating Surge releases one balanced shockwave. No XP damage abuse.', icon: '[*]', rarity: 'legendary', maxLevel: 3, apply: () => { player.coreDetonationLevel = (player.coreDetonationLevel || 0) + 1; player.upgradeLevels['coreDetonation'] = (player.upgradeLevels['coreDetonation'] || 0) + 1; } },
-    { id: 'emergencySurge', name: 'Emergency Reactor', desc: 'Below 35% HP, Surge charges faster. Activating Surge restores a small amount of HP.', icon: '[*]', rarity: 'legendary', maxLevel: 2, apply: () => { player.emergencySurgeLevel = (player.emergencySurgeLevel || 0) + 1; player.upgradeLevels['emergencySurge'] = (player.upgradeLevels['emergencySurge'] || 0) + 1; } },
-    { id: 'surgeField', name: 'Containment Field', desc: 'During Surge, nearby enemies are slowed. Control tool, not damage aura.', icon: '[*]', rarity: 'legendary', maxLevel: 2, apply: () => { player.surgeFieldLevel = (player.surgeFieldLevel || 0) + 1; player.upgradeLevels['surgeField'] = (player.upgradeLevels['surgeField'] || 0) + 1; } },
-    { id: 'dashTrail', name: 'Slipstream Trail', desc: 'Dash leaves a short plasma cut. Damage is useful, not screen-wiping.', icon: '[*]', rarity: 'rare', maxLevel: 4, apply: () => { player.dashTrailLevel = (player.dashTrailLevel || 0) + 1; player.upgradeLevels['dashTrail'] = (player.upgradeLevels['dashTrail'] || 0) + 1; } },
-    { id: 'vectorBrake', name: 'Vector Brake', desc: 'After dashing, nearby enemies are briefly slowed. Makes dash tactical.', icon: '[*]', rarity: 'rare', maxLevel: 3, apply: () => { player.vectorBrakeLevel = (player.vectorBrakeLevel || 0) + 1; player.upgradeLevels['vectorBrake'] = (player.upgradeLevels['vectorBrake'] || 0) + 1; } },
-    { id: 'closeCall', name: 'Close Call Reactor', desc: 'Near-missing enemy bullets charges Surge. Rewards skilled dodging.', icon: '[*]', rarity: 'legendary', maxLevel: 3, apply: () => { player.closeCallLevel = (player.closeCallLevel || 0) + 1; player.upgradeLevels['closeCall'] = (player.upgradeLevels['closeCall'] || 0) + 1; } },
-    { id: 'phaseCut', name: 'Phase Cut', desc: 'Dashing through enemies marks them for extra damage.', icon: '[*]', rarity: 'rare', maxLevel: 3, apply: () => { player.phaseCutLevel = (player.phaseCutLevel || 0) + 1; player.upgradeLevels['phaseCut'] = (player.upgradeLevels['phaseCut'] || 0) + 1; } },
-    { id: 'momentumCore', name: 'Momentum Core', desc: 'Main shot damage rises with movement speed, capped. Circle play becomes a build.', icon: '[*]', rarity: 'legendary', maxLevel: 3, apply: () => { player.momentumCoreLevel = (player.momentumCoreLevel || 0) + 1; player.upgradeLevels['momentumCore'] = (player.upgradeLevels['momentumCore'] || 0) + 1; } },
+    { id: 'blade', name: 'Orbitals', desc: 'Adds a defensive blade. Blocks bullets and rewards close dodging.', icon: 'ðŸŒ€', rarity: 'rare', maxLevel: 5, apply: () => { player.blades++; player.upgradeLevels['blade']++; } },
+    { id: 'lightning', name: 'Volt Chain', desc: 'Bullets arc to a nearby foe for 30% damage.', icon: 'ðŸŒ©ï¸', rarity: 'rare', maxLevel: 1, apply: () => { player.hasLightning = true; player.upgradeLevels['lightning']++; } },
+    { id: 'shatter', name: 'Fracture', desc: 'Killed enemies fire weak shrapnel. Good with crit, not free screen wipe.', icon: 'ðŸŽ†', rarity: 'rare', maxLevel: 1, apply: () => { player.hasShatter = true; player.upgradeLevels['shatter']++; } },
+    { id: 'phase', name: 'Phase Decoy', desc: 'Dash leaves an explosive clone. Great with dash classes.', icon: 'ðŸ‘»', rarity: 'legendary', maxLevel: 1, apply: () => { player.hasPhaseDecoy = true; player.upgradeLevels['phase']++; } },
+    { id: 'surgeUp', name: 'Surge Capacitor', desc: '+18% Core Surge duration, but +10% future charge requirement.', icon: 'ðŸ”‹', rarity: 'legendary', maxLevel: 3, apply: () => { player.surgeDurationMax *= 1.18; player.surgeMax *= 1.10; player.upgradeLevels['surgeUp']++; } },
+    { id: 'surgeConduit', name: 'Surge Conduit', desc: '+10% Surge charge gained from damaging enemies. Boss gain stays controlled.', icon: 'ðŸ”Œ', rarity: 'rare', maxLevel: 4, apply: () => { player.surgeChargeBonus = (player.surgeChargeBonus || 0) + 0.10; player.upgradeLevels['surgeConduit'] = (player.upgradeLevels['surgeConduit'] || 0) + 1; } },
+    { id: 'surgeGuard', name: 'Surge Guard', desc: 'Core Surge grants damage resistance and +1 shield block on activation.', icon: 'ðŸ›¡ï¸', rarity: 'rare', maxLevel: 3, apply: () => { player.surgeGuardLevel = (player.surgeGuardLevel || 0) + 1; player.upgradeLevels['surgeGuard'] = (player.upgradeLevels['surgeGuard'] || 0) + 1; } },
+    { id: 'surgeEcho', name: 'Surge Echo', desc: 'After Surge ends, keep a small speed/fire-rate echo for a few seconds.', icon: 'ã€°ï¸', rarity: 'rare', maxLevel: 3, apply: () => { player.surgeEchoLevel = (player.surgeEchoLevel || 0) + 1; player.upgradeLevels['surgeEcho'] = (player.upgradeLevels['surgeEcho'] || 0) + 1; } },
+    { id: 'coreDetonation', name: 'Core Detonation', desc: 'Activating Surge releases one balanced shockwave. No XP damage abuse.', icon: 'ðŸ’«', rarity: 'legendary', maxLevel: 3, apply: () => { player.coreDetonationLevel = (player.coreDetonationLevel || 0) + 1; player.upgradeLevels['coreDetonation'] = (player.upgradeLevels['coreDetonation'] || 0) + 1; } },
+    { id: 'emergencySurge', name: 'Emergency Reactor', desc: 'Below 35% HP, Surge charges faster. Activating Surge restores a small amount of HP.', icon: 'ðŸš¨', rarity: 'legendary', maxLevel: 2, apply: () => { player.emergencySurgeLevel = (player.emergencySurgeLevel || 0) + 1; player.upgradeLevels['emergencySurge'] = (player.upgradeLevels['emergencySurge'] || 0) + 1; } },
+    { id: 'surgeField', name: 'Containment Field', desc: 'During Surge, nearby enemies are slowed. Control tool, not damage aura.', icon: 'ðŸŸ¡', rarity: 'legendary', maxLevel: 2, apply: () => { player.surgeFieldLevel = (player.surgeFieldLevel || 0) + 1; player.upgradeLevels['surgeField'] = (player.upgradeLevels['surgeField'] || 0) + 1; } },
+    { id: 'dashTrail', name: 'Slipstream Trail', desc: 'Dash leaves a short plasma cut. Damage is useful, not screen-wiping.', icon: 'ã€½ï¸', rarity: 'rare', maxLevel: 4, apply: () => { player.dashTrailLevel = (player.dashTrailLevel || 0) + 1; player.upgradeLevels['dashTrail'] = (player.upgradeLevels['dashTrail'] || 0) + 1; } },
+    { id: 'vectorBrake', name: 'Vector Brake', desc: 'After dashing, nearby enemies are briefly slowed. Makes dash tactical.', icon: 'ðŸ§Š', rarity: 'rare', maxLevel: 3, apply: () => { player.vectorBrakeLevel = (player.vectorBrakeLevel || 0) + 1; player.upgradeLevels['vectorBrake'] = (player.upgradeLevels['vectorBrake'] || 0) + 1; } },
+    { id: 'closeCall', name: 'Close Call Reactor', desc: 'Near-missing enemy bullets charges Surge. Rewards skilled dodging.', icon: 'ðŸŽ²', rarity: 'legendary', maxLevel: 3, apply: () => { player.closeCallLevel = (player.closeCallLevel || 0) + 1; player.upgradeLevels['closeCall'] = (player.upgradeLevels['closeCall'] || 0) + 1; } },
+    { id: 'phaseCut', name: 'Phase Cut', desc: 'Dashing through enemies marks them for extra damage.', icon: 'âš”ï¸', rarity: 'rare', maxLevel: 3, apply: () => { player.phaseCutLevel = (player.phaseCutLevel || 0) + 1; player.upgradeLevels['phaseCut'] = (player.upgradeLevels['phaseCut'] || 0) + 1; } },
+    { id: 'momentumCore', name: 'Momentum Core', desc: 'Main shot damage rises with movement speed, capped. Circle play becomes a build.', icon: 'ðŸ§­', rarity: 'legendary', maxLevel: 3, apply: () => { player.momentumCoreLevel = (player.momentumCoreLevel || 0) + 1; player.upgradeLevels['momentumCore'] = (player.upgradeLevels['momentumCore'] || 0) + 1; } },
 
-    { id: 'gravityAnchor', name: 'Gravity Anchor', desc: 'Gravity hazards affect enemies harder than you. Space disasters become tools.', icon: '[*]', rarity: 'legendary', maxLevel: 2, apply: () => { player.gravityAnchorLevel = (player.gravityAnchorLevel || 0) + 1; player.upgradeLevels['gravityAnchor'] = (player.upgradeLevels['gravityAnchor'] || 0) + 1; } },
-    { id: 'solarCapacitor', name: 'Solar Capacitor', desc: 'Solar flare systems charge Surge while active.', icon: '[*]', rarity: 'rare', maxLevel: 3, apply: () => { player.solarCapacitorLevel = (player.solarCapacitorLevel || 0) + 1; player.upgradeLevels['solarCapacitor'] = (player.upgradeLevels['solarCapacitor'] || 0) + 1; } },
-    { id: 'empInsulation', name: 'EMP Insulation', desc: 'Reduces EMP fire-rate penalty and converts some disruption into shield chance.', icon: '[*]', rarity: 'rare', maxLevel: 3, apply: () => { player.empInsulationLevel = (player.empInsulationLevel || 0) + 1; player.upgradeLevels['empInsulation'] = (player.upgradeLevels['empInsulation'] || 0) + 1; } },
+    { id: 'gravityAnchor', name: 'Gravity Anchor', desc: 'Gravity hazards affect enemies harder than you. Space disasters become tools.', icon: 'ðŸ•³ï¸', rarity: 'legendary', maxLevel: 2, apply: () => { player.gravityAnchorLevel = (player.gravityAnchorLevel || 0) + 1; player.upgradeLevels['gravityAnchor'] = (player.upgradeLevels['gravityAnchor'] || 0) + 1; } },
+    { id: 'solarCapacitor', name: 'Solar Capacitor', desc: 'Solar flare systems charge Surge while active.', icon: 'â˜€ï¸', rarity: 'rare', maxLevel: 3, apply: () => { player.solarCapacitorLevel = (player.solarCapacitorLevel || 0) + 1; player.upgradeLevels['solarCapacitor'] = (player.upgradeLevels['solarCapacitor'] || 0) + 1; } },
+    { id: 'empInsulation', name: 'EMP Insulation', desc: 'Reduces EMP fire-rate penalty and converts some disruption into shield chance.', icon: 'ðŸ§¿', rarity: 'rare', maxLevel: 3, apply: () => { player.empInsulationLevel = (player.empInsulationLevel || 0) + 1; player.upgradeLevels['empInsulation'] = (player.upgradeLevels['empInsulation'] || 0) + 1; } },
 
-    { id: 'rocketCluster', name: 'EVO: Cluster Rockets', desc: 'Rocket Launcher Lv.5 branch: rockets split into mini blasts.', icon: '[*]', rarity: 'legendary', maxLevel: 1, requires: () => (player.passiveWeapons.rocketLauncher || 0) >= 5 && !player.weaponEvolutions.rocketLauncher, apply: () => { player.weaponEvolutions.rocketLauncher = 'cluster'; player.upgradeLevels['rocketCluster'] = 1; floatingTexts.push(new FloatingText(player.x, player.y-100, 'CLUSTER ROCKETS ONLINE', '#f97316')); } },
-    { id: 'rocketHunter', name: 'EVO: Hunter Rockets', desc: 'Rocket Launcher Lv.5 branch: rockets prioritize wounded enemies and bosses.', icon: '[*]', rarity: 'legendary', maxLevel: 1, requires: () => (player.passiveWeapons.rocketLauncher || 0) >= 5 && !player.weaponEvolutions.rocketLauncher, apply: () => { player.weaponEvolutions.rocketLauncher = 'hunter'; player.upgradeLevels['rocketHunter'] = 1; floatingTexts.push(new FloatingText(player.x, player.y-100, 'HUNTER ROCKETS ONLINE', '#f97316')); } },
-    { id: 'railOvercharge', name: 'EVO: Rail Overcharge', desc: 'Railgun Lv.5 branch: every rail shot creates a thin shock line.', icon: '[*]', rarity: 'legendary', maxLevel: 1, requires: () => (player.passiveWeapons.railgun || 0) >= 5 && !player.weaponEvolutions.railgun, apply: () => { player.weaponEvolutions.railgun = 'overcharge'; player.upgradeLevels['railOvercharge'] = 1; floatingTexts.push(new FloatingText(player.x, player.y-100, 'RAIL OVERCHARGE', '#f8fafc')); } },
-    { id: 'teslaWeb', name: 'EVO: Tesla Web', desc: 'Tesla Coil Lv.5 branch: zaps apply a brief slow field.', icon: '[*]', rarity: 'legendary', maxLevel: 1, requires: () => (player.passiveWeapons.teslaCoil || 0) >= 5 && !player.weaponEvolutions.teslaCoil, apply: () => { player.weaponEvolutions.teslaCoil = 'web'; player.upgradeLevels['teslaWeb'] = 1; floatingTexts.push(new FloatingText(player.x, player.y-100, 'TESLA WEB ONLINE', '#38bdf8')); } },
-    { id: 'plasmaNova', name: 'EVO: Plasma Nova', desc: 'Plasma Ring Lv.5 branch: rings push enemies away harder and recharge slower.', icon: '[*]', rarity: 'legendary', maxLevel: 1, requires: () => (player.passiveWeapons.plasmaRing || 0) >= 5 && !player.weaponEvolutions.plasmaRing, apply: () => { player.weaponEvolutions.plasmaRing = 'nova'; player.upgradeLevels['plasmaNova'] = 1; floatingTexts.push(new FloatingText(player.x, player.y-100, 'PLASMA NOVA ONLINE', '#a855f7')); } },
-    { id: 'droneCommander', name: 'EVO: Drone Commander', desc: 'Drone Bay Lv.5 branch: drones last longer and focus your target.', icon: '[*]', rarity: 'legendary', maxLevel: 1, requires: () => (player.passiveWeapons.droneBay || 0) >= 5 && !player.weaponEvolutions.droneBay, apply: () => { player.weaponEvolutions.droneBay = 'commander'; player.upgradeLevels['droneCommander'] = 1; floatingTexts.push(new FloatingText(player.x, player.y-100, 'DRONE COMMANDER ONLINE', '#10b981')); } },
+    { id: 'rocketCluster', name: 'EVO: Cluster Rockets', desc: 'Rocket Launcher Lv.5 branch: rockets split into mini blasts.', icon: 'ðŸŽ‡', rarity: 'legendary', maxLevel: 1, requires: () => (player.passiveWeapons.rocketLauncher || 0) >= 5 && !player.weaponEvolutions.rocketLauncher, apply: () => { player.weaponEvolutions.rocketLauncher = 'cluster'; player.upgradeLevels['rocketCluster'] = 1; floatingTexts.push(new FloatingText(player.x, player.y-100, 'CLUSTER ROCKETS ONLINE', '#f97316')); } },
+    { id: 'rocketHunter', name: 'EVO: Hunter Rockets', desc: 'Rocket Launcher Lv.5 branch: rockets prioritize wounded enemies and bosses.', icon: 'ðŸŽ¯', rarity: 'legendary', maxLevel: 1, requires: () => (player.passiveWeapons.rocketLauncher || 0) >= 5 && !player.weaponEvolutions.rocketLauncher, apply: () => { player.weaponEvolutions.rocketLauncher = 'hunter'; player.upgradeLevels['rocketHunter'] = 1; floatingTexts.push(new FloatingText(player.x, player.y-100, 'HUNTER ROCKETS ONLINE', '#f97316')); } },
+    { id: 'railOvercharge', name: 'EVO: Rail Overcharge', desc: 'Railgun Lv.5 branch: every rail shot creates a thin shock line.', icon: 'â•', rarity: 'legendary', maxLevel: 1, requires: () => (player.passiveWeapons.railgun || 0) >= 5 && !player.weaponEvolutions.railgun, apply: () => { player.weaponEvolutions.railgun = 'overcharge'; player.upgradeLevels['railOvercharge'] = 1; floatingTexts.push(new FloatingText(player.x, player.y-100, 'RAIL OVERCHARGE', '#f8fafc')); } },
+    { id: 'teslaWeb', name: 'EVO: Tesla Web', desc: 'Tesla Coil Lv.5 branch: zaps apply a brief slow field.', icon: 'ðŸ•¸ï¸', rarity: 'legendary', maxLevel: 1, requires: () => (player.passiveWeapons.teslaCoil || 0) >= 5 && !player.weaponEvolutions.teslaCoil, apply: () => { player.weaponEvolutions.teslaCoil = 'web'; player.upgradeLevels['teslaWeb'] = 1; floatingTexts.push(new FloatingText(player.x, player.y-100, 'TESLA WEB ONLINE', '#38bdf8')); } },
+    { id: 'plasmaNova', name: 'EVO: Plasma Nova', desc: 'Plasma Ring Lv.5 branch: rings push enemies away harder and recharge slower.', icon: 'ðŸŒŒ', rarity: 'legendary', maxLevel: 1, requires: () => (player.passiveWeapons.plasmaRing || 0) >= 5 && !player.weaponEvolutions.plasmaRing, apply: () => { player.weaponEvolutions.plasmaRing = 'nova'; player.upgradeLevels['plasmaNova'] = 1; floatingTexts.push(new FloatingText(player.x, player.y-100, 'PLASMA NOVA ONLINE', '#a855f7')); } },
+    { id: 'droneCommander', name: 'EVO: Drone Commander', desc: 'Drone Bay Lv.5 branch: drones last longer and focus your target.', icon: 'ðŸ“¡', rarity: 'legendary', maxLevel: 1, requires: () => (player.passiveWeapons.droneBay || 0) >= 5 && !player.weaponEvolutions.droneBay, apply: () => { player.weaponEvolutions.droneBay = 'commander'; player.upgradeLevels['droneCommander'] = 1; floatingTexts.push(new FloatingText(player.x, player.y-100, 'DRONE COMMANDER ONLINE', '#10b981')); } },
 
-    { id: 'lifesteal', name: 'Vampiric Link', desc: '+3.5% chance to heal 1 HP on kill. Survival tool, not immortality.', icon: '[*]', rarity: 'rare', maxLevel: 6, apply: () => { player.lifesteal = (player.lifesteal || 0) + 0.035; player.upgradeLevels['lifesteal'] = (player.upgradeLevels['lifesteal'] || 0) + 1; } },
-    { id: 'bounce', name: 'Ricochet', desc: 'Bullets bounce once. Best with pierce, weak alone.', icon: '[*]', rarity: 'legendary', maxLevel: 1, apply: () => { player.hasBounce = true; player.upgradeLevels['bounce'] = (player.upgradeLevels['bounce'] || 0) + 1; } },
-    { id: 'slow', name: 'Temporal Field', desc: 'Enemies near you are 10% slower per level. Max 30% at Lv.3.', icon: '[*]', rarity: 'legendary', maxLevel: 3, apply: () => { player.hasSlowField = true; player.slowFieldLevel = Math.min(3, (player.slowFieldLevel || 0) + 1); player.upgradeLevels['slow'] = (player.upgradeLevels['slow'] || 0) + 1; } },
-    { id: 'crit', name: 'Focus Chip', desc: '+5% chance for 2.3x critical damage.', icon: '[*]', rarity: 'rare', maxLevel: 7, apply: () => { player.critChance = (player.critChance || 0) + 0.05; player.critMult = Math.max(player.critMult || 2.3, 2.3); player.upgradeLevels['crit'] = (player.upgradeLevels['crit'] || 0) + 1; } },
-    { id: 'shield', name: 'Energy Shield', desc: '+1 bullet block. Max 5 blocks.', icon: '[*]', rarity: 'rare', maxLevel: 5, apply: () => { player.shieldHits = Math.min(5, player.shieldHits + 1); player.maxShieldHits = Math.max(player.maxShieldHits, player.shieldHits); player.upgradeLevels['shield'] = (player.upgradeLevels['shield'] || 0) + 1; } }
+    { id: 'lifesteal', name: 'Vampiric Link', desc: '+3.5% chance to heal 1 HP on kill. Survival tool, not immortality.', icon: 'ðŸ§›', rarity: 'rare', maxLevel: 6, apply: () => { player.lifesteal = (player.lifesteal || 0) + 0.035; player.upgradeLevels['lifesteal'] = (player.upgradeLevels['lifesteal'] || 0) + 1; } },
+    { id: 'bounce', name: 'Ricochet', desc: 'Bullets bounce once. Best with pierce, weak alone.', icon: 'ðŸŽ¾', rarity: 'legendary', maxLevel: 1, apply: () => { player.hasBounce = true; player.upgradeLevels['bounce'] = (player.upgradeLevels['bounce'] || 0) + 1; } },
+    { id: 'slow', name: 'Temporal Field', desc: 'Enemies near you are 10% slower per level. Max 30% at Lv.3.', icon: 'â³', rarity: 'legendary', maxLevel: 3, apply: () => { player.hasSlowField = true; player.slowFieldLevel = Math.min(3, (player.slowFieldLevel || 0) + 1); player.upgradeLevels['slow'] = (player.upgradeLevels['slow'] || 0) + 1; } },
+    { id: 'crit', name: 'Focus Chip', desc: '+5% chance for 2.3x critical damage.', icon: 'ðŸŽ¯', rarity: 'rare', maxLevel: 7, apply: () => { player.critChance = (player.critChance || 0) + 0.05; player.critMult = Math.max(player.critMult || 2.3, 2.3); player.upgradeLevels['crit'] = (player.upgradeLevels['crit'] || 0) + 1; } },
+    { id: 'shield', name: 'Energy Shield', desc: '+1 bullet block. Max 5 blocks.', icon: 'ðŸ’ ', rarity: 'rare', maxLevel: 5, apply: () => { player.shieldHits = Math.min(5, player.shieldHits + 1); player.maxShieldHits = Math.max(player.maxShieldHits, player.shieldHits); player.upgradeLevels['shield'] = (player.upgradeLevels['shield'] || 0) + 1; } }
 ];
 
 const UPGRADE_CATEGORY_META = {
-    CORE: { label: 'CORE', icon: '[*]', color: '#22d3ee', desc: 'Base ship power' },
-    DEFENSE: { label: 'DEFENSE', icon: '[*]', color: '#38bdf8', desc: 'Survival and recovery' },
-    BULLET: { label: 'BULLET MOD', icon: '[*]', color: '#f59e0b', desc: 'Main shot behavior' },
-    WEAPON: { label: 'WEAPON', icon: '[*]', color: '#f97316', desc: 'Passive weapon system' },
-    DASH: { label: 'DASH', icon: '[*]', color: '#ec4899', desc: 'Movement skill upgrade' },
-    SURGE: { label: 'SURGE', icon: '[*]', color: '#facc15', desc: 'Ultimate/core power' },
-    ENVIRONMENT: { label: 'ENVIRONMENT', icon: '[*]', color: '#10b981', desc: 'Space disaster interaction' },
-    EVOLUTION: { label: 'EVOLUTION', icon: '[*]', color: '#a855f7', desc: 'Build transformation' }
+    CORE: { label: 'CORE', icon: 'â—‡', color: '#22d3ee', desc: 'Base ship power' },
+    DEFENSE: { label: 'DEFENSE', icon: 'â¬¢', color: '#38bdf8', desc: 'Survival and recovery' },
+    BULLET: { label: 'BULLET MOD', icon: 'â—†', color: '#f59e0b', desc: 'Main shot behavior' },
+    WEAPON: { label: 'WEAPON', icon: 'âœ¦', color: '#f97316', desc: 'Passive weapon system' },
+    DASH: { label: 'DASH', icon: 'âž¤', color: '#ec4899', desc: 'Movement skill upgrade' },
+    SURGE: { label: 'SURGE', icon: 'âœº', color: '#facc15', desc: 'Ultimate/core power' },
+    ENVIRONMENT: { label: 'ENVIRONMENT', icon: 'â—‰', color: '#10b981', desc: 'Space disaster interaction' },
+    EVOLUTION: { label: 'EVOLUTION', icon: 'â˜…', color: '#a855f7', desc: 'Build transformation' }
 };
 function getUpgradeCategory(upg, isEvo = false) {
     if (!upg) return 'CORE';
@@ -2369,7 +2369,7 @@ const EVOLUTIONS_DB = [
         id: 'stormAegis',
         name: 'Storm Aegis',
         desc: 'EVOLUTION: Massive electric hurricane',
-        icon: '[*]',
+        icon: 'â›ˆï¸',
         req: { upgrade: 'blade', level: 5, passive: 'lightning' },
         apply: () => {
             player.hasStormAegis = true;
@@ -2382,7 +2382,7 @@ const EVOLUTIONS_DB = [
         id: 'singularity',
         name: 'Singularity Core',
         desc: 'EVOLUTION: Dash leaves a black hole',
-        icon: '[*]',
+        icon: 'ðŸ•³ï¸',
         req: { upgrade: 'projectiles', level: 4, passive: 'phase' },
         apply: () => {
             player.hasSingularity = true;
@@ -2394,7 +2394,7 @@ const EVOLUTIONS_DB = [
         id: 'blackHolePulse',
         name: 'Void Pulse',
         desc: 'EVOLUTION: Singularity now emits shockwaves',
-        icon: '[*]',
+        icon: 'âš›ï¸',
         req: { upgrade: 'slow', level: 1, passive: 'pierce' },
         apply: () => {
             player.hasVoidPulse = true;
@@ -2594,10 +2594,10 @@ const BIOMES = {
 };
 
 const WORLD_MUTATORS = {
-    NONE: { name: 'NOMINAL', icon: '[*]', effect: () => {} },
-    EMP: { name: 'EMP STORM', icon: '[*]', desc: 'Temporary fire-rate pressure; does not permanently alter stats.', effect: () => {} },
-    GRAVITY: { name: 'GRAVITY WELL', icon: '[*]', desc: 'Temporary movement drag; does not permanently alter stats.', effect: () => {} },
-    SOLAR: { name: 'SOLAR FLARE', icon: '[*]', desc: 'Temporary damage pressure; does not permanently alter stats.', effect: () => {} }
+    NONE: { name: 'NOMINAL', icon: 'âœ…', effect: () => {} },
+    EMP: { name: 'EMP STORM', icon: 'âš¡', desc: 'Temporary fire-rate pressure; does not permanently alter stats.', effect: () => {} },
+    GRAVITY: { name: 'GRAVITY WELL', icon: 'ðŸ•³ï¸', desc: 'Temporary movement drag; does not permanently alter stats.', effect: () => {} },
+    SOLAR: { name: 'SOLAR FLARE', icon: 'ðŸ”¥', desc: 'Temporary damage pressure; does not permanently alter stats.', effect: () => {} }
 };
 
 let activeWorldMutator = WORLD_MUTATORS.NONE;
@@ -2607,11 +2607,11 @@ let disasterPulseTimer = 0;
 let disasterEventsThisWave = 0;
 let disasterLastWave = -99;
 const SPACE_DISASTERS = [
-    { id: 'meteor', name: 'METEOR SHOWER', icon: '[*]', color: '#fb923c', duration: 7600, minWave: 6, desc: 'Telegraphed strikes damage enemies too.' },
-    { id: 'gravity', name: 'GRAVITY LENS', icon: '[*]', color: '#a855f7', duration: 8500, minWave: 7, desc: 'A moving pull-zone bends the fight.' },
-    { id: 'solar', name: 'SOLAR CURRENT', icon: '[*]', color: '#facc15', duration: 7000, minWave: 6, desc: 'Charges Surge but slightly heats weapons.' },
-    { id: 'emp', name: 'EMP FRONT', icon: '[*]', color: '#38bdf8', duration: 6200, minWave: 8, desc: 'Disrupts enemy bullets and briefly delays enemy firing.' },
-    { id: 'void', name: 'VOID RIFT', icon: '[*]', color: '#6366f1', duration: 7200, minWave: 11, desc: 'One dangerous anomaly appears as a battlefield tool.' }
+    { id: 'meteor', name: 'METEOR SHOWER', icon: 'â˜„ï¸', color: '#fb923c', duration: 7600, minWave: 6, desc: 'Telegraphed strikes damage enemies too.' },
+    { id: 'gravity', name: 'GRAVITY LENS', icon: 'ðŸŒ€', color: '#a855f7', duration: 8500, minWave: 7, desc: 'A moving pull-zone bends the fight.' },
+    { id: 'solar', name: 'SOLAR CURRENT', icon: 'ðŸ”¥', color: '#facc15', duration: 7000, minWave: 6, desc: 'Charges Surge but slightly heats weapons.' },
+    { id: 'emp', name: 'EMP FRONT', icon: 'âš¡', color: '#38bdf8', duration: 6200, minWave: 8, desc: 'Disrupts enemy bullets and briefly delays enemy firing.' },
+    { id: 'void', name: 'VOID RIFT', icon: 'ðŸ•³ï¸', color: '#6366f1', duration: 7200, minWave: 11, desc: 'One dangerous anomaly appears as a battlefield tool.' }
 ];
 function getNextDisasterCooldown() {
     // Rare by design: roughly one every 2-3 non-boss waves, never multiple times in one wave.
@@ -2619,10 +2619,10 @@ function getNextDisasterCooldown() {
 }
 
 const MUTATORS = {
-    SHIELDED: { name: 'SHIELDED', color: '#38bdf8', icon: '[*]' },
-    FAST: { name: 'FAST', color: '#facc15', icon: '[*]' },
-    EXPLOSIVE: { name: 'EXPLOSIVE', color: '#ef4444', icon: '[*]' },
-    GHOST: { name: 'GHOST', color: '#a855f7', icon: '[*]' }
+    SHIELDED: { name: 'SHIELDED', color: '#38bdf8', icon: 'ðŸ›¡ï¸' },
+    FAST: { name: 'FAST', color: '#facc15', icon: 'âš¡' },
+    EXPLOSIVE: { name: 'EXPLOSIVE', color: '#ef4444', icon: 'ðŸ’£' },
+    GHOST: { name: 'GHOST', color: '#a855f7', icon: 'ðŸ‘»' }
 };
 
 let currentBiome = BIOMES.NEON;
@@ -5079,7 +5079,7 @@ class Enemy {
             if (this.hitFlash > 0) ctx.globalAlpha = 0.86;
             const { w: targetW, h: targetH } = getEntitySpriteDrawSize(this, spriteImage);
             ctx.save();
-            ctx.rotate(Math.PI * 0.5);
+            ctx.rotate(-Math.PI * 0.5);
             ctx.drawImage(spriteImage, -targetW / 2, -targetH / 2, targetW, targetH);
             ctx.restore();
             ctx.globalAlpha = 1;
@@ -5178,7 +5178,7 @@ class Enemy {
             ctx.fillStyle = '#fff';
             ctx.font = 'bold 10px "Orbitron"';
             ctx.textAlign = 'center';
-            ctx.fillText(this.isChampion ? (CHAMPION_ROLES[this.championRole]?.icon || '[*]') + ' ' + this.championName : (this.isElite ? this.eliteName : this.mutator.icon), 0, -this.radius - 15);
+            ctx.fillText(this.isChampion ? (CHAMPION_ROLES[this.championRole]?.icon || 'â˜…') + ' ' + this.championName : (this.isElite ? this.eliteName : this.mutator.icon), 0, -this.radius - 15);
 
             // Mini health bar for elites/champions
             if (this.isElite || this.isChampion) {
@@ -5607,7 +5607,7 @@ class Item {
             ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
             ctx.rotate(-this.time);
             ctx.font = '18px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#020617';
-            ctx.fillText('', 0, 1);
+            ctx.fillText('â˜…', 0, 1);
         }
         ctx.restore();
     }
@@ -5737,25 +5737,25 @@ function gainXp(amount, targetPlayer = null) {
 }
 
 const PASSIVE_WEAPONS_DB = {
-    rocketLauncher: { name: 'ROCKET LAUNCHER', color: '#f97316', icon: '[*]' },
-    pulseMines: { name: 'PULSE MINES', color: '#ec4899', icon: '[*]' },
-    railgun: { name: 'RAILGUN ARRAY', color: '#f8fafc', icon: '[*]' },
-    teslaCoil: { name: 'TESLA COIL', color: '#38bdf8', icon: '[*]' },
-    plasmaRing: { name: 'PLASMA RING', color: '#a855f7', icon: '[*]' },
-    droneBay: { name: 'DRONE BAY', color: '#10b981', icon: '[*]' },
-    flakCannon: { name: 'FLAK CANNON', color: '#fb923c', icon: '[*]' },
-    ionScythe: { name: 'ION SCYTHE', color: '#67e8f9', icon: '[*]' },
-    gravityEmitter: { name: 'GRAVITY EMITTER', color: '#a855f7', icon: '[*]' }
+    rocketLauncher: { name: 'ROCKET LAUNCHER', color: '#f97316', icon: 'ðŸš€' },
+    pulseMines: { name: 'PULSE MINES', color: '#ec4899', icon: 'ðŸ’£' },
+    railgun: { name: 'RAILGUN ARRAY', color: '#f8fafc', icon: 'â–°' },
+    teslaCoil: { name: 'TESLA COIL', color: '#38bdf8', icon: 'âš¡' },
+    plasmaRing: { name: 'PLASMA RING', color: '#a855f7', icon: 'â­•' },
+    droneBay: { name: 'DRONE BAY', color: '#10b981', icon: 'ðŸ› ï¸' },
+    flakCannon: { name: 'FLAK CANNON', color: '#fb923c', icon: 'âœ¹' },
+    ionScythe: { name: 'ION SCYTHE', color: '#67e8f9', icon: 'â˜¾' },
+    gravityEmitter: { name: 'GRAVITY EMITTER', color: '#a855f7', icon: 'ðŸ•³ï¸' }
 };
 
 const TEMP_PICKUPS_DB = {
-    rapidFire: { name: 'RAPID FIRE', icon: '[*]', color: '#facc15', duration: 8000, power: 0.58, desc: 'Temporary faster main shots' },
-    speedBoost: { name: 'AFTERBURNER', icon: '[*]', color: '#22d3ee', duration: 8500, power: 1.38, desc: 'Temporary ship speed boost' },
-    pierceShot: { name: 'PHASE ROUNDS', icon: '[*]', color: '#c084fc', duration: 9000, power: 2, desc: 'Temporary +2 pierce' },
-    magnet: { name: 'FLUX MAGNET', icon: '[*]', color: '#2dd4bf', duration: 10000, power: 950, desc: 'Temporary XP pickup range' },
-    overcharge: { name: 'OVERCHARGE', icon: '[*]', color: '#fb7185', duration: 7000, power: 1.28, desc: 'Temporary damage boost' },
-    surgeBattery: { name: 'SURGE CELL', icon: '[*]', color: '#fde047', duration: 1000, power: 320, desc: 'Instant Surge charge' },
-    tempShield: { name: 'SHIELD CELL', icon: '[*]', color: '#38bdf8', duration: 1000, power: 1, desc: 'Instant temporary shield block' }
+    rapidFire: { name: 'RAPID FIRE', icon: 'âš¡', color: '#facc15', duration: 8000, power: 0.58, desc: 'Temporary faster main shots' },
+    speedBoost: { name: 'AFTERBURNER', icon: 'ðŸ’¨', color: '#22d3ee', duration: 8500, power: 1.38, desc: 'Temporary ship speed boost' },
+    pierceShot: { name: 'PHASE ROUNDS', icon: 'â˜„ï¸', color: '#c084fc', duration: 9000, power: 2, desc: 'Temporary +2 pierce' },
+    magnet: { name: 'FLUX MAGNET', icon: 'ðŸ§²', color: '#2dd4bf', duration: 10000, power: 950, desc: 'Temporary XP pickup range' },
+    overcharge: { name: 'OVERCHARGE', icon: 'ðŸ”¥', color: '#fb7185', duration: 7000, power: 1.28, desc: 'Temporary damage boost' },
+    surgeBattery: { name: 'SURGE CELL', icon: 'ðŸ”‹', color: '#fde047', duration: 1000, power: 320, desc: 'Instant Surge charge' },
+    tempShield: { name: 'SHIELD CELL', icon: 'ðŸ’ ', color: '#38bdf8', duration: 1000, power: 1, desc: 'Instant temporary shield block' }
 };
 
 function maybeDropTempPickup(enemy) {
@@ -5770,18 +5770,18 @@ function maybeDropTempPickup(enemy) {
 }
 
 const SPECIAL_WEAPONS_DB = {
-    laser: { name: 'LASER CANNON', desc: 'Piercing beam for 0.75s. Strong aiming tool, not a boss-delete button.', color: '#0ea5e9', icon: '[*]', cooldown: 17000 },
-    reflect: { name: 'REFLECT PROTOCOL', desc: 'Adds 2 shield blocks and reflects nearby bullets. Long cooldown because shields are survival power.', color: '#38bdf8', icon: '[*]', cooldown: 30000 },
-    chrono: { name: 'STASIS FIELD', desc: 'Freezes enemies for 1.25s. Panic tool, not permanent control.', color: '#a855f7', icon: '[*]', cooldown: 26000 },
-    orbital: { name: 'ORBITAL STRIKE', desc: 'Calls down a focused beam in a medium area.', color: '#fff', icon: '[*]', cooldown: 23000 },
-    missiles: { name: 'MISSILE BARRAGE', desc: 'Fires 5 homing missiles. Strong clear, controlled cooldown.', color: '#f59e0b', icon: '[*]', cooldown: 19500 },
-    tesla: { name: 'TESLA PULSE', desc: 'Short electric pulse against nearby enemies.', color: '#38bdf8', icon: '[*]', cooldown: 18000 },
-    singularity: { name: 'VOID BOMB', desc: 'Pulls enemies into a short gravity collapse.', color: '#a855f7', icon: '[*]', cooldown: 27000 },
-    blades: { name: 'BLADE FRENZY', desc: 'Temporarily spawns 3 defensive blades.', color: '#bae6fd', icon: '[*]', cooldown: 22000 },
-    nuke: { name: 'THERMAL SHOCK', desc: 'High-impact reset around you. Very long cooldown because it clears space.', color: '#ef4444', icon: '[*]', cooldown: 46000 },
-    frost: { name: 'FROST NOVA', desc: 'Expanding freeze wave with modest damage.', color: '#bae6fd', icon: '[*]', cooldown: 22000 },
-    swarm: { name: 'DRONE SQUAD', desc: 'Deploys 3 combat drones for 4.5s.', color: '#10b981', icon: '[*]', cooldown: 24000 },
-    reaper: { name: 'REAPER DRIVE', desc: '1.6s invulnerability and speed burst. Long cooldown because invulnerability is huge.', color: '#e11d48', icon: '[*]', cooldown: 32000 }
+    laser: { name: 'LASER CANNON', desc: 'Piercing beam for 0.75s. Strong aiming tool, not a boss-delete button.', color: '#0ea5e9', icon: 'ðŸ”¦', cooldown: 17000 },
+    reflect: { name: 'REFLECT PROTOCOL', desc: 'Adds 2 shield blocks and reflects nearby bullets. Long cooldown because shields are survival power.', color: '#38bdf8', icon: 'ðŸ’ ', cooldown: 30000 },
+    chrono: { name: 'STASIS FIELD', desc: 'Freezes enemies for 1.25s. Panic tool, not permanent control.', color: '#a855f7', icon: 'â³', cooldown: 26000 },
+    orbital: { name: 'ORBITAL STRIKE', desc: 'Calls down a focused beam in a medium area.', color: '#fff', icon: 'ðŸ›°ï¸', cooldown: 23000 },
+    missiles: { name: 'MISSILE BARRAGE', desc: 'Fires 5 homing missiles. Strong clear, controlled cooldown.', color: '#f59e0b', icon: 'ðŸš€', cooldown: 19500 },
+    tesla: { name: 'TESLA PULSE', desc: 'Short electric pulse against nearby enemies.', color: '#38bdf8', icon: 'âš¡', cooldown: 18000 },
+    singularity: { name: 'VOID BOMB', desc: 'Pulls enemies into a short gravity collapse.', color: '#a855f7', icon: 'âš›ï¸', cooldown: 27000 },
+    blades: { name: 'BLADE FRENZY', desc: 'Temporarily spawns 3 defensive blades.', color: '#bae6fd', icon: 'ðŸŒ€', cooldown: 22000 },
+    nuke: { name: 'THERMAL SHOCK', desc: 'High-impact reset around you. Very long cooldown because it clears space.', color: '#ef4444', icon: 'â˜¢ï¸', cooldown: 46000 },
+    frost: { name: 'FROST NOVA', desc: 'Expanding freeze wave with modest damage.', color: '#bae6fd', icon: 'â„ï¸', cooldown: 22000 },
+    swarm: { name: 'DRONE SQUAD', desc: 'Deploys 3 combat drones for 4.5s.', color: '#10b981', icon: 'ðŸ› ï¸', cooldown: 24000 },
+    reaper: { name: 'REAPER DRIVE', desc: '1.6s invulnerability and speed burst. Long cooldown because invulnerability is huge.', color: '#e11d48', icon: 'ðŸ’€', cooldown: 32000 }
 };
 
 function triggerBossReward(firstWeaponId) {
@@ -5912,7 +5912,7 @@ function triggerLevelUpFor(targetPlayer) {
         const levelPips = Array.from({length: Math.min(maxLevel, 5)}, (_, i) => `<span class="${i < Math.min(currentLevel + 1, maxLevel) ? 'on' : ''}"></span>`).join('');
         card.innerHTML = `
             <div class="category-pill inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black tracking-widest mb-3 border" style="color: ${categoryColor}; border-color: ${categoryColor}77; background: ${categoryColor}18;">
-                <span>${category.icon}</span><span>${category.label}</span><span> P${targetPlayer.playerId}</span>
+                <span>${category.icon}</span><span>${category.label}</span><span>â€¢ P${targetPlayer.playerId}</span>
             </div>
             <div class="text-[10px] font-black tracking-widest mb-2 text-slate-500 uppercase">${category.desc}</div>
             <div class="text-5xl mb-3 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">${upg.icon || category.icon}</div>
@@ -6163,7 +6163,7 @@ function triggerPassiveCacheUpgradeFor(targetPlayer) {
         card.style.boxShadow = `0 0 22px ${c}22, inset 0 0 16px ${c}12`;
         card.innerHTML = `
             <div class="category-pill inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black tracking-widest mb-3 border" style="color:${c};border-color:${c}77;background:${c}18;">
-                <span>${category.icon}</span><span>${category.label}</span><span> CACHE</span>
+                <span>${category.icon}</span><span>${category.label}</span><span>â€¢ CACHE</span>
             </div>
             <div class="text-5xl mb-3">${upg.icon || category.icon}</div>
             <h3 class="text-xl font-black mb-2 tracking-wider" style="color:${c}">${upg.name}</h3>
@@ -7924,7 +7924,5 @@ requestAnimationFrame(uiLoop);
 </script>
 </body>
 </html>
-
-
 
 
