@@ -778,7 +778,7 @@ const BOSS_ASSETS = {
 const MAP_ASSETS = {
     NEON: spriteAsset('assets/maps/neon_abyss.webp', { maxSize: 8192, collidable: false }),
     MAGMA: spriteAsset('assets/maps/magma_core.webp', { maxSize: 8192, collidable: false }),
-    HIVE: spriteAsset('assets/maps/toxic_hive.webp', { maxSize: 8192, collidable: false })
+    HIVE: spriteAsset('assets/maps/toxic_hive.png', { maxSize: 8192, collidable: false })
 };
 
 function scaleSpriteSource(img, maxSize = 512) {
@@ -1137,11 +1137,16 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
         ctx.fillRect(drawCamX, drawCamY, viewW, viewH);
         return;
     }
-    const scale = Math.max(WORLD_WIDTH / img.width, WORLD_HEIGHT / img.height);
-    const w = img.width * scale;
-    const h = img.height * scale;
+    const sourceW = img.naturalWidth || img.width;
+    const sourceH = img.naturalHeight || img.height;
+    // Fit entire biome art into the world without cropping.
+    const scale = Math.min(WORLD_WIDTH / sourceW, WORLD_HEIGHT / sourceH);
+    const w = sourceW * scale;
+    const h = sourceH * scale;
     const x = (WORLD_WIDTH - w) * 0.5;
     const y = (WORLD_HEIGHT - h) * 0.5;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(img, x, y, w, h);
     const grad = ctx.createRadialGradient(cam.x, cam.y, Math.min(viewW, viewH) * 0.22, cam.x, cam.y, Math.max(viewW, viewH) * 0.82);
     grad.addColorStop(0, 'rgba(0,0,0,0)');
@@ -1153,7 +1158,7 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=12').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=13').then(reg => reg.update()).catch(() => {});
     });
 }
 
