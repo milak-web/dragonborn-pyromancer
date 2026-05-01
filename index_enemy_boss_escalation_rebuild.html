@@ -659,7 +659,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 
-const ASSET_VERSION = '2026-05-01-v8';
+const ASSET_VERSION = '2026-05-01-v9';
 
 function versionedAssetSrc(src) {
     return src.includes('?') ? `${src}&v=${ASSET_VERSION}` : `${src}?v=${ASSET_VERSION}`;
@@ -1002,7 +1002,7 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=8').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=9').then(reg => reg.update()).catch(() => {});
     });
 }
 
@@ -2103,10 +2103,10 @@ function getUpgradeCategory(upg, isEvo = false) {
     if (upg.weapon) return 'WEAPON';
     if (upg.name && upg.name.startsWith('EVO:')) return 'EVOLUTION';
     const id = upg.id;
-    const surgeIds = new Set(['surgeConduit','surgeGuard','surgeEcho','coreDetonation','closeCall']);
+    const surgeIds = new Set(['surgeConduit','surgeGuard','surgeEcho','coreDetonation']);
     const dashIds = new Set(['dashTrail','vectorBrake','phaseCut']);
     const envIds = new Set(['gravityAnchor','solarCapacitor','empInsulation']);
-    const defenseIds = new Set(['hp','shield','lifesteal','slow','phase','emergencySurge','surgeField']);
+    const defenseIds = new Set(['hp','shield','lifesteal','slow','phase','emergencySurge','surgeField','closeCall']);
     const coreIds = new Set(['dmg','fireRate','speed','repairNanites','targetingMatrix','stabilizedReactor','xpCondenser','surgeUp']);
     const bulletIds = new Set(['pierce','projectiles','bounce','crit','lightning','shatter','blade','momentumCore']);
     if (surgeIds.has(id)) return 'SURGE';

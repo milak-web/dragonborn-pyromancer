@@ -1,4 +1,4 @@
-const CACHE_NAME = "dragonborn-pyromancer-v8";
+const CACHE_NAME = "dragonborn-pyromancer-v9";
 const ASSETS = [
   "./",
   "./index_enemy_boss_escalation_rebuild.html",
