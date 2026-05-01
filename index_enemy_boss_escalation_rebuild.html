@@ -430,6 +430,49 @@
             #startBtn { width: 100%; font-size: 1rem !important; letter-spacing: .14em !important; padding: 12px 10px !important; }
             #resetBtn, #metaBtn, #settingsBtn { width: 100%; margin-top: 8px !important; margin-bottom: 0 !important; }
         }
+
+        /* Asset preload and mobile input polish */
+        #assetLoadStatus {
+            width: min(100%, 560px);
+            margin: 0 auto 12px;
+            padding: 9px 12px;
+            border: 1px solid rgba(34, 211, 238, 0.25);
+            border-radius: 10px;
+            background: rgba(2, 6, 23, 0.62);
+            color: #67e8f9;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+        #startBtn:disabled {
+            opacity: 0.48;
+            cursor: wait;
+            filter: saturate(0.55);
+        }
+        body.playing, body.playing canvas {
+            touch-action: none;
+            overscroll-behavior: none;
+        }
+        body.mobile-ui.playing #touchControls {
+            touch-action: none;
+        }
+        body.mobile-ui #levelUpModal > .absolute {
+            position: static !important;
+            width: 100% !important;
+            padding-top: max(4px, env(safe-area-inset-top)) !important;
+            margin-bottom: 8px !important;
+        }
+        body.mobile-ui #upgradeContainer {
+            margin-top: 0 !important;
+            width: min(100%, 620px) !important;
+            max-height: calc(100dvh - 112px) !important;
+        }
+        body.mobile-ui .upgrade-card .text-6xl,
+        body.mobile-ui .upgrade-card .text-5xl {
+            font-size: 1.9rem !important;
+            margin-bottom: 4px !important;
+        }
     </style>
 </head>
 <body>
@@ -547,8 +590,9 @@
                 Settings
             </button>
             <br>
-            <button id="startBtn" class="menu-action bg-white hover:bg-cyan-400 hover:text-black text-black font-black py-4 px-12 rounded-sm text-xl tracking-[0.3em] transition-all duration-300 uppercase">
-                Initialize
+            <div id="assetLoadStatus">Preparing ship, enemy, boss, and map assets...</div>
+            <button id="startBtn" class="menu-action bg-white hover:bg-cyan-400 hover:text-black text-black font-black py-4 px-12 rounded-sm text-xl tracking-[0.3em] transition-all duration-300 uppercase" data-ready-text="Initialize" disabled>
+                Loading Assets
             </button>
             <button id="resetBtn" class="menu-action mt-4 text-xs font-black text-red-500 border border-red-500/30 px-4 py-2 rounded uppercase tracking-[0.2em] hover:bg-red-500 hover:text-black transition-all">
                 Reset Game Data
@@ -659,7 +703,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 
-const ASSET_VERSION = '2026-05-01-v9';
+const ASSET_VERSION = '2026-05-01-v10';
 
 function versionedAssetSrc(src) {
     return src.includes('?') ? `${src}&v=${ASSET_VERSION}` : `${src}?v=${ASSET_VERSION}`;
@@ -678,63 +722,63 @@ function spriteAsset(src, options = {}) {
 }
 
 const SHIP_ASSETS = {
-    playerCoreBlue: spriteAsset('assets/ships/player_core_blue.png'),
-    striker: spriteAsset('assets/ships/striker.png', { keyTransparent: true }),
-    juggernaut: spriteAsset('assets/ships/juggernaut.png', { keyTransparent: true }),
-    phantom: spriteAsset('assets/ships/phantom.png', { keyTransparent: true }),
-    engineer: spriteAsset('assets/ships/engineer.png', { keyTransparent: true })
+    playerCoreBlue: spriteAsset('assets/ships/player_core_blue.webp'),
+    striker: spriteAsset('assets/ships/striker.webp', { keyTransparent: true }),
+    juggernaut: spriteAsset('assets/ships/juggernaut.webp', { keyTransparent: true }),
+    phantom: spriteAsset('assets/ships/phantom.webp', { keyTransparent: true }),
+    engineer: spriteAsset('assets/ships/engineer.webp', { keyTransparent: true })
 };
 
 const ENEMY_ASSETS = {
     // One-to-one gameplay mappings. These keys must match Enemy.enemyType.
-    drone: spriteAsset('assets/enemies/drone.png'),
-    stalker: spriteAsset('assets/enemies/stalker.png'),
-    tank: spriteAsset('assets/enemies/tank.png'),
-    flanker: spriteAsset('assets/enemies/flanker.png'),
-    pincer: spriteAsset('assets/enemies/pincer.png'),
-    bomber: spriteAsset('assets/enemies/bomber.png'),
-    weaver: spriteAsset('assets/enemies/weaver.png'),
-    blockader: spriteAsset('assets/enemies/blockader.png'),
-    lancer: spriteAsset('assets/enemies/lancer.png'),
-    sniper: spriteAsset('assets/enemies/sniper.png'),
-    shieldbearer: spriteAsset('assets/enemies/shieldbearer.png'),
-    shieldbearerBroken: spriteAsset('assets/enemies/shieldbearerBroken.png'),
-    repairDrone: spriteAsset('assets/enemies/repairDrone.png'),
-    predator: spriteAsset('assets/enemies/predator.png'),
-    blinkStriker: spriteAsset('assets/enemies/blinkStriker.png'),
-    nullifier: spriteAsset('assets/enemies/nullifier.png'),
-    phaseRogue: spriteAsset('assets/enemies/phaseRogue.png'),
-    orbitalGunner: spriteAsset('assets/enemies/orbitalGunner.png'),
-    carrier: spriteAsset('assets/enemies/carrier.png'),
-    voidLeech: spriteAsset('assets/enemies/voidLeech.png'),
-    gravitySkimmer: spriteAsset('assets/enemies/gravitySkimmer.png'),
-    splitter: spriteAsset('assets/enemies/splitter.png'),
-    laserSentry: spriteAsset('assets/enemies/laserSentry.png'),
-    juggernautElite: spriteAsset('assets/enemies/juggernautElite.png'),
-    sapper: spriteAsset('assets/enemies/sapper.png'),
-    swarmMother: spriteAsset('assets/enemies/swarmMother.png'),
-    railgun: spriteAsset('assets/enemies/railgun.png'),
-    mineLayer: spriteAsset('assets/enemies/mineLayer.png'),
-    sentinel: spriteAsset('assets/enemies/sentinel.png')
+    drone: spriteAsset('assets/enemies/drone.webp'),
+    stalker: spriteAsset('assets/enemies/stalker.webp'),
+    tank: spriteAsset('assets/enemies/tank.webp'),
+    flanker: spriteAsset('assets/enemies/flanker.webp'),
+    pincer: spriteAsset('assets/enemies/pincer.webp'),
+    bomber: spriteAsset('assets/enemies/bomber.webp'),
+    weaver: spriteAsset('assets/enemies/weaver.webp'),
+    blockader: spriteAsset('assets/enemies/blockader.webp'),
+    lancer: spriteAsset('assets/enemies/lancer.webp'),
+    sniper: spriteAsset('assets/enemies/sniper.webp'),
+    shieldbearer: spriteAsset('assets/enemies/shieldbearer.webp'),
+    shieldbearerBroken: spriteAsset('assets/enemies/shieldbearerBroken.webp'),
+    repairDrone: spriteAsset('assets/enemies/repairDrone.webp'),
+    predator: spriteAsset('assets/enemies/predator.webp'),
+    blinkStriker: spriteAsset('assets/enemies/blinkStriker.webp'),
+    nullifier: spriteAsset('assets/enemies/nullifier.webp'),
+    phaseRogue: spriteAsset('assets/enemies/phaseRogue.webp'),
+    orbitalGunner: spriteAsset('assets/enemies/orbitalGunner.webp'),
+    carrier: spriteAsset('assets/enemies/carrier.webp'),
+    voidLeech: spriteAsset('assets/enemies/voidLeech.webp'),
+    gravitySkimmer: spriteAsset('assets/enemies/gravitySkimmer.webp'),
+    splitter: spriteAsset('assets/enemies/splitter.webp'),
+    laserSentry: spriteAsset('assets/enemies/laserSentry.webp'),
+    juggernautElite: spriteAsset('assets/enemies/juggernautElite.webp'),
+    sapper: spriteAsset('assets/enemies/sapper.webp'),
+    swarmMother: spriteAsset('assets/enemies/swarmMother.webp'),
+    railgun: spriteAsset('assets/enemies/railgun.webp'),
+    mineLayer: spriteAsset('assets/enemies/mineLayer.webp'),
+    sentinel: spriteAsset('assets/enemies/sentinel.webp')
 };
 
 const BOSS_ASSETS = {
-    construct: spriteAsset('assets/bosses/construct.png', { keyTransparent: true }),
-    sentinel: spriteAsset('assets/bosses/sentinel.png', { keyTransparent: true }),
-    hypercore: spriteAsset('assets/bosses/hypercore.png', { keyTransparent: true }),
-    vortex: spriteAsset('assets/bosses/vortex.png', { keyTransparent: true }),
-    artillery: spriteAsset('assets/bosses/artillery.png', { keyTransparent: true }),
-    hivequeen: spriteAsset('assets/bosses/hivequeen.png'),
-    mirror: spriteAsset('assets/bosses/mirror.png'),
-    reaper: spriteAsset('assets/bosses/reaper.png'),
-    bulwark: spriteAsset('assets/bosses/bulwark.png'),
-    storm: spriteAsset('assets/bosses/storm.png')
+    construct: spriteAsset('assets/bosses/construct.webp', { keyTransparent: true }),
+    sentinel: spriteAsset('assets/bosses/sentinel.webp', { keyTransparent: true }),
+    hypercore: spriteAsset('assets/bosses/hypercore.webp', { keyTransparent: true }),
+    vortex: spriteAsset('assets/bosses/vortex.webp', { keyTransparent: true }),
+    artillery: spriteAsset('assets/bosses/artillery.webp', { keyTransparent: true }),
+    hivequeen: spriteAsset('assets/bosses/hivequeen.webp'),
+    mirror: spriteAsset('assets/bosses/mirror.webp'),
+    reaper: spriteAsset('assets/bosses/reaper.webp'),
+    bulwark: spriteAsset('assets/bosses/bulwark.webp'),
+    storm: spriteAsset('assets/bosses/storm.webp')
 };
 
 const MAP_ASSETS = {
-    NEON: spriteAsset('assets/maps/neon_abyss.png', { maxSize: 2048, collidable: false }),
-    MAGMA: spriteAsset('assets/maps/magma_core.png', { maxSize: 2048, collidable: false }),
-    HIVE: spriteAsset('assets/maps/toxic_hive.png', { maxSize: 2048, collidable: false })
+    NEON: spriteAsset('assets/maps/neon_abyss.webp', { maxSize: 4096, collidable: false }),
+    MAGMA: spriteAsset('assets/maps/magma_core.webp', { maxSize: 4096, collidable: false }),
+    HIVE: spriteAsset('assets/maps/toxic_hive.webp', { maxSize: 4096, collidable: false })
 };
 
 function scaleSpriteSource(img, maxSize = 512) {
@@ -791,6 +835,41 @@ function knockOutBorderBlack(img, threshold = 28) {
     return canvas;
 }
 
+function trimTransparentBorder(img, padding = 8) {
+    const w = img.width || img.naturalWidth || 0;
+    const h = img.height || img.naturalHeight || 0;
+    if (!w || !h) return img;
+    const c = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+    c.canvas.width = w;
+    c.canvas.height = h;
+    c.drawImage(img, 0, 0);
+    const imageData = c.getImageData(0, 0, w, h);
+    const data = imageData.data;
+    let minX = w, minY = h, maxX = -1, maxY = -1;
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+            if (data[(y * w + x) * 4 + 3] > 8) {
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
+                maxX = Math.max(maxX, x);
+                maxY = Math.max(maxY, y);
+            }
+        }
+    }
+    if (maxX < minX || maxY < minY) return img;
+    minX = Math.max(0, minX - padding);
+    minY = Math.max(0, minY - padding);
+    maxX = Math.min(w - 1, maxX + padding);
+    maxY = Math.min(h - 1, maxY + padding);
+    if (minX === 0 && minY === 0 && maxX === w - 1 && maxY === h - 1) return img;
+    const out = document.createElement('canvas');
+    out.width = Math.max(1, maxX - minX + 1);
+    out.height = Math.max(1, maxY - minY + 1);
+    const o = out.getContext('2d');
+    o.drawImage(c.canvas, minX, minY, out.width, out.height, 0, 0, out.width, out.height);
+    return out;
+}
+
 function buildSpriteCollider(asset) {
     const img = asset && asset.canvas;
     if (!img || asset.collider) return;
@@ -802,11 +881,12 @@ function buildSpriteCollider(asset) {
     c.canvas.height = h;
     c.drawImage(img, 0, 0);
     const data = c.getImageData(0, 0, w, h).data;
-    let minX = w, minY = h, maxX = -1, maxY = -1;
+    let minX = w, minY = h, maxX = -1, maxY = -1, solid = 0;
     for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
             const p = (y * w + x) * 4;
             if (data[p + 3] > 28) {
+                solid++;
                 minX = Math.min(minX, x);
                 minY = Math.min(minY, y);
                 maxX = Math.max(maxX, x);
@@ -817,25 +897,105 @@ function buildSpriteCollider(asset) {
     if (maxX < minX || maxY < minY) return;
     asset.collider = {
         widthRatio: Math.max(0.08, Math.min(1, (maxX - minX + 1) / w)),
-        heightRatio: Math.max(0.08, Math.min(1, (maxY - minY + 1) / h))
+        heightRatio: Math.max(0.08, Math.min(1, (maxY - minY + 1) / h)),
+        coverage: Math.max(0.05, Math.min(1, solid / Math.max(1, (maxX - minX + 1) * (maxY - minY + 1))))
     };
 }
 
-function loadAssetCollection(collection) {
-    Object.values(collection).forEach(asset => {
+const assetLoadState = {
+    started: false,
+    ready: false,
+    total: 0,
+    settled: 0,
+    failed: 0,
+    promise: null
+};
+
+function getAllGameAssets() {
+    return [SHIP_ASSETS, ENEMY_ASSETS, BOSS_ASSETS, MAP_ASSETS].flatMap(collection => Object.values(collection));
+}
+
+function updateAssetLoadUI() {
+    const startBtn = document.getElementById('startBtn');
+    const status = document.getElementById('assetLoadStatus');
+    if (!startBtn || !status) return;
+    const total = Math.max(1, assetLoadState.total || getAllGameAssets().length);
+    const pct = Math.min(100, Math.round((assetLoadState.settled / total) * 100));
+    if (!assetLoadState.ready) {
+        startBtn.disabled = true;
+        startBtn.innerText = `Loading ${pct}%`;
+        status.innerText = `Preloading art before launch: ${assetLoadState.settled}/${total} assets ready`;
+        return;
+    }
+    startBtn.disabled = false;
+    startBtn.innerText = startBtn.dataset.readyText || 'Initialize';
+    status.innerText = assetLoadState.failed
+        ? `Assets ready with ${assetLoadState.failed} fallback miss(es). Gameplay can start.`
+        : 'All runtime assets are loaded. No placeholder ships during combat.';
+}
+
+function prepareSpriteAsset(asset) {
+    if (!asset || asset.canvas || !asset.img) return asset && asset.canvas;
+    const scaled = scaleSpriteSource(asset.img, asset.maxSize);
+    let prepared = asset.keyTransparent ? knockOutBorderBlack(scaled) : scaled;
+    if (asset.collidable) prepared = trimTransparentBorder(prepared, 8);
+    asset.canvas = prepared;
+    if (asset.collidable) buildSpriteCollider(asset);
+    if (asset.canvas !== asset.img) asset.img = null;
+    return asset.canvas;
+}
+
+function loadAsset(asset) {
+    if (!asset) return Promise.resolve(null);
+    if (asset.promise) return asset.promise;
+    asset.promise = new Promise(resolve => {
         const img = new Image();
-        img.onload = () => { asset.loaded = true; };
-        img.onerror = () => { asset.loaded = false; };
+        img.decoding = 'async';
+        img.loading = 'eager';
+        img.onload = () => {
+            asset.loaded = true;
+            asset.img = img;
+            try { prepareSpriteAsset(asset); } catch (e) { asset.canvas = img; }
+            assetLoadState.settled++;
+            updateAssetLoadUI();
+            resolve(asset);
+        };
+        img.onerror = () => {
+            asset.loaded = false;
+            assetLoadState.failed++;
+            assetLoadState.settled++;
+            updateAssetLoadUI();
+            resolve(asset);
+        };
         img.src = asset.src;
-        asset.img = img;
     });
+    return asset.promise;
+}
+
+function loadAssetCollection(collection) {
+    return Object.values(collection).map(loadAsset);
 }
 
 function loadShipAssets() {
-    loadAssetCollection(SHIP_ASSETS);
-    loadAssetCollection(ENEMY_ASSETS);
-    loadAssetCollection(BOSS_ASSETS);
-    loadAssetCollection(MAP_ASSETS);
+    if (assetLoadState.promise) return assetLoadState.promise;
+    const assets = getAllGameAssets();
+    assetLoadState.started = true;
+    assetLoadState.ready = false;
+    assetLoadState.total = assets.length;
+    updateAssetLoadUI();
+    assetLoadState.promise = Promise.allSettled(assets.map(loadAsset)).then(() => {
+        assetLoadState.ready = true;
+        updateAssetLoadUI();
+        return assetLoadState;
+    });
+    return assetLoadState.promise;
+}
+
+function ensureGameAssetsReady() {
+    if (assetLoadState.ready) return Promise.resolve(assetLoadState);
+    const status = document.getElementById('assetLoadStatus');
+    if (status) status.innerText = 'Finishing asset preload before launch...';
+    return loadShipAssets();
 }
 
 function getLoadedSprite(collection, key) {
@@ -859,17 +1019,8 @@ function getSpriteImage(asset) {
     if (!asset || !asset.loaded) return null;
     if (asset.canvas) return asset.canvas;
     if (!asset.img) return null;
-    if (!asset.canvas) {
-        try {
-            const scaled = scaleSpriteSource(asset.img, asset.maxSize);
-            asset.canvas = asset.keyTransparent ? knockOutBorderBlack(scaled) : scaled;
-            if (asset.collidable) buildSpriteCollider(asset);
-            if (asset.canvas !== asset.img) asset.img = null;
-        } catch(e) {
-            asset.canvas = null;
-        }
-    }
-    return asset.canvas || asset.img;
+    try { return prepareSpriteAsset(asset) || asset.img; }
+    catch(e) { return asset.img || null; }
 }
 
 const PLAYER_COLLIDER_PROFILES = {
@@ -911,11 +1062,11 @@ function getEntitySpriteDrawSize(entity, image) {
     const imgH = image && (image.naturalHeight || image.height || 0);
     const ratio = imgW > 0 ? imgH / imgW : 1;
     if (entity.type === TYPE.PLAYER) {
-        const w = Math.max(56, entity.radius * (entity.shipScaleMul || 4.2));
+        const w = Math.max(72, entity.radius * (entity.shipScaleMul || 4.9));
         return { w, h: w * ratio };
     }
     const isBoss = entity.enemyType === 'boss';
-    const w = Math.max(isBoss ? 170 : 34, entity.radius * (isBoss ? 3.65 : 3.15));
+    const w = Math.max(isBoss ? 190 : 38, entity.radius * (isBoss ? 3.75 : 3.05));
     return { w, h: w * ratio };
 }
 
@@ -1002,7 +1153,7 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=9').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=10').then(reg => reg.update()).catch(() => {});
     });
 }
 
@@ -1788,6 +1939,14 @@ function getViewportSize() {
     return { w, h, shortSide: Math.min(w, h), area: w * h };
 }
 
+function getResponsiveStartZoom() {
+    const { shortSide } = getViewportSize();
+    if (shortSide <= 420) return 0.50;
+    if (shortSide <= 560) return 0.56;
+    if (shortSide <= 760) return 0.64;
+    return 0.86;
+}
+
 function getScreenEnemyPressureFactor() {
     const { shortSide, area } = getViewportSize();
     if (shortSide <= 420 || area <= 260000) return 0.60;
@@ -1802,6 +1961,9 @@ const touchInput = {
     moveY: 0,
     stickPointerId: null,
     stickRect: null,
+    freeStick: false,
+    freeStickX: 0,
+    freeStickY: 0,
     dashHeld: false,
     surgeHeld: false,
     weaponHeld: false
@@ -1825,14 +1987,15 @@ function setupTouchControls() {
         touchInput.moveX = 0;
         touchInput.moveY = 0;
         touchInput.stickPointerId = null;
+        touchInput.freeStick = false;
         knob.style.transform = 'translate3d(0,0,0)';
     };
 
     const updateStick = (clientX, clientY) => {
         touchInput.stickRect = touchInput.stickRect || stick.getBoundingClientRect();
         const r = touchInput.stickRect;
-        const cx = r.left + r.width * 0.5;
-        const cy = r.top + r.height * 0.5;
+        const cx = touchInput.freeStick ? touchInput.freeStickX : r.left + r.width * 0.5;
+        const cy = touchInput.freeStick ? touchInput.freeStickY : r.top + r.height * 0.5;
         const dx = clientX - cx;
         const dy = clientY - cy;
         const max = r.width * 0.34;
@@ -1888,6 +2051,29 @@ function setupTouchControls() {
     bindHold(dashBtn, 'dashHeld');
     bindHold(surgeBtn, 'surgeHeld');
     bindHold(weaponBtn, 'weaponHeld');
+
+    const startFreeStick = e => {
+        if (!touchInput.enabled || !isPlaying || e.pointerType === 'mouse') return;
+        if (e.target && e.target.closest && (e.target.closest('#touchStick') || e.target.closest('.touch-actions'))) return;
+        const { w } = getViewportSize();
+        if (e.clientX > w * 0.58) return;
+        e.preventDefault();
+        touchInput.stickRect = touchInput.stickRect || stick.getBoundingClientRect();
+        touchInput.freeStick = true;
+        touchInput.freeStickX = e.clientX;
+        touchInput.freeStickY = e.clientY;
+        touchInput.stickPointerId = e.pointerId;
+        updateStick(e.clientX, e.clientY);
+    };
+    window.addEventListener('pointerdown', startFreeStick, { passive: false });
+    window.addEventListener('pointermove', e => {
+        if (e.pointerId !== touchInput.stickPointerId || (!touchInput.freeStick && !touchInput.stickRect)) return;
+        if (e.pointerType === 'mouse') return;
+        e.preventDefault();
+        updateStick(e.clientX, e.clientY);
+    }, { passive: false });
+    window.addEventListener('pointerup', e => { if (e.pointerId === touchInput.stickPointerId) resetStick(); }, { passive: false });
+    window.addEventListener('pointercancel', e => { if (e.pointerId === touchInput.stickPointerId) resetStick(); }, { passive: false });
 
     updateTouchClass();
     // Fallback: if any touch starts, force-enable touch mode for this session.
@@ -2546,7 +2732,7 @@ class Player {
         this.xpGainBonus = 0;
         this.lastDamageTime = -99999;
         this.shipSpriteKey = SHIP_ASSETS[className] ? className : 'playerCoreBlue';
-        this.shipScaleMul = 4.2;
+        this.shipScaleMul = 4.9;
         // Sprite is authored nose-up; gameplay angle is nose-right, so rotate by +90deg.
         this.shipSpriteAngleOffset = Math.PI * 0.5;
 
@@ -3277,9 +3463,7 @@ class Player {
             if (this.hitFlash > 0) {
                 ctx.globalAlpha = this.hitFlash > 1000 ? 0.72 : 0.88;
             }
-            const targetW = Math.max(56, this.radius * this.shipScaleMul);
-            const ratio = shipH / shipW;
-            const targetH = targetW * ratio;
+            const { w: targetW, h: targetH } = getEntitySpriteDrawSize(this, shipImage);
             ctx.drawImage(shipImage, -targetW / 2, -targetH / 2, targetW, targetH);
             ctx.globalAlpha = 1;
         } else {
@@ -4680,15 +4864,15 @@ class Enemy {
         this.x += this.vx * timeScale * (dt/1000);
         this.y += this.vy * timeScale * (dt/1000);
 
-        if (speed > 5) {
-            let targetAngle = Math.atan2(this.vy, this.vx);
-            if (this.enemyType === 'sniper' || this.enemyType === 'boss') targetAngle = angleToPlayer; 
+        if (speed > 5 || distToPlayer < 1400) {
+            // Assets are authored nose-up; visual nose should track the threat, not sideways strafe velocity.
+            let targetAngle = angleToPlayer;
             let diff = targetAngle - this.angle;
             while (diff < -Math.PI) diff += Math.PI*2; while (diff > Math.PI) diff -= Math.PI*2;
-            this.angle += diff * 5 * (dt/1000);
+            this.angle += diff * Math.min(1, 8 * (dt/1000));
         }
 
-        if (entityCollidersOverlap(this, target, 2) && this.atkCooldown <= 0 && this.enemyType !== 'sniper') {
+        if (entityCollidersOverlap(this, target, -3) && this.atkCooldown <= 0 && this.enemyType !== 'sniper') {
             let dmg = this.enemyType === 'boss' ? 42 : (this.enemyType === 'tank' ? 20 : 11);
             target.takeDamage(dmg + Math.floor(wave * 0.8));
             this.atkCooldown = 1000;
@@ -4893,12 +5077,7 @@ class Enemy {
             ctx.shadowBlur = this.enemyType === 'boss' ? 26 : (this.isChampion || this.mutator ? 22 : 12);
             ctx.shadowColor = this.mutator ? this.mutator.color : this.glow;
             if (this.hitFlash > 0) ctx.globalAlpha = 0.86;
-            const targetW = Math.max(
-                this.enemyType === 'boss' ? 170 : 34,
-                this.radius * (this.enemyType === 'boss' ? 3.65 : 3.15)
-            );
-            const ratio = spriteH / spriteW;
-            const targetH = targetW * ratio;
+            const { w: targetW, h: targetH } = getEntitySpriteDrawSize(this, spriteImage);
             ctx.save();
             ctx.rotate(Math.PI * 0.5);
             ctx.drawImage(spriteImage, -targetW / 2, -targetH / 2, targetW, targetH);
@@ -5168,7 +5347,7 @@ class Projectile {
             }
         } else {
             const target = getNearestLivingPlayer(this.x, this.y);
-            if (target && pointHitsEntityCollider(this.x, this.y, target, 8)) {
+            if (target && pointHitsEntityCollider(this.x, this.y, target, 4)) {
                 target.takeDamage(this.damage);
                 createParticles(this.x, this.y, PALETTE.eBullet, 10, 200);
                 this.dead = true;
@@ -6334,7 +6513,12 @@ function spawnEnemy(forceSwarm = false) {
     return true;
 }
 
-function startGame() {
+let startGamePending = false;
+async function startGame() {
+    if (isPlaying || startGamePending) return;
+    startGamePending = true;
+    await ensureGameAssetsReady();
+    startGamePending = false;
     AudioManager.init();
     AudioManager.music.start();
     if (isPlaying) return; 
@@ -6342,7 +6526,7 @@ function startGame() {
     modal.style.opacity = '0';
     setTimeout(() => modal.style.display = 'none', 500);
     
-    score = 0; wave = 1; spawnRate = BALANCE.baseSpawnRate; nextWaveScore = 0; activeBoss = null; coopMode = false; coopJoinLatch = {}; camZoom = 1; targetCamZoom = 1;
+    score = 0; wave = 1; spawnRate = BALANCE.baseSpawnRate; nextWaveScore = 0; activeBoss = null; coopMode = false; coopJoinLatch = {}; camZoom = getResponsiveStartZoom(); targetCamZoom = camZoom;
     waveKills = 0; waveStartTime = performance.now(); bossRewardPending = false; lastWaveProgressCheck = 0; activeSpaceDisaster = null; disasterCooldown = getNextDisasterCooldown(); disasterEventsThisWave = 0; disasterLastWave = -99;
     directorPressure = 0; lastEnemyPressureSpawn = 0; lastXpMergeTime = 0;
     resetDirectorV2State();
@@ -6385,7 +6569,10 @@ function gameOver() {
     document.getElementById('modalTitle').innerText = 'DELETED';
     document.getElementById('modalTitle').className = "text-8xl font-black text-red-600 mb-4 tracking-[0.2em] uppercase drop-shadow-[0_0_30px_rgba(220,38,38,0.8)]";
     document.getElementById('modalDesc').innerText = `Simulation ended. Level ${player.level} | Wave ${wave} | Score ${score}`;
-    document.getElementById('startBtn').innerText = 'REBOOT';
+    const startBtn = document.getElementById('startBtn');
+    startBtn.dataset.readyText = 'REBOOT';
+    startBtn.innerText = 'REBOOT';
+    startBtn.disabled = false;
     const modal = document.getElementById('modal');
     modal.style.display = 'flex';
     setTimeout(() => modal.style.opacity = '1', 10);
@@ -6532,7 +6719,7 @@ function update(dt) {
     }
 
     let totalEntities = entities.length + playerProjectiles.length + particles.length;
-    const autoPerfLow = totalEntities > 300 || entities.length > 80;
+    const autoPerfLow = getViewportSize().shortSide <= 760 || totalEntities > 300 || entities.length > 80;
     if (settingsData.performanceMode === 'quality') lowPerfMode = false;
     else if (settingsData.performanceMode === 'performance') lowPerfMode = true;
     else lowPerfMode = autoPerfLow;
@@ -6690,13 +6877,25 @@ function updateCamera(dt) {
     const zoomForH = canvas.height / neededH;
     const desiredZoom = Math.min(0.98, zoomForW, zoomForH);
 
-    // Solo is less claustrophobic now; boss/co-op zoom out more, dead players are ignored.
+    // Mobile needs breathing room. Enemy pressure eases the camera out instead of letting swarms fill the screen.
     const { shortSide } = getViewportSize();
-    const mobileZoomOut = shortSide <= 560 ? 0.08 : shortSide <= 760 ? 0.05 : 0;
-    const minZoom = activeBoss ? Math.max(0.36, 0.46 - mobileZoomOut) : (living.length > 1 ? Math.max(0.42, 0.52 - mobileZoomOut) : Math.max(0.62, 0.74 - mobileZoomOut));
-    const maxZoom = activeBoss ? 0.82 : (living.length > 1 ? 0.90 : 0.98);
-    targetCamZoom = Math.max(minZoom, Math.min(maxZoom, desiredZoom));
-    camZoom = lerp(camZoom, targetCamZoom, activeBoss ? 0.052 : 0.070);
+    let nearbyEnemies = 0;
+    for (const e of entities) {
+        if (!e || e.type !== TYPE.ENEMY || e.dead) continue;
+        for (const p of living) {
+            if (Math.hypot(e.x - p.x, e.y - p.y) < (activeBoss ? 1050 : 820)) { nearbyEnemies++; break; }
+        }
+    }
+    const mobileZoomOut = shortSide <= 420 ? 0.22 : shortSide <= 560 ? 0.17 : shortSide <= 760 ? 0.11 : 0;
+    const pressureZoomOut = Math.min(shortSide <= 760 ? 0.20 : 0.11, nearbyEnemies * (shortSide <= 760 ? 0.006 : 0.0035));
+    const minZoom = activeBoss
+        ? Math.max(shortSide <= 760 ? 0.30 : 0.36, 0.46 - mobileZoomOut - pressureZoomOut * 0.65)
+        : (living.length > 1
+            ? Math.max(shortSide <= 760 ? 0.34 : 0.42, 0.52 - mobileZoomOut - pressureZoomOut)
+            : Math.max(shortSide <= 760 ? 0.42 : 0.62, 0.74 - mobileZoomOut - pressureZoomOut));
+    const maxZoom = activeBoss ? (shortSide <= 760 ? 0.68 : 0.82) : (living.length > 1 ? (shortSide <= 760 ? 0.74 : 0.90) : (shortSide <= 760 ? 0.78 : 0.98));
+    targetCamZoom = Math.max(minZoom, Math.min(maxZoom, desiredZoom - pressureZoomOut));
+    camZoom = lerp(camZoom, targetCamZoom, activeBoss ? 0.045 : 0.055);
 
     // Smooth shake decay. Random shake is applied only in draw and never changes the real camera target.
     if (cam.shake > 0) cam.shake *= 0.78;
@@ -7524,9 +7723,9 @@ function updateBossV4(dt) {
     this.y = Math.max(this.radius, Math.min(WORLD_HEIGHT - this.radius, this.y + this.vy * (dt/1000)));
     this.vx *= Math.pow(0.90, dt / 16.66);
     this.vy *= Math.pow(0.90, dt / 16.66);
-    this.angle = Math.atan2(this.vy || Math.cos(this.pulse), this.vx || Math.sin(this.pulse));
+    let bossAngleDiff = angle - this.angle; while (bossAngleDiff < -Math.PI) bossAngleDiff += Math.PI*2; while (bossAngleDiff > Math.PI) bossAngleDiff -= Math.PI*2; this.angle += bossAngleDiff * Math.min(1, 7 * (dt/1000));
 
-    if (dist < this.radius + target.radius + 8) {
+    if (entityCollidersOverlap(this, target, -2)) {
         const bossContact = ((this.enrage ? 34 : 24) + tier * 3) * (directorV2.enemyDamageMul || 1);
         target.takeDamage(bossContact);
     }
@@ -7630,7 +7829,7 @@ function updateSpecialEnemyV4(dt) {
     this.x = Math.max(this.radius, Math.min(WORLD_WIDTH-this.radius, this.x));
     this.y = Math.max(this.radius, Math.min(WORLD_HEIGHT-this.radius, this.y));
     this.vx *= Math.pow(0.91, dt/16.66); this.vy *= Math.pow(0.91, dt/16.66);
-    this.angle = Math.atan2(this.vy || dy, this.vx || dx);
+    let specialAngleDiff = angle - this.angle; while (specialAngleDiff < -Math.PI) specialAngleDiff += Math.PI*2; while (specialAngleDiff > Math.PI) specialAngleDiff -= Math.PI*2; this.angle += specialAngleDiff * Math.min(1, 8 * (dt/1000));
 }
 
 function applyPackPressureV4(enemy, dt) {
