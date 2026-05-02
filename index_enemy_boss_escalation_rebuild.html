@@ -50,8 +50,11 @@
             background: radial-gradient(circle at top, rgba(14,165,233,0.12), transparent 38%), linear-gradient(160deg, #0f172a, #020617);
             border: 1px solid #334155; transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer; position: relative; overflow: hidden;
-            min-height: 310px;
+            min-height: clamp(205px, 30vh, 310px);
             box-shadow: inset 0 0 20px rgba(0,0,0,0.55), 0 18px 35px rgba(0,0,0,0.35);
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            will-change: transform;
         }
         .upgrade-card .category-pill { box-shadow: 0 0 18px currentColor; }
         .upgrade-card .level-pips { display:flex; justify-content:center; gap:4px; margin:10px 0 4px; }
@@ -64,8 +67,129 @@
         }
         .upgrade-card:hover::before { left: 150%; }
         .upgrade-card:hover, .focused-card {
-            border-color: #0ea5e9; transform: translateY(-15px) scale(1.03);
+            border-color: #0ea5e9; transform: translateY(-7px) scale(1.02);
             box-shadow: 0 20px 40px -10px rgba(14, 165, 233, 0.5), inset 0 0 15px rgba(14,165,233,0.2);
+        }
+        #upgradeContainer {
+            align-items: stretch;
+            grid-auto-rows: 1fr;
+        }
+        #upgradeActionBar {
+            margin-top: 78px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            width: min(96vw, 940px);
+            pointer-events: auto;
+            z-index: 2;
+            padding: 0 10px;
+        }
+        #upgradePointBadge {
+            border: 1px solid rgba(56,189,248,0.45);
+            background: rgba(2,6,23,0.82);
+            color: #67e8f9;
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .upgrade-action-btn {
+            border: 1px solid rgba(71,85,105,0.95);
+            background: rgba(15,23,42,0.88);
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 7px 12px;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .11em;
+            text-transform: uppercase;
+            min-height: 36px;
+        }
+        .upgrade-action-btn:hover {
+            border-color: rgba(34,211,238,0.88);
+            color: #ecfeff;
+        }
+        .upgrade-action-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            filter: grayscale(0.35);
+        }
+        #devToolsToggle {
+            position: fixed;
+            top: max(8px, calc(8px + env(safe-area-inset-top)));
+            right: max(8px, calc(8px + env(safe-area-inset-right)));
+            z-index: 75;
+            pointer-events: auto;
+            border: 1px solid rgba(34, 211, 238, 0.45);
+            background: rgba(2, 6, 23, 0.86);
+            color: #67e8f9;
+            border-radius: 10px;
+            padding: 6px 10px;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+        #devToolsPanel {
+            position: fixed;
+            top: max(42px, calc(42px + env(safe-area-inset-top)));
+            right: max(8px, calc(8px + env(safe-area-inset-right)));
+            z-index: 75;
+            width: min(320px, 86vw);
+            pointer-events: auto;
+            border: 1px solid rgba(34, 211, 238, 0.35);
+            background: rgba(2, 6, 23, 0.93);
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 18px 36px rgba(0,0,0,0.45);
+        }
+        #devToolsPanel.hidden {
+            display: none;
+        }
+        .dev-tools-title {
+            color: #67e8f9;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .dev-tools-row {
+            display: flex;
+            gap: 7px;
+            margin-top: 7px;
+        }
+        .dev-tools-select,
+        .dev-tools-btn {
+            width: 100%;
+            min-height: 34px;
+            border-radius: 9px;
+            border: 1px solid rgba(71, 85, 105, 0.92);
+            background: rgba(15, 23, 42, 0.88);
+            color: #e2e8f0;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            padding: 6px 8px;
+        }
+        .dev-tools-btn:hover {
+            border-color: rgba(34, 211, 238, 0.78);
+            color: #ecfeff;
+        }
+        .dev-tools-status {
+            margin-top: 8px;
+            color: #94a3b8;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .07em;
+            text-transform: uppercase;
         }
         
         #flashOverlay {
@@ -401,8 +525,34 @@
             min-height: 160px !important;
             padding: 10px !important;
         }
+        body.mobile-ui .upgrade-card:hover,
+        body.mobile-ui .focused-card {
+            transform: translateY(-2px) scale(1.01) !important;
+        }
         body.mobile-ui .upgrade-card h3 { font-size: 11px !important; }
         body.mobile-ui .upgrade-card p { font-size: 8px !important; line-height: 1.25 !important; }
+        body.mobile-ui #upgradeActionBar {
+            margin: 0 0 8px 0 !important;
+            width: 100% !important;
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            justify-content: flex-start;
+            background: rgba(2, 6, 23, 0.78);
+            border: 1px solid rgba(56, 189, 248, 0.22);
+            border-radius: 10px;
+            padding: 8px !important;
+        }
+        body.mobile-ui #upgradePointBadge {
+            font-size: 9px !important;
+            letter-spacing: .09em !important;
+            padding: 5px 9px !important;
+        }
+        body.mobile-ui .upgrade-action-btn {
+            font-size: 9px !important;
+            min-height: 32px !important;
+            padding: 6px 9px !important;
+        }
         @media (max-width: 390px) {
             body.mobile-ui #upgradeContainer {
                 grid-template-columns: 1fr !important;
@@ -571,6 +721,20 @@
             </div>
         </div>
     </div>
+    <button id="devToolsToggle" class="menu-action" type="button">Developer Options</button>
+    <div id="devToolsPanel" class="hidden">
+        <div class="dev-tools-title">Developer Options</div>
+        <select id="devBossSelect" class="dev-tools-select"></select>
+        <div class="dev-tools-row">
+            <button id="devSpawnBossBtn" class="dev-tools-btn" type="button">Spawn Boss</button>
+            <button id="devKillBossBtn" class="dev-tools-btn" type="button">Kill Boss</button>
+        </div>
+        <div class="dev-tools-row">
+            <button id="devStartRushBtn" class="dev-tools-btn" type="button">Run All 10 Bosses</button>
+            <button id="devStopRushBtn" class="dev-tools-btn" type="button">Stop Rush</button>
+        </div>
+        <div id="devToolsStatus" class="dev-tools-status">Idle</div>
+    </div>
 
     <!-- Start/Death Modal -->
     <div id="modal" class="fixed inset-0 bg-black/95 flex items-center justify-center z-50 pointer-events-auto transition-opacity duration-700">
@@ -698,6 +862,11 @@
         <div class="absolute top-10 text-center w-full">
             <h1 class="text-4xl font-black text-cyan-400 mb-2 tracking-[0.4em] uppercase">EVOLUTION REQUIRED</h1>
             <p class="text-slate-500 text-xs font-bold tracking-widest uppercase">Use L-Stick to select, (X) to confirm</p>
+        </div>
+        <div id="upgradeActionBar" class="hidden">
+            <div id="upgradePointBadge">Reserve 0/3</div>
+            <button id="bankPointBtn" class="upgrade-action-btn" type="button">Bank Point</button>
+            <button id="powerDraftBtn" class="upgrade-action-btn" type="button">Power Draft (2)</button>
         </div>
         
         <div id="upgradeContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 max-w-7xl px-4 w-full justify-center mt-8">
@@ -1264,6 +1433,25 @@ let directorV2 = {
     pressureDebt: 0,
     lastPulseAt: 0,
     phase: 'stable'
+};
+const DEV_BOSS_ROSTER = ['construct','sentinel','hypercore','vortex','artillery','hivequeen','mirror','reaper','bulwark','storm'];
+const DEV_BOSS_LABELS = {
+    construct: 'Apex Construct',
+    sentinel: 'Void Sentinel',
+    hypercore: 'Hyper-Core',
+    vortex: 'Gravity Vortex',
+    artillery: 'Rail Artillery',
+    hivequeen: 'Hive Queen',
+    mirror: 'Mirror Wraith',
+    reaper: 'Nova Reaper',
+    bulwark: 'Bulwark Prime',
+    storm: 'Ion Storm'
+};
+const devToolsState = {
+    panelOpen: false,
+    bossRushActive: false,
+    bossRushIndex: 0,
+    testBossMode: false
 };
 
 const ENCOUNTER_THEMES = {
@@ -2450,7 +2638,65 @@ function getUpgradeCategory(upg, isEvo = false) {
 function getUpgradeCategoryMeta(upg, isEvo = false) {
     return UPGRADE_CATEGORY_META[getUpgradeCategory(upg, isEvo)] || UPGRADE_CATEGORY_META.CORE;
 }
-function pickDiverseUpgradeChoices(baseChoices, availableUpgrades, targetPlayer, desiredCount = 4) {
+const UPGRADE_BANK_CAP = 3;
+const POWER_DRAFT_COST = 2;
+
+function getReservePoints(targetPlayer) {
+    if (!targetPlayer) return 0;
+    return Math.max(0, Math.min(UPGRADE_BANK_CAP, targetPlayer.bankedUpgradePoints || 0));
+}
+
+function addReservePoints(targetPlayer, amount = 1) {
+    if (!targetPlayer) return 0;
+    targetPlayer.bankedUpgradePoints = Math.max(0, Math.min(UPGRADE_BANK_CAP, (targetPlayer.bankedUpgradePoints || 0) + amount));
+    return targetPlayer.bankedUpgradePoints;
+}
+
+function spendReservePoints(targetPlayer, amount = 1) {
+    if (!targetPlayer) return false;
+    const current = getReservePoints(targetPlayer);
+    if (current < amount) return false;
+    targetPlayer.bankedUpgradePoints = current - amount;
+    return true;
+}
+
+function getClassPreferredCategories(className = '') {
+    const c = (className || '').toLowerCase();
+    if (c === 'juggernaut') return new Set(['DEFENSE', 'SURGE', 'CORE']);
+    if (c === 'phantom') return new Set(['DASH', 'BULLET', 'SURGE']);
+    if (c === 'engineer') return new Set(['WEAPON', 'CORE', 'SURGE', 'ENVIRONMENT']);
+    return new Set(['CORE', 'BULLET', 'WEAPON']); // striker default
+}
+
+function getUpgradeDraftWeight(upg, targetPlayer, options = {}) {
+    const cat = getUpgradeCategory(upg, false);
+    const currentWeaponCount = Object.values(targetPlayer.passiveWeapons || {}).filter(v => v > 0).length;
+    const currentLevel = targetPlayer.upgradeLevels[upg.id] || 0;
+    const currentWeaponLevel = (targetPlayer.passiveWeapons && targetPlayer.passiveWeapons[upg.id]) || 0;
+    const banked = getReservePoints(targetPlayer);
+    const draftPower = !!options.draftPower;
+
+    let weight = 1;
+    if (cat === 'WEAPON') weight = currentWeaponCount < 3 ? 4 : 2;
+    if (cat === 'CORE') weight = targetPlayer.level <= 5 ? 2 : 1;
+    if (cat === 'DEFENSE' && targetPlayer.hp < targetPlayer.maxHp * 0.55) weight = Math.max(weight, 3);
+
+    const preferred = getClassPreferredCategories(targetPlayer.className);
+    if (preferred.has(cat)) weight *= (1 + banked * 0.22 + (draftPower ? 0.24 : 0));
+    if (currentLevel > 0) weight *= (1 + Math.min(0.80, currentLevel * 0.20));
+    if (upg.weapon && currentWeaponLevel > 0) weight *= (1 + Math.min(0.95, currentWeaponLevel * 0.22));
+
+    if (currentLevel >= 4 || currentWeaponLevel >= 4) weight *= 1.28;
+    if (upg.rarity === 'legendary') weight *= draftPower ? 1.75 : (1 + banked * 0.18);
+    if (cat === 'DASH' && (targetPlayer.phaseCutLevel > 0 || targetPlayer.vectorBrakeLevel > 0 || targetPlayer.dashTrailLevel > 0)) weight *= 1.28;
+    if (cat === 'SURGE' && ((targetPlayer.upgradeLevels.surgeConduit || 0) > 0 || (targetPlayer.upgradeLevels.surgeGuard || 0) > 0 || (targetPlayer.upgradeLevels.surgeEcho || 0) > 0 || (targetPlayer.upgradeLevels.coreDetonation || 0) > 0)) weight *= 1.28;
+    if (cat === 'BULLET' && ((targetPlayer.upgradeLevels.pierce || 0) > 0 || (targetPlayer.upgradeLevels.projectiles || 0) > 0)) weight *= 1.24;
+    if (cat === 'DEFENSE' && targetPlayer.hp < targetPlayer.maxHp * 0.40) weight *= 1.65;
+
+    return Math.max(1, Math.floor(weight));
+}
+
+function pickDiverseUpgradeChoices(baseChoices, availableUpgrades, targetPlayer, desiredCount = 4, options = {}) {
     const choices = [...baseChoices];
     const usedCategories = new Set(choices.map(c => getUpgradeCategory(c, !!EVOLUTIONS_DB.find(e => e.id === c.id))));
     const usedIds = new Set(choices.map(c => c.id));
@@ -2480,11 +2726,7 @@ function pickDiverseUpgradeChoices(baseChoices, availableUpgrades, targetPlayer,
     const weighted = [];
     for (const upg of availableUpgrades) {
         if (!canTake(upg)) continue;
-        const cat = getUpgradeCategory(upg, false);
-        let weight = 1;
-        if (cat === 'WEAPON') weight = currentWeaponCount < 3 ? 4 : 2;
-        if (cat === 'CORE') weight = targetPlayer.level <= 5 ? 2 : 1;
-        if (cat === 'DEFENSE' && targetPlayer.hp < targetPlayer.maxHp * 0.55) weight = 3;
+        const weight = getUpgradeDraftWeight(upg, targetPlayer, options);
         for (let i = 0; i < weight; i++) weighted.push(upg);
     }
     weighted.sort(() => 0.5 - Math.random());
@@ -2850,6 +3092,7 @@ class Player {
         
         this.upgradeLevels = {};
         UPGRADES_DB.forEach(u => this.upgradeLevels[u.id] = 0);
+        this.bankedUpgradePoints = 0;
         
         this.level = 1; this.xp = 0; this.reqXp = 185;
         this.lastFire = 0; this.hitFlash = 0;
@@ -4182,6 +4425,63 @@ class SpecialLaser {
     }
 }
 
+class BossRotatingLaserSweep {
+    constructor(owner, duration = 2300, turnRate = 0.0032, width = 42, range = 2200, damage = 16, color = '#ef4444') {
+        this.owner = owner;
+        this.type = TYPE.PROP;
+        this.x = owner.x;
+        this.y = owner.y;
+        this.life = duration;
+        this.maxLife = duration;
+        this.turnRate = turnRate;
+        this.width = width;
+        this.range = range;
+        this.damage = damage;
+        this.color = color;
+        this.dead = false;
+        const target = owner ? getNearestLivingPlayer(owner.x, owner.y) : null;
+        this.angle = target ? Math.atan2(target.y - owner.y, target.x - owner.x) : 0;
+        AudioManager.play('surge');
+    }
+    update(dt) {
+        if (!this.owner || this.owner.dead || activeBoss !== this.owner) { this.dead = true; return; }
+        this.life -= dt;
+        if (this.life <= 0) { this.dead = true; return; }
+        this.x = this.owner.x; this.y = this.owner.y;
+        this.angle += this.turnRate * dt;
+        const beamHalf = Math.max(0.045, this.width / Math.max(1, this.range));
+        const tickDamage = this.damage * (dt / 16.6);
+        for (const pl of getLivingPlayers()) {
+            const dx = pl.x - this.x;
+            const dy = pl.y - this.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist > this.range) continue;
+            let diff = Math.atan2(dy, dx) - this.angle;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            while (diff > Math.PI) diff -= Math.PI * 2;
+            if (Math.abs(diff) <= beamHalf) {
+                pl.takeDamage(tickDamage);
+                if (Math.random() < 0.16) createParticles(pl.x, pl.y, '#fca5a5', 1, 100);
+            }
+        }
+    }
+    takeDamage() {}
+    draw(ctx) {
+        const alpha = Math.max(0, this.life / this.maxLife);
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.shadowBlur = 24;
+        ctx.shadowColor = this.color;
+        ctx.fillStyle = `rgba(255,255,255,${0.75 * alpha})`;
+        ctx.fillRect(0, -this.width * 0.35, this.range, this.width * 0.7);
+        ctx.fillStyle = `rgba(244,63,94,${0.42 * alpha})`;
+        ctx.fillRect(0, -this.width * 0.8, this.range, this.width * 1.6);
+        ctx.restore();
+    }
+}
+
 class Singularity {
     constructor(x, y, damage) {
         this.x = x; this.y = y; this.type = TYPE.PROP; 
@@ -5150,29 +5450,36 @@ class Enemy {
                 if (Math.random() < 0.2) items.push(new Item(this.x, this.y, 'hp', 50));
             }
 
+            let skipWaveProgression = false;
             if (this.enemyType === 'boss') {
                 activeBoss = null;
-                metaData.cores++;
-                metaData.stats.bossesKilled++;
-                trackAchievement('slayer', 1);
-                saveMeta();
                 document.getElementById('bossBarContainer').style.opacity = '0';
                 triggerFlash(1.0, '#f43f5e');
-                items.push(new Item(this.x, this.y, 'magnet', 0));
-                
-                // Drop Special Weapon - Full Library of 12
-                const weapons = [
-                    'laser', 'reflect', 'chrono', 'orbital', 'missiles', 
-                    'tesla', 'singularity', 'blades', 'nuke', 'frost', 
-                    'swarm', 'reaper'
-                ];
-                let weaponType = weapons[Math.floor(Math.random() * weapons.length)];
-                items.push(new Item(this.x + 50, this.y, 'special', weaponType));
-                
-                floatingTexts.push(new FloatingText(this.x, this.y, "+1 DATA CORE", "#facc15"));
+
+                if (this.devSpawnedFromTools) {
+                    skipWaveProgression = true;
+                    floatingTexts.push(new FloatingText(this.x, this.y, "DEV BOSS DOWN", "#67e8f9"));
+                    void handleDevBossDefeat(this.devBossType || this.bossType);
+                } else {
+                    metaData.cores++;
+                    metaData.stats.bossesKilled++;
+                    trackAchievement('slayer', 1);
+                    saveMeta();
+                    items.push(new Item(this.x, this.y, 'magnet', 0));
+                    
+                    // Drop Special Weapon - Full Library of 12
+                    const weapons = [
+                        'laser', 'reflect', 'chrono', 'orbital', 'missiles', 
+                        'tesla', 'singularity', 'blades', 'nuke', 'frost', 
+                        'swarm', 'reaper'
+                    ];
+                    let weaponType = weapons[Math.floor(Math.random() * weapons.length)];
+                    items.push(new Item(this.x + 50, this.y, 'special', weaponType));
+                    floatingTexts.push(new FloatingText(this.x, this.y, "+1 DATA CORE", "#facc15"));
+                }
             }
             
-            checkWaveProgression();
+            if (!skipWaveProgression) checkWaveProgression();
         }
     }
 
@@ -5851,7 +6158,7 @@ function updateUI() {
     }
 
     document.getElementById('lvlText').innerText = player.level;
-    document.getElementById('xpText').innerText = `${Math.floor(player.xp)}/${player.reqXp}`;
+    document.getElementById('xpText').innerText = `${Math.floor(player.xp)}/${player.reqXp} | PTS ${getReservePoints(player)}`;
     document.getElementById('xpBar').style.width = `${Math.min(100, (player.xp/player.reqXp)*100)}%`;
     
     document.getElementById('scoreText').innerText = score;
@@ -5867,13 +6174,18 @@ function gainXp(amount, targetPlayer = null) {
     const receiver = targetPlayer || player;
     if (!receiver || receiver.dead) return;
     receiver.xp += amount * (1 + (receiver.xpGainBonus || 0));
-    if (receiver.xp >= receiver.reqXp) {
-        AudioManager.play('levelUp');
+    let leveled = false;
+    while (receiver.xp >= receiver.reqXp) {
+        leveled = true;
         receiver.level++;
         receiver.xp -= receiver.reqXp;
         receiver.reqXp = Math.floor(receiver.reqXp * 1.54) + (receiver.level * 42);
         receiver.surgeMax = 1200 + (receiver.level * 145);
-        triggerLevelUpFor(receiver);
+        addReservePoints(receiver, 1);
+    }
+    if (leveled) {
+        AudioManager.play('levelUp');
+        triggerLevelUpFor(receiver, { grantPoint: false });
     }
     updateUI();
 }
@@ -5926,9 +6238,41 @@ const SPECIAL_WEAPONS_DB = {
     reaper: { name: 'REAPER DRIVE', desc: '1.6s invulnerability and speed burst. Long cooldown because invulnerability is huge.', color: '#e11d48', icon: '💀', cooldown: 32000 }
 };
 
+let activeLevelUpContext = null;
+function setUpgradeActionBarState(opts = {}) {
+    const bar = document.getElementById('upgradeActionBar');
+    const badge = document.getElementById('upgradePointBadge');
+    const bankBtn = document.getElementById('bankPointBtn');
+    const powerBtn = document.getElementById('powerDraftBtn');
+    if (!bar || !badge || !bankBtn || !powerBtn) return;
+
+    if (!opts.visible) {
+        bar.classList.add('hidden');
+        bankBtn.onclick = null;
+        powerBtn.onclick = null;
+        return;
+    }
+
+    const targetPlayer = opts.targetPlayer || player;
+    const points = getReservePoints(targetPlayer);
+    const capText = points >= UPGRADE_BANK_CAP ? 'MAX' : `${points}/${UPGRADE_BANK_CAP}`;
+    badge.innerText = `Reserve ${capText}`;
+    bar.classList.remove('hidden');
+
+    bankBtn.disabled = !!opts.disableBank;
+    bankBtn.innerText = opts.bankLabel || 'Bank Point';
+    bankBtn.onclick = typeof opts.onBank === 'function' ? opts.onBank : null;
+
+    const canPower = points >= POWER_DRAFT_COST && !opts.disablePowerDraft;
+    powerBtn.disabled = !canPower;
+    powerBtn.innerText = opts.powerLabel || `Power Draft (${POWER_DRAFT_COST})`;
+    powerBtn.onclick = canPower && typeof opts.onPowerDraft === 'function' ? opts.onPowerDraft : null;
+}
+
 function triggerBossReward(firstWeaponId) {
     isPaused = true;
     keys['KeyW'] = keys['KeyS'] = keys['KeyA'] = keys['KeyD'] = keys['Space'] = keys['KeyE'] = false;
+    setUpgradeActionBarState({ visible: false });
 
     const weaponsPool = Object.keys(SPECIAL_WEAPONS_DB);
     let secondWeaponId = weaponsPool[Math.floor(Math.random() * weaponsPool.length)];
@@ -5995,14 +6339,20 @@ function triggerLevelUp() {
     triggerLevelUpFor(player);
 }
 
-function triggerLevelUpFor(targetPlayer) {
+function triggerLevelUpFor(targetPlayer, options = {}) {
     if (!targetPlayer || targetPlayer.dead) return;
+    const draftPower = !!options.draftPower;
+    const freePick = !!options.freePick;
+    const grantPoint = options.grantPoint !== false;
+    const previousPrimary = options.returnPlayer || player;
+
     activeUpgradePlayerId = targetPlayer.playerId || 1;
     activeUpgradeGamepadIndex = targetPlayer.gamepadIndex;
     isPaused = true;
-    keys['KeyW'] = keys['KeyS'] = keys['KeyA'] = keys['KeyD'] = keys['Space'] = keys['KeyE'] = false; 
+    keys['KeyW'] = keys['KeyS'] = keys['KeyA'] = keys['KeyD'] = keys['Space'] = keys['KeyE'] = false;
 
-    const previousPrimary = player;
+    if (grantPoint) addReservePoints(targetPlayer, 1);
+    activeLevelUpContext = { targetPlayer, previousPrimary, draftPower, freePick };
     player = targetPlayer; // build choices are calculated from the leveling player's build
 
     let availableEvolutions = EVOLUTIONS_DB.filter(evo => {
@@ -6013,31 +6363,68 @@ function triggerLevelUpFor(targetPlayer) {
     });
     let choices = [];
     if (availableEvolutions.length > 0) {
-        choices.push(availableEvolutions.sort(() => 0.5 - Math.random())[0]);
+        availableEvolutions = availableEvolutions.sort(() => 0.5 - Math.random());
+        choices.push(availableEvolutions[0]);
+        if (draftPower && availableEvolutions[1] && Math.random() < 0.7) choices.push(availableEvolutions[1]);
     }
 
-    let availableUpgrades = UPGRADES_DB.filter(upg => {
-        let currentLevel = targetPlayer.upgradeLevels[upg.id] || 0;
+    const availableUpgrades = UPGRADES_DB.filter(upg => {
+        const currentLevel = targetPlayer.upgradeLevels[upg.id] || 0;
         if (upg.weapon && !isWeaponUnlocked(upg.id)) return false;
         if (upg.requires && !upg.requires()) return false;
         return currentLevel < (upg.maxLevel || 999);
     });
 
-    choices = pickDiverseUpgradeChoices(choices, availableUpgrades, targetPlayer, 4);
+    const desiredCount = draftPower ? 5 : 4;
+    choices = pickDiverseUpgradeChoices(choices, availableUpgrades, targetPlayer, desiredCount, { draftPower });
 
     const container = document.getElementById('upgradeContainer');
     container.innerHTML = '';
-    upgradeFocusIndex = Math.floor(choices.length / 2); 
+    upgradeFocusIndex = Math.floor(choices.length / 2);
 
     const title = document.querySelector('#levelUpModal h1');
     const subtitle = document.querySelector('#levelUpModal p');
     if (title) {
-        title.innerText = `P${targetPlayer.playerId} UPGRADE AVAILABLE`;
-        title.className = targetPlayer.playerId === 2 
+        title.innerText = draftPower ? `P${targetPlayer.playerId} POWER DRAFT` : `P${targetPlayer.playerId} UPGRADE AVAILABLE`;
+        title.className = targetPlayer.playerId === 2
             ? "text-4xl font-black text-purple-400 mb-2 tracking-[0.4em] uppercase"
             : "text-4xl font-black text-cyan-400 mb-2 tracking-[0.4em] uppercase";
     }
-    if (subtitle) subtitle.innerText = targetPlayer.playerId === 2 ? 'P2: use your controller to choose. P1 keyboard is locked.' : 'P1: use keyboard or your controller to choose.';
+    if (subtitle) {
+        const reserveText = `Reserve ${getReservePoints(targetPlayer)}/${UPGRADE_BANK_CAP}`;
+        subtitle.innerText = targetPlayer.playerId === 2
+            ? `P2: choose, bank, or power draft. ${reserveText}.`
+            : `P1: choose, bank, or power draft. ${reserveText}.`;
+    }
+
+    setUpgradeActionBarState({
+        visible: true,
+        targetPlayer,
+        disableBank: false,
+        disablePowerDraft: draftPower,
+        bankLabel: 'Bank Point',
+        powerLabel: draftPower ? 'Power Draft Active' : `Power Draft (${POWER_DRAFT_COST})`,
+        onBank: () => {
+            player = previousPrimary && !previousPrimary.dead ? previousPrimary : (getLivingPlayers()[0] || targetPlayer);
+            activeLevelUpContext = null;
+            resumeGame();
+        },
+        onPowerDraft: () => {
+            if (!spendReservePoints(targetPlayer, POWER_DRAFT_COST)) {
+                floatingTexts.push(new FloatingText(targetPlayer.x, targetPlayer.y - 70, 'NEED 2 RESERVE', '#f97316'));
+                setUpgradeActionBarState({
+                    visible: true,
+                    targetPlayer,
+                    disableBank: false,
+                    disablePowerDraft: true,
+                    bankLabel: 'Bank Point',
+                    powerLabel: `Power Draft (${POWER_DRAFT_COST})`
+                });
+                return;
+            }
+            triggerLevelUpFor(targetPlayer, { grantPoint: false, draftPower: true, freePick: true, returnPlayer: previousPrimary });
+        }
+    });
 
     choices.forEach((upg, index) => {
         const isEvo = EVOLUTIONS_DB.find(e => e.id === upg.id);
@@ -6045,7 +6432,7 @@ function triggerLevelUpFor(targetPlayer) {
         const category = getUpgradeCategoryMeta(upg, !!isEvo);
         const categoryColor = category.color;
 
-        card.className = `upgrade-card p-8 rounded-xl text-center flex-1 text-white select-none`;
+        card.className = 'upgrade-card p-8 rounded-xl text-center flex-1 text-white select-none';
         card.style.borderColor = categoryColor;
         card.style.boxShadow = `0 0 22px ${categoryColor}22, inset 0 0 16px ${categoryColor}12`;
         card.style.animationDelay = `${index * 0.1}s`;
@@ -6063,11 +6450,16 @@ function triggerLevelUpFor(targetPlayer) {
             <div class="text-[10px] font-black tracking-widest mb-3" style="color:${categoryColor}">LV ${Math.min(currentLevel + 1, maxLevel)}/${maxLevel}</div>
             <p class="text-slate-300 text-xs font-bold tracking-wide leading-relaxed">${upg.desc}</p>
         `;
-        card.onclick = () => { 
+        card.onclick = () => {
+            if (!freePick && !spendReservePoints(targetPlayer, 1)) {
+                floatingTexts.push(new FloatingText(targetPlayer.x, targetPlayer.y - 70, 'NO RESERVE POINT', '#f97316'));
+                return;
+            }
             if (isEvo) targetPlayer.evolutionsTaken[upg.id] = true;
             applyUpgradeToPlayer(upg, targetPlayer);
             player = previousPrimary && !previousPrimary.dead ? previousPrimary : (getLivingPlayers()[0] || targetPlayer);
-            resumeGame(); 
+            activeLevelUpContext = null;
+            resumeGame();
         };
         card.onmouseenter = () => { upgradeFocusIndex = index; updateUpgradeFocus(); };
         container.appendChild(card);
@@ -6084,6 +6476,8 @@ function updateUpgradeFocus() {
 
 function resumeGame() {
     const modal = document.getElementById('levelUpModal');
+    setUpgradeActionBarState({ visible: false });
+    activeLevelUpContext = null;
     modal.style.opacity = '0';
     setTimeout(() => { modal.classList.add('hidden'); lastTime = performance.now(); isPaused = false; updateUI(); }, 300);
 }
@@ -6275,6 +6669,7 @@ function triggerPassiveCacheUpgradeFor(targetPlayer) {
     activeUpgradePlayerId = targetPlayer.playerId || 1;
     activeUpgradeGamepadIndex = targetPlayer.gamepadIndex;
     isPaused = true;
+    setUpgradeActionBarState({ visible: false });
     const previousPrimary = player;
     player = targetPlayer;
     let passivePool = UPGRADES_DB.filter(upg => {
@@ -6285,7 +6680,7 @@ function triggerPassiveCacheUpgradeFor(targetPlayer) {
         return (upg.weapon || cat === 'WEAPON' || cat === 'BULLET MOD' || cat === 'CORE') && lvl < (upg.maxLevel || 999);
     });
     passivePool.sort(() => Math.random() - 0.5);
-    const choices = pickDiverseUpgradeChoices([], passivePool, targetPlayer, 3);
+    const choices = pickDiverseUpgradeChoices([], passivePool, targetPlayer, 3, { draftPower: false });
     const container = document.getElementById('upgradeContainer');
     container.innerHTML = '';
     const title = document.querySelector('#levelUpModal h1');
@@ -6464,6 +6859,7 @@ function drawDisasterOverlay(ctx) {
 
 function checkWaveProgression(force = false) {
     if (!isPlaying || isPaused || !player) return;
+    if (devToolsState.testBossMode) return;
     const now = performance.now();
     if (now - lastWaveProgressCheck < 200 && !force) return;
     lastWaveProgressCheck = now;
@@ -6552,6 +6948,118 @@ function spawnBoss() {
     if (bossCoopScale > 1) { activeBoss.hp *= 1 + (bossCoopScale - 1) * 0.55; activeBoss.maxHp = activeBoss.hp; }
     entities.push(activeBoss);
     document.getElementById('bossBarContainer').style.opacity = '1';
+}
+
+function updateDevToolsStatus(text) {
+    const el = document.getElementById('devToolsStatus');
+    if (el) el.innerText = text || 'Idle';
+}
+
+function getDevSelectedBossType() {
+    const select = document.getElementById('devBossSelect');
+    const val = (select && select.value) ? select.value : DEV_BOSS_ROSTER[0];
+    return DEV_BOSS_ROSTER.includes(val) ? val : DEV_BOSS_ROSTER[0];
+}
+
+function resetDevBossArena() {
+    activeBoss = null;
+    entities = entities.filter(e => e && e.type === TYPE.PLAYER);
+    enemyProjectiles = [];
+    particles = [];
+    items = [];
+    floatingTexts = [];
+    waveSpawnBudget = 0;
+    waveEnemiesSpawned = 0;
+    waveSpawnRoster = [];
+    waveRosterIndex = 0;
+    waveTargetKills = 9999;
+    waveStartTime = performance.now();
+    activeSpaceDisaster = null;
+    disasterCooldown = getNextDisasterCooldown();
+    document.getElementById('bossBarContainer').style.opacity = '0';
+}
+
+function spawnBossOfTypeForDev(type) {
+    const idx = Math.max(0, DEV_BOSS_ROSTER.indexOf(type));
+    const previousWave = wave;
+    wave = (idx + 1) * 5;
+    spawnBoss();
+    wave = previousWave;
+    if (activeBoss) {
+        activeBoss.devSpawnedFromTools = true;
+        activeBoss.devBossType = type;
+    }
+}
+
+async function startDevBossEncounter(type) {
+    const selectedType = DEV_BOSS_ROSTER.includes(type) ? type : DEV_BOSS_ROSTER[0];
+    if (!isPlaying) await startGame({ fromDev: true });
+    if (!player || !isPlaying) return;
+    devToolsState.testBossMode = true;
+    resetDevBossArena();
+    spawnBossOfTypeForDev(selectedType);
+    updateUI();
+    updateDevToolsStatus(`Testing: ${DEV_BOSS_LABELS[selectedType] || selectedType}`);
+}
+
+async function startDevBossRush() {
+    devToolsState.bossRushActive = true;
+    devToolsState.bossRushIndex = 0;
+    await startDevBossEncounter(DEV_BOSS_ROSTER[0]);
+    updateDevToolsStatus(`Boss Rush 1/${DEV_BOSS_ROSTER.length}`);
+}
+
+function stopDevBossRush() {
+    devToolsState.bossRushActive = false;
+    devToolsState.bossRushIndex = 0;
+    devToolsState.testBossMode = false;
+    updateDevToolsStatus('Rush stopped');
+}
+
+async function handleDevBossDefeat(defeatedType) {
+    const name = DEV_BOSS_LABELS[defeatedType] || defeatedType || 'Boss';
+    if (!devToolsState.bossRushActive) {
+        updateDevToolsStatus(`Defeated: ${name}`);
+        return;
+    }
+    devToolsState.bossRushIndex++;
+    if (devToolsState.bossRushIndex >= DEV_BOSS_ROSTER.length) {
+        devToolsState.bossRushActive = false;
+        devToolsState.testBossMode = false;
+        updateDevToolsStatus('Boss Rush complete');
+        floatingTexts.push(new FloatingText(player.x, player.y - 90, 'BOSS RUSH COMPLETE', '#facc15'));
+        return;
+    }
+    const nextType = DEV_BOSS_ROSTER[devToolsState.bossRushIndex];
+    updateDevToolsStatus(`Boss Rush ${devToolsState.bossRushIndex + 1}/${DEV_BOSS_ROSTER.length}`);
+    setTimeout(() => { if (isPlaying) startDevBossEncounter(nextType); }, 900);
+}
+
+function initDevToolsUI() {
+    const toggleBtn = document.getElementById('devToolsToggle');
+    const panel = document.getElementById('devToolsPanel');
+    const select = document.getElementById('devBossSelect');
+    const spawnBtn = document.getElementById('devSpawnBossBtn');
+    const killBtn = document.getElementById('devKillBossBtn');
+    const rushBtn = document.getElementById('devStartRushBtn');
+    const stopBtn = document.getElementById('devStopRushBtn');
+    if (!toggleBtn || !panel || !select || !spawnBtn || !killBtn || !rushBtn || !stopBtn) return;
+
+    select.innerHTML = DEV_BOSS_ROSTER.map(id => `<option value="${id}">${DEV_BOSS_LABELS[id] || id}</option>`).join('');
+    updateDevToolsStatus('Idle');
+
+    toggleBtn.onclick = () => {
+        devToolsState.panelOpen = !devToolsState.panelOpen;
+        panel.classList.toggle('hidden', !devToolsState.panelOpen);
+    };
+    spawnBtn.onclick = () => startDevBossEncounter(getDevSelectedBossType());
+    killBtn.onclick = () => {
+        if (!activeBoss || activeBoss.dead) return;
+        activeBoss.shieldPhase = 0;
+        activeBoss.takeDamage(Math.max(activeBoss.hp * 12, activeBoss.maxHp * 6));
+    };
+    rushBtn.onclick = () => startDevBossRush();
+    stopBtn.onclick = () => stopDevBossRush();
 }
 
 function generateMap() {
@@ -6656,7 +7164,8 @@ function spawnEnemy(forceSwarm = false) {
 }
 
 let startGamePending = false;
-async function startGame() {
+async function startGame(opts = {}) {
+    const fromDevTools = !!opts.fromDev;
     if (isPlaying || startGamePending) return;
     startGamePending = true;
     await ensureGameAssetsReady();
@@ -6671,6 +7180,12 @@ async function startGame() {
     score = 0; wave = 1; spawnRate = BALANCE.baseSpawnRate; nextWaveScore = 0; activeBoss = null; coopMode = false; coopJoinLatch = {}; camZoom = getResponsiveStartZoom(); targetCamZoom = camZoom; camEnemyPressure = 0;
     waveKills = 0; waveStartTime = performance.now(); bossRewardPending = false; lastWaveProgressCheck = 0; activeSpaceDisaster = null; disasterCooldown = getNextDisasterCooldown(); disasterEventsThisWave = 0; disasterLastWave = -99;
     directorPressure = 0; lastEnemyPressureSpawn = 0; lastXpMergeTime = 0;
+    if (!fromDevTools) {
+        devToolsState.bossRushActive = false;
+        devToolsState.bossRushIndex = 0;
+        devToolsState.testBossMode = false;
+        updateDevToolsStatus('Idle');
+    }
     resetDirectorV2State();
     rollRunContracts();
     activeEncounterTheme = getEncounterThemeForWave(1);
@@ -6692,6 +7207,11 @@ function gameOver() {
     isPlaying = false;
     document.body.classList.remove('playing');
     AudioManager.music.playing = false;
+    if (devToolsState.bossRushActive || devToolsState.testBossMode) {
+        devToolsState.bossRushActive = false;
+        devToolsState.testBossMode = false;
+        updateDevToolsStatus('Run ended: player down');
+    }
 
     // --- Death Explosion ---
     const lastCenter = getSharedPlayerCenter();
@@ -7636,6 +8156,12 @@ function updateBossV4(dt) {
         this.phaseStep = 0;
         this.passiveFireTimer = 720;
         this.constructPatternStep = 0;
+        this.constructPhase = 1;
+        this.constructSpreadTimer = 920;
+        this.constructDroneTimer = 2800;
+        this.constructShockTimer = 3600;
+        this.constructLaserTimer = 5000;
+        this.constructHazardTimer = 1900;
         this.hp *= 1.55 + (this.bossTier || 1) * 0.16;
         this.maxHp = this.hp;
         if (this.bossType === 'bulwark') { this.hp *= 1.40; this.maxHp = this.hp; }
@@ -7654,10 +8180,14 @@ function updateBossV4(dt) {
     const dx = target.x - this.x, dy = target.y - this.y;
     const dist = Math.max(1, Math.hypot(dx, dy));
     const angle = Math.atan2(dy, dx);
-    const desiredRange = {
+    let desiredRange = {
         construct: 460, sentinel: 760, hypercore: 520, vortex: 700, artillery: 980,
         hivequeen: 720, mirror: 650, reaper: 470, bulwark: 560, storm: 760
     }[this.bossType] || 640;
+    if (this.bossType === 'construct') {
+        const cPhase = hpRatio <= 0.30 ? 3 : (hpRatio <= 0.70 ? 2 : 1);
+        desiredRange = cPhase === 1 ? 560 : (cPhase === 2 ? 500 : 430);
+    }
 
     let forceX = 0, forceY = 0;
     const rangeError = dist - desiredRange;
@@ -7665,6 +8195,13 @@ function updateBossV4(dt) {
     const approach = Math.max(-1, Math.min(1, rangeError / 360));
     forceX += Math.cos(angle) * this.accel * approach * 0.75 + Math.cos(orbit) * this.accel * 0.38;
     forceY += Math.sin(angle) * this.accel * approach * 0.75 + Math.sin(orbit) * this.accel * 0.38;
+    if (this.bossType === 'construct') {
+        const cPhase = hpRatio <= 0.30 ? 3 : (hpRatio <= 0.70 ? 2 : 1);
+        const trackMul = cPhase === 1 ? 0.52 : (cPhase === 2 ? 0.72 : 0.92);
+        const orbitMul = cPhase === 1 ? 0.10 : (cPhase === 2 ? 0.20 : 0.32);
+        forceX = Math.cos(angle) * this.accel * approach * trackMul + Math.cos(orbit) * this.accel * orbitMul;
+        forceY = Math.sin(angle) * this.accel * approach * trackMul + Math.sin(orbit) * this.accel * orbitMul;
+    }
 
     const screenPressure = getScreenEnemyPressureFactor();
     const warningCap = Math.max(6, Math.floor(20 * screenPressure));
@@ -7707,9 +8244,67 @@ function updateBossV4(dt) {
             floatingTexts.push(new FloatingText(this.x, this.y - 95, 'FINAL PHASE', '#ef4444'));
         }
     };
-    triggerBossPhaseShift();
+    if (this.bossType !== 'construct') triggerBossPhaseShift();
 
-    if (this.actionTimer <= 0) {
+    if (this.bossType === 'construct') {
+        const desiredPhase = hpRatio <= 0.30 ? 3 : (hpRatio <= 0.70 ? 2 : 1);
+        if (desiredPhase !== this.constructPhase) {
+            this.constructPhase = desiredPhase;
+            this.orbitDir *= -1;
+            this.specialTimer = 0;
+            if (desiredPhase === 2) {
+                floatingTexts.push(new FloatingText(this.x, this.y - 95, 'PHASE 2: DRONE SWARM', '#f97316'));
+                spawnBossAddV4(this, 'drone', 3 + Math.floor(tier / 3), 0.72);
+                radialBurstV4(this, 10 + Math.floor(tier / 2), 9 + tier, 460, performance.now() * 0.004);
+            } else if (desiredPhase === 3) {
+                floatingTexts.push(new FloatingText(this.x, this.y - 95, 'PHASE 3: OVERDRIVE', '#ef4444'));
+                triggerFlash(0.22, '#ef4444');
+                radialBurstV4(this, 12 + Math.floor(tier / 2), 11 + tier, 640, performance.now() * 0.004);
+            } else {
+                floatingTexts.push(new FloatingText(this.x, this.y - 95, 'PHASE 1', '#fb7185'));
+            }
+        }
+
+        this.constructSpreadTimer -= dt;
+        this.constructDroneTimer -= dt;
+        this.constructShockTimer -= dt;
+        this.constructLaserTimer -= dt;
+        this.constructHazardTimer -= dt;
+
+        if (this.constructSpreadTimer <= 0) {
+            const p = this.constructPhase || 1;
+            this.constructSpreadTimer = p === 1 ? 1260 : (p === 2 ? 980 : 740);
+            const count = p === 1 ? 4 : (p === 2 ? 5 : 6);
+            const spread = p === 1 ? 0.16 : (p === 2 ? 0.20 : 0.24);
+            const dmg = 9 + tier + (p - 1);
+            const speed = p === 3 ? 920 : 820;
+            fireAtTarget(count, spread, dmg, speed);
+        }
+
+        if (this.constructPhase >= 2 && this.constructDroneTimer <= 0) {
+            this.constructDroneTimer = this.constructPhase >= 3 ? 1900 : 2500;
+            spawnBossAddV4(this, 'drone', this.constructPhase >= 3 ? 3 : 2, 0.70);
+        }
+
+        if (this.constructPhase >= 2 && this.constructShockTimer <= 0) {
+            this.constructShockTimer = this.constructPhase >= 3 ? 2150 : 3000;
+            floatingTexts.push(new FloatingText(this.x, this.y - 90, 'CIRCULAR SHOCKWAVE', '#fb7185'));
+            radialBurstV4(this, this.constructPhase >= 3 ? 16 : 12, 10 + tier, this.constructPhase >= 3 ? 560 : 470, performance.now() * 0.004);
+        }
+
+        if (this.constructPhase >= 3 && this.constructLaserTimer <= 0) {
+            this.constructLaserTimer = Math.max(3400, 5400 - tier * 120);
+            floatingTexts.push(new FloatingText(this.x, this.y - 90, 'ROTATING LASER', '#fda4af'));
+            entities.push(new BossRotatingLaserSweep(this, 2100 + tier * 55, 0.0032 + tier * 0.00014, 40 + tier, 2100, 16 + tier, '#ef4444'));
+        }
+
+        if (this.constructPhase >= 3 && this.constructHazardTimer <= 0) {
+            this.constructHazardTimer = Math.max(1050, 1650 - tier * 65);
+            hazardNear(5 + Math.floor(tier / 2), 115, '#ef4444', 22 + tier, 560);
+        }
+    }
+
+    if (this.bossType !== 'construct' && this.actionTimer <= 0) {
         this.attackState++;
         const tempo = 1 - Math.min(0.26, tier * 0.03);
         const fast = (this.enrage ? 0.70 : 0.92) * tempo;
@@ -7829,13 +8424,13 @@ function updateBossV4(dt) {
         forceX += Math.cos(angle) * this.accel * 0.35;
         forceY += Math.sin(angle) * this.accel * 0.35;
     }
-    if (this.bossType === 'construct' && dist < 560 && this.specialTimer <= 0) {
+    if (this.bossType === 'construct' && this.constructPhase !== undefined && this.constructPhase < 3 && dist < 560 && this.specialTimer <= 0) {
         this.specialTimer = Math.max(1400, 2600 - tier * 120);
         hazardNear(2 + Math.floor(tier / 2), 110, '#fb7185', 22 + tier, 620);
     }
     if (this.passiveFireTimer <= 0) {
         this.passiveFireTimer = Math.max(540, 920 - tier * 30 - (this.enrage ? 160 : 0));
-        if (this.bossType === 'construct') {
+        if (this.bossType === 'construct' && this.constructPhase === undefined) {
             fireAtTarget(2 + Math.floor(tier / 2), 0.08, 8 + tier, 760);
         } else if (this.bossType === 'sentinel') {
             shootEnemyProjectileV4(this, angle + Math.PI / 2, 8 + tier, 720, 1, 0);
@@ -7885,7 +8480,7 @@ function updateBossV4(dt) {
         this.specialTimer = Math.max(1550, 2800 - tier * 120);
         entities.push(new BossWarningZoneV4(target.x, target.y, 230, '#a855f7', 820, 22 + tier, 760));
     }
-    if (this.bossType === 'construct' && dist > 340) {
+    if (this.bossType === 'construct' && this.constructPhase === undefined && dist > 340) {
         forceX += Math.cos(angle) * this.accel * 0.60;
         forceY += Math.sin(angle) * this.accel * 0.60;
     }
@@ -7893,7 +8488,8 @@ function updateBossV4(dt) {
     this.vx += forceX * (dt/1000);
     this.vy += forceY * (dt/1000);
     const speed = Math.hypot(this.vx, this.vy);
-    const cap = this.maxSpeed * (this.enrage ? 1.18 : 1.0);
+    const constructSpeedMul = this.bossType === 'construct' ? (((this.constructPhase || 1) >= 3) ? 1.30 : (((this.constructPhase || 1) === 2) ? 1.10 : 0.88)) : 1;
+    const cap = this.maxSpeed * constructSpeedMul * (this.enrage ? 1.18 : 1.0);
     if (speed > cap) { this.vx = this.vx / speed * cap; this.vy = this.vy / speed * cap; }
     this.x = Math.max(this.radius, Math.min(WORLD_WIDTH - this.radius, this.x + this.vx * (dt/1000)));
     this.y = Math.max(this.radius, Math.min(WORLD_HEIGHT - this.radius, this.y + this.vy * (dt/1000)));
@@ -8094,6 +8690,7 @@ Enemy.prototype.draw = function(ctx) {
     }
 };
 
+initDevToolsUI();
 requestAnimationFrame(uiLoop);
 
 
