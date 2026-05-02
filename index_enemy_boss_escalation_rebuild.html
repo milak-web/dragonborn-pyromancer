@@ -1188,8 +1188,18 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=19').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=20').then(reg => reg.update()).catch(() => {});
     });
+}
+
+function getEnemySpriteAngleOffset(entity) {
+    // Default: assets authored nose-up, gameplay angle is nose-right.
+    let offset = Math.PI * 0.5;
+    // First boss (construct) and its spawned adds use opposite facing in current art pack.
+    if ((entity.enemyType === 'boss' && entity.bossType === 'construct') || entity.bossSourceType === 'construct') {
+        offset += Math.PI;
+    }
+    return offset;
 }
 
 // --- ULTRA ROBUST GAMEPAD DETECTION ---
@@ -5212,7 +5222,7 @@ class Enemy {
             if (this.hitFlash > 0) ctx.globalAlpha = 0.86;
             const { w: targetW, h: targetH } = getEntitySpriteDrawSize(this, spriteImage);
             ctx.save();
-            ctx.rotate(-Math.PI * 0.5);
+            ctx.rotate(getEnemySpriteAngleOffset(this));
             ctx.drawImage(spriteImage, -targetW / 2, -targetH / 2, targetW, targetH);
             ctx.restore();
             ctx.globalAlpha = 1;
@@ -7605,6 +7615,7 @@ function spawnBossAddV4(src, type, count, hpMult = 0.70) {
     for (let i = 0; i < Math.min(scaledCount, allowed); i++) {
         const a = rnd(0, Math.PI*2), d = rnd(170, 330);
         const e = applyEnemyV4Stats(new Enemy(src.x + Math.cos(a)*d, src.y + Math.sin(a)*d, type));
+        e.bossSourceType = src.bossType || null;
         e.hp *= hpMult; e.maxHp = e.hp; e.xpValue = Math.floor(e.xpValue * 0.35);
         entities.push(e);
     }
