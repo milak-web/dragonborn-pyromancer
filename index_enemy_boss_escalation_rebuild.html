@@ -1183,7 +1183,7 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=17').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=18').then(reg => reg.update()).catch(() => {});
     });
 }
 
@@ -6895,8 +6895,7 @@ function update(dt) {
     }
     if (spawnTimer >= spawnRate) {
         spawnTimer = 0;
-        let enemyCount = entities.filter(e => e.type === TYPE.ENEMY).length;
-        const screenPressure = getScreenEnemyPressureFactor();
+        let enemyCount = aliveEnemyCount;
         let cap = Math.floor((activeBoss ? BALANCE.maxBossAdds : BALANCE.maxNormalEnemiesBase + (wave * BALANCE.maxNormalEnemiesPerWave) + (wave <= 3 ? -4 : 0)) * coopScale); 
         cap = Math.floor(cap * screenPressure);
         cap = Math.min(cap, Math.floor(desiredOnScreen));
@@ -6904,7 +6903,9 @@ function update(dt) {
         if (enemyCount < cap && (activeBoss || remainingBudget > 0)) {
             const burstBase = activeBoss ? Math.ceil(coopScale) : Math.ceil((1 + Math.floor(Math.max(0, wave - 1) / 5)) * coopScale * (0.92 + directorV2.intensity * 0.36));
             const burst = Math.min(burstBase, 7, remainingBudget);
-            for (let i=0; i<burst && entities.filter(e => e.type === TYPE.ENEMY).length < cap; i++) spawnEnemy();
+            for (let i = 0; i < burst && enemyCount < cap; i++) {
+                if (spawnEnemy()) enemyCount++;
+            }
         }
     }
 
@@ -7006,37 +7007,47 @@ function updateCamera(dt) {
     const isMobileView = shortSide <= 760;
     let nearbyEnemies = 0;
     let pressureScore = 0;
+    let enemyAliveCount = 0;
+    const nearRadius = activeBoss ? 1080 : 860;
+    const nearRadiusSq = nearRadius * nearRadius;
     const threatRadius = activeBoss ? 1250 : 960;
+    const threatRadiusSq = threatRadius * threatRadius;
     for (const e of entities) {
         if (!e || e.type !== TYPE.ENEMY || e.dead) continue;
-        let minDist = Infinity;
+        enemyAliveCount++;
+        let minDistSq = Infinity;
         for (const p of living) {
-            const d = Math.hypot(e.x - p.x, e.y - p.y);
-            minDist = Math.min(minDist, d);
-            if (d < (activeBoss ? 1080 : 860)) { nearbyEnemies++; break; }
+            const dx = e.x - p.x;
+            const dy = e.y - p.y;
+            const dSq = dx * dx + dy * dy;
+            if (dSq < minDistSq) minDistSq = dSq;
+            if (dSq < nearRadiusSq) { nearbyEnemies++; break; }
         }
-        if (isFinite(minDist) && minDist < threatRadius) {
-            const proximity = 1 - (minDist / threatRadius);
+        if (isFinite(minDistSq) && minDistSq < threatRadiusSq) {
+            const proximity = 1 - (Math.sqrt(minDistSq) / threatRadius);
             let weight = 0.34 + proximity * 0.96;
             if (e.isChampion) weight += 0.30;
             if (e.isElite) weight += 0.16;
             pressureScore += weight;
         }
     }
-    const targetPressure = Math.min(1, pressureScore / (isMobileView ? 9.5 : 13.5));
+    const threatPressure = Math.min(1, pressureScore / (isMobileView ? 8.4 : 12.2));
+    const densityPressure = Math.min(1, enemyAliveCount / (isMobileView ? 30 : 48));
+    const targetPressure = Math.min(1, threatPressure * 0.78 + densityPressure * 0.52);
     const pressureLerp = targetPressure > camEnemyPressure
         ? (isMobileView ? 0.125 : 0.10)
         : (isMobileView ? 0.065 : 0.05);
     camEnemyPressure = lerp(camEnemyPressure, targetPressure, pressureLerp);
     const mobileZoomOut = shortSide <= 420 ? 0.22 : shortSide <= 560 ? 0.17 : shortSide <= 760 ? 0.11 : 0;
-    const enemyCountZoomOut = Math.min(isMobileView ? 0.11 : 0.06, nearbyEnemies * (isMobileView ? 0.0038 : 0.0024));
-    const pressureZoomOut = camEnemyPressure * (isMobileView ? 0.24 : 0.14) + enemyCountZoomOut;
-    const minZoom = activeBoss
-        ? Math.max(shortSide <= 760 ? 0.30 : 0.36, 0.46 - mobileZoomOut - pressureZoomOut * 0.65)
-        : (living.length > 1
-            ? Math.max(shortSide <= 760 ? 0.34 : 0.42, 0.52 - mobileZoomOut - pressureZoomOut)
-            : Math.max(shortSide <= 760 ? 0.42 : 0.62, 0.74 - mobileZoomOut - pressureZoomOut));
-    const maxZoom = activeBoss ? (shortSide <= 760 ? 0.68 : 0.82) : (living.length > 1 ? (shortSide <= 760 ? 0.74 : 0.90) : (shortSide <= 760 ? 0.78 : 0.98));
+    const enemyCountZoomOut = Math.min(isMobileView ? 0.12 : 0.07, nearbyEnemies * (isMobileView ? 0.0042 : 0.0027));
+    const wavePressureZoomOut = wave >= 6 ? Math.min(isMobileView ? 0.10 : 0.06, (wave - 5) * (isMobileView ? 0.006 : 0.0032)) : 0;
+    const pressureZoomOut = camEnemyPressure * (isMobileView ? 0.34 : 0.22) + enemyCountZoomOut + wavePressureZoomOut;
+    const baseMinZoom = activeBoss
+        ? (isMobileView ? 0.32 : 0.38)
+        : (living.length > 1 ? (isMobileView ? 0.38 : 0.46) : (isMobileView ? 0.46 : 0.66));
+    const baseMaxZoom = activeBoss ? (isMobileView ? 0.70 : 0.84) : (living.length > 1 ? (isMobileView ? 0.76 : 0.92) : (isMobileView ? 0.82 : 0.99));
+    const minZoom = Math.max(activeBoss ? (isMobileView ? 0.28 : 0.34) : (isMobileView ? 0.36 : 0.54), baseMinZoom - pressureZoomOut * 0.85 - mobileZoomOut * 0.35);
+    const maxZoom = Math.max(minZoom + 0.03, baseMaxZoom - pressureZoomOut * 0.75);
     targetCamZoom = Math.max(minZoom, Math.min(maxZoom, desiredZoom - pressureZoomOut));
     // Never allow camera zoom to show outside world bounds.
     const worldFitZoom = Math.max(canvas.width / WORLD_WIDTH, canvas.height / WORLD_HEIGHT);
