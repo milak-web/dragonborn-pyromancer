@@ -719,20 +719,25 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 
-const ASSET_VERSION = '2026-05-02-v12';
+const ASSET_VERSION = '2026-05-02-v13';
 
 function versionedAssetSrc(src) {
     return src.includes('?') ? `${src}&v=${ASSET_VERSION}` : `${src}?v=${ASSET_VERSION}`;
 }
 
 function spriteAsset(src, options = {}) {
+    const defaultMaxSize = src.includes('assets/maps/')
+        ? 8192
+        : (src.includes('assets/ships/') ? 1536
+            : (src.includes('assets/bosses/') ? 1536
+                : (src.includes('assets/enemies/') ? 1280 : 768)));
     return {
         src: versionedAssetSrc(src),
         img: null,
         canvas: null,
         loaded: false,
         keyTransparent: !!options.keyTransparent,
-        maxSize: options.maxSize || 512,
+        maxSize: options.maxSize || defaultMaxSize,
         collidable: options.collidable !== false
     };
 }
@@ -1183,7 +1188,7 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=18').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=19').then(reg => reg.update()).catch(() => {});
     });
 }
 
@@ -2855,6 +2860,7 @@ class Player {
         this.damageReductionLevel = 0;
         this.xpGainBonus = 0;
         this.lastDamageTime = -99999;
+        this.damageIFrame = 0;
         this.shipSpriteKey = SHIP_ASSETS[className] ? className : 'playerCoreBlue';
         this.shipScaleMul = 4.9;
         // Sprite is authored nose-up; gameplay angle is nose-right, so rotate by +90deg.
@@ -2874,6 +2880,7 @@ class Player {
 
     update(dt) {
         if (this.dead) return;
+        if (this.damageIFrame > 0) this.damageIFrame -= dt;
         let gp = getGamepadByIndex(this.gamepadIndex);
         let gpDash = gp && (gp.buttons[0]?.pressed || gp.buttons[7]?.pressed); 
         let gpSurge = gp && (gp.buttons[2]?.pressed || gp.buttons[3]?.pressed || gp.buttons[5]?.pressed); 
@@ -3623,6 +3630,7 @@ class Player {
     }
 
     takeDamage(amount) {
+        if (this.damageIFrame > 0) return;
         if (this.hitFlash > 200) return; 
         
         if (this.shieldHits > 0) {
@@ -3665,7 +3673,8 @@ class Player {
 
         this.hp -= actualDamage;
         this.hitFlash = 150;
-        hitStopTimer = 50;
+        this.damageIFrame = 260;
+        hitStopTimer = Math.max(hitStopTimer, actualDamage >= 20 ? 22 : 10);
         glitchTimer = 200;
         addShake(25);
         updateUI();
@@ -5203,7 +5212,7 @@ class Enemy {
             if (this.hitFlash > 0) ctx.globalAlpha = 0.86;
             const { w: targetW, h: targetH } = getEntitySpriteDrawSize(this, spriteImage);
             ctx.save();
-            ctx.rotate(Math.PI * 0.5);
+            ctx.rotate(-Math.PI * 0.5);
             ctx.drawImage(spriteImage, -targetW / 2, -targetH / 2, targetW, targetH);
             ctx.restore();
             ctx.globalAlpha = 1;
