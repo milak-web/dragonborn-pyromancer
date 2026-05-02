@@ -2529,6 +2529,10 @@ function getEnemyProjectilePressureCap() {
     return Math.max(activeBoss ? 22 : 18, Math.floor(base * pressure));
 }
 
+function getEnemyProjectileCap() {
+    return typeof getEnemyProjectilePressureCap === 'function' ? getEnemyProjectilePressureCap() : 180;
+}
+
 function getPlayerProjectilePressureCap() {
     const pressure = getScreenEnemyPressureFactor();
     return Math.max(95, Math.floor(PERF_LIMITS.maxPlayerProjectiles * (0.70 + pressure * 0.30)));
@@ -8113,16 +8117,18 @@ class BossWarningZoneV4 {
 }
 
 function shootEnemyProjectileV4(src, angle, damage = 12, speed = 620, count = 1, spread = 0.0) {
-    if (enemyProjectiles.length > getEnemyProjectileCap()) return;
+    const cap = typeof getEnemyProjectilePressureCap === 'function' ? getEnemyProjectilePressureCap() : 180;
+    if (enemyProjectiles.length > cap) return;
     const start = angle - spread * (count - 1) / 2;
     for (let i = 0; i < count; i++) {
-        if (enemyProjectiles.length >= getEnemyProjectileCap()) break;
+        if (enemyProjectiles.length >= cap) break;
         enemyProjectiles.push(new Projectile(src.x, src.y, start + i * spread, damage, 0, false, speed));
     }
 }
 
 function radialBurstV4(src, count, damage, speed, offset = 0) {
-    const maxCount = Math.min(count, Math.max(6, getEnemyProjectileCap() - enemyProjectiles.length));
+    const cap = typeof getEnemyProjectilePressureCap === 'function' ? getEnemyProjectilePressureCap() : 180;
+    const maxCount = Math.min(count, Math.max(6, cap - enemyProjectiles.length));
     for (let i = 0; i < maxCount; i++) shootEnemyProjectileV4(src, offset + i * Math.PI * 2 / maxCount, damage, speed, 1, 0);
 }
 
