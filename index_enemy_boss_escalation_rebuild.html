@@ -719,7 +719,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 
-const ASSET_VERSION = '2026-05-02-v13';
+const ASSET_VERSION = '2026-05-02-v14';
 
 function versionedAssetSrc(src) {
     return src.includes('?') ? `${src}&v=${ASSET_VERSION}` : `${src}?v=${ASSET_VERSION}`;
@@ -1188,18 +1188,23 @@ function drawBiomeBackground(drawCamX, drawCamY, viewW, viewH) {
 loadShipAssets();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=20').then(reg => reg.update()).catch(() => {});
+        navigator.serviceWorker.register('./service-worker.js?v=21').then(reg => reg.update()).catch(() => {});
     });
 }
 
 function getEnemySpriteAngleOffset(entity) {
     // Default: assets authored nose-up, gameplay angle is nose-right.
-    let offset = Math.PI * 0.5;
-    // First boss (construct) and its spawned adds use opposite facing in current art pack.
-    if ((entity.enemyType === 'boss' && entity.bossType === 'construct') || entity.bossSourceType === 'construct') {
-        offset += Math.PI;
-    }
-    return offset;
+    return Math.PI * 0.5;
+}
+
+function updateEnemyFacingFromMotion(entity, fallbackAngle, dt, turnRate = 8) {
+    if (!entity) return;
+    const speedSq = (entity.vx || 0) * (entity.vx || 0) + (entity.vy || 0) * (entity.vy || 0);
+    const aim = speedSq > 420 ? Math.atan2(entity.vy, entity.vx) : fallbackAngle;
+    let diff = aim - (entity.angle || 0);
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    entity.angle = (entity.angle || 0) + diff * Math.min(1, turnRate * (dt / 1000));
 }
 
 // --- ULTRA ROBUST GAMEPAD DETECTION ---
@@ -5007,13 +5012,7 @@ class Enemy {
         this.x += this.vx * timeScale * (dt/1000);
         this.y += this.vy * timeScale * (dt/1000);
 
-        if (speed > 5 || distToPlayer < 1400) {
-            // Assets are authored nose-up; visual nose should track the threat, not sideways strafe velocity.
-            let targetAngle = angleToPlayer;
-            let diff = targetAngle - this.angle;
-            while (diff < -Math.PI) diff += Math.PI*2; while (diff > Math.PI) diff -= Math.PI*2;
-            this.angle += diff * Math.min(1, 8 * (dt/1000));
-        }
+        if (speed > 5 || distToPlayer < 1400) updateEnemyFacingFromMotion(this, angleToPlayer, dt, 8);
 
         if (entityCollidersOverlap(this, target, -3) && this.atkCooldown <= 0 && this.enemyType !== 'sniper') {
             let dmg = this.enemyType === 'boss' ? 42 : (this.enemyType === 'tank' ? 20 : 11);
@@ -7615,7 +7614,6 @@ function spawnBossAddV4(src, type, count, hpMult = 0.70) {
     for (let i = 0; i < Math.min(scaledCount, allowed); i++) {
         const a = rnd(0, Math.PI*2), d = rnd(170, 330);
         const e = applyEnemyV4Stats(new Enemy(src.x + Math.cos(a)*d, src.y + Math.sin(a)*d, type));
-        e.bossSourceType = src.bossType || null;
         e.hp *= hpMult; e.maxHp = e.hp; e.xpValue = Math.floor(e.xpValue * 0.35);
         entities.push(e);
     }
@@ -7901,7 +7899,7 @@ function updateBossV4(dt) {
     this.y = Math.max(this.radius, Math.min(WORLD_HEIGHT - this.radius, this.y + this.vy * (dt/1000)));
     this.vx *= Math.pow(0.90, dt / 16.66);
     this.vy *= Math.pow(0.90, dt / 16.66);
-    let bossAngleDiff = angle - this.angle; while (bossAngleDiff < -Math.PI) bossAngleDiff += Math.PI*2; while (bossAngleDiff > Math.PI) bossAngleDiff -= Math.PI*2; this.angle += bossAngleDiff * Math.min(1, 7 * (dt/1000));
+    updateEnemyFacingFromMotion(this, angle, dt, 7);
 
     if (entityCollidersOverlap(this, target, -2)) {
         const bossContact = ((this.enrage ? 34 : 24) + tier * 3) * (directorV2.enemyDamageMul || 1);
@@ -8007,7 +8005,7 @@ function updateSpecialEnemyV4(dt) {
     this.x = Math.max(this.radius, Math.min(WORLD_WIDTH-this.radius, this.x));
     this.y = Math.max(this.radius, Math.min(WORLD_HEIGHT-this.radius, this.y));
     this.vx *= Math.pow(0.91, dt/16.66); this.vy *= Math.pow(0.91, dt/16.66);
-    let specialAngleDiff = angle - this.angle; while (specialAngleDiff < -Math.PI) specialAngleDiff += Math.PI*2; while (specialAngleDiff > Math.PI) specialAngleDiff -= Math.PI*2; this.angle += specialAngleDiff * Math.min(1, 8 * (dt/1000));
+    updateEnemyFacingFromMotion(this, angle, dt, 8);
 }
 
 function applyPackPressureV4(enemy, dt) {
