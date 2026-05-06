@@ -421,6 +421,9 @@
         body.touch-device.playing #touchControls {
             display: block;
         }
+        #levelUpModal:not(.hidden) + #touchControls {
+            display: none !important;
+        }
         .touch-joystick {
             position: absolute;
             left: max(10px, calc(10px + var(--safe-left)));
@@ -2213,6 +2216,35 @@ function updateTouchClass() {
     document.body.classList.toggle('touch-device', touchInput.enabled);
 }
 
+function isMenuInteractionActive() {
+    const levelUp = document.getElementById('levelUpModal');
+    if (levelUp && !levelUp.classList.contains('hidden')) return true;
+    const settings = document.getElementById('settingsModal');
+    if (settings && !settings.classList.contains('hidden')) return true;
+    const meta = document.getElementById('metaModal');
+    if (meta && !meta.classList.contains('hidden')) return true;
+    const main = document.getElementById('modal');
+    if (main && main.style.display !== 'none' && main.style.opacity !== '0') return true;
+    return false;
+}
+
+function resetTouchGameplayState() {
+    touchInput.moveX = 0;
+    touchInput.moveY = 0;
+    touchInput.stickPointerId = null;
+    touchInput.stickTouchId = null;
+    touchInput.freeStick = false;
+    touchInput.dashHeld = false;
+    touchInput.surgeHeld = false;
+    touchInput.weaponHeld = false;
+    const knob = document.getElementById('touchStickKnob');
+    if (knob) knob.style.transform = 'translate3d(0,0,0)';
+    ['touchDashBtn', 'touchSurgeBtn', 'touchWeaponBtn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove('active');
+    });
+}
+
 function setupTouchControls() {
     const stick = document.getElementById('touchStick');
     const knob = document.getElementById('touchStickKnob');
@@ -2229,6 +2261,7 @@ function setupTouchControls() {
         touchInput.freeStick = false;
         knob.style.transform = 'translate3d(0,0,0)';
     };
+    const gameplayTouchBlocked = () => (!isPlaying || isPaused || isMenuInteractionActive());
 
     const updateStick = (clientX, clientY) => {
         touchInput.stickRect = touchInput.stickRect || stick.getBoundingClientRect();
@@ -2248,7 +2281,7 @@ function setupTouchControls() {
     };
 
     stick.addEventListener('pointerdown', e => {
-        if (!touchInput.enabled) return;
+        if (!touchInput.enabled || gameplayTouchBlocked()) return;
         e.preventDefault();
         touchInput.stickRect = stick.getBoundingClientRect();
         touchInput.stickPointerId = e.pointerId;
@@ -2256,6 +2289,7 @@ function setupTouchControls() {
         updateStick(e.clientX, e.clientY);
     });
     stick.addEventListener('pointermove', e => {
+        if (gameplayTouchBlocked()) { resetStick(); return; }
         if (e.pointerId !== touchInput.stickPointerId) return;
         e.preventDefault();
         updateStick(e.clientX, e.clientY);
@@ -2268,7 +2302,7 @@ function setupTouchControls() {
     stick.addEventListener('pointerup', endStick);
     stick.addEventListener('pointercancel', endStick);
     stick.addEventListener('touchstart', e => {
-        if (!isPlaying) return;
+        if (gameplayTouchBlocked()) return;
         if (!touchInput.enabled) {
             touchInput.enabled = true;
             document.body.classList.add('touch-device');
@@ -2283,6 +2317,7 @@ function setupTouchControls() {
         updateStick(t.clientX, t.clientY);
     }, { passive: false });
     stick.addEventListener('touchmove', e => {
+        if (gameplayTouchBlocked()) { resetStick(); return; }
         const t = Array.from(e.changedTouches || []).find(x => x.identifier === touchInput.stickTouchId);
         if (!t) return;
         e.preventDefault();
@@ -2299,6 +2334,7 @@ function setupTouchControls() {
 
     const bindHold = (btn, key) => {
         btn.addEventListener('pointerdown', e => {
+            if (gameplayTouchBlocked()) return;
             if (!touchInput.enabled) touchInput.enabled = true;
             e.preventDefault();
             touchInput[key] = true;
@@ -2316,6 +2352,7 @@ function setupTouchControls() {
             btn.classList.remove('active');
         });
         btn.addEventListener('touchstart', e => {
+            if (gameplayTouchBlocked()) return;
             if (!touchInput.enabled) {
                 touchInput.enabled = true;
                 document.body.classList.add('touch-device');
@@ -2337,7 +2374,7 @@ function setupTouchControls() {
     bindHold(weaponBtn, 'weaponHeld');
 
     const startFreeStick = e => {
-        if (!touchInput.enabled || !isPlaying || e.pointerType === 'mouse') return;
+        if (!touchInput.enabled || gameplayTouchBlocked() || e.pointerType === 'mouse') return;
         if (e.target && e.target.closest && (e.target.closest('#touchStick') || e.target.closest('.touch-actions'))) return;
         const { w } = getViewportSize();
         if (e.clientX > w * 0.58) return;
@@ -2351,6 +2388,7 @@ function setupTouchControls() {
     };
     window.addEventListener('pointerdown', startFreeStick, { passive: false });
     window.addEventListener('pointermove', e => {
+        if (gameplayTouchBlocked()) { resetStick(); return; }
         if (e.pointerId !== touchInput.stickPointerId || (!touchInput.freeStick && !touchInput.stickRect)) return;
         if (e.pointerType === 'mouse') return;
         e.preventDefault();
@@ -2359,7 +2397,7 @@ function setupTouchControls() {
     window.addEventListener('pointerup', e => { if (e.pointerId === touchInput.stickPointerId) resetStick(); }, { passive: false });
     window.addEventListener('pointercancel', e => { if (e.pointerId === touchInput.stickPointerId) resetStick(); }, { passive: false });
     window.addEventListener('touchstart', e => {
-        if (!isPlaying) return;
+        if (gameplayTouchBlocked()) return;
         if (!touchInput.enabled) {
             touchInput.enabled = true;
             document.body.classList.add('touch-device');
@@ -2379,6 +2417,7 @@ function setupTouchControls() {
         updateStick(t.clientX, t.clientY);
     }, { passive: false });
     window.addEventListener('touchmove', e => {
+        if (gameplayTouchBlocked()) { resetStick(); return; }
         const t = Array.from(e.changedTouches || []).find(x => x.identifier === touchInput.stickTouchId);
         if (!t || (!touchInput.freeStick && !touchInput.stickRect)) return;
         e.preventDefault();
@@ -2392,6 +2431,7 @@ function setupTouchControls() {
     };
     window.addEventListener('touchend', endWindowTouchStick, { passive: false });
     window.addEventListener('touchcancel', endWindowTouchStick, { passive: false });
+    window.addEventListener('blur', resetStick);
 
     updateTouchClass();
     // Fallback: if any touch starts, force-enable touch mode for this session.
@@ -3075,6 +3115,7 @@ class Player {
         this.blades = 0; this.bladeAngle = 0;
         this.dashTimer = 0; 
         this.dashCooldownMax = className === 'phantom' ? 520 : 1500;
+        this.dashInputLatch = false;
         
         this.hasLightning = false;
         this.hasShatter = false;
@@ -3150,6 +3191,7 @@ class Player {
         let wantsSurge = (this.useKeyboard && keys['KeyE']) || gpSurge || (touchForP1 && touchInput.surgeHeld);
         let wantsDash = (this.useKeyboard && keys['Space']) || gpDash || (touchForP1 && touchInput.dashHeld);
         let wantsActive = (this.useKeyboard && keys['KeyQ']) || (gp && gp.buttons[4]?.pressed) || (touchForP1 && touchInput.weaponHeld); // Q or L1/LB
+        const dashJustPressed = wantsDash && !this.dashInputLatch;
 
         this.updateTempBuffs(dt);
         this.updateCloseCallReactor(dt);
@@ -3188,11 +3230,23 @@ class Player {
         }
 
         if (this.dashTimer > 0) this.dashTimer -= dt;
-        if (wantsDash && this.dashTimer <= 0) {
+        if (dashJustPressed && this.dashTimer <= 0) {
             this.dashTimer = this.isSurging ? 100 : this.dashCooldownMax; 
-            
-            this.vx += Math.cos(this.angle) * 4000;
-            this.vy += Math.sin(this.angle) * 4000;
+            const dashAngle = this.angle;
+            const dashDistanceBase = this.className === 'phantom' ? 270 : 225;
+            const dashDistance = dashDistanceBase * (this.isSurging ? 1.10 : 1.0);
+            const dashSteps = 5;
+            const stepDist = dashDistance / dashSteps;
+            const dirX = Math.cos(dashAngle);
+            const dirY = Math.sin(dashAngle);
+            for (let i = 0; i < dashSteps; i++) {
+                this.x += dirX * stepDist;
+                this.y += dirY * stepDist;
+                this.x = Math.max(this.radius, Math.min(this.x, WORLD_WIDTH - this.radius));
+                this.y = Math.max(this.radius, Math.min(this.y, WORLD_HEIGHT - this.radius));
+            }
+            this.vx += dirX * 1400;
+            this.vy += dirY * 1400;
             
             createParticles(this.x, this.y, this.className === 'phantom' ? '#a855f7' : '#ec4899', 15, 300, this.angle + Math.PI);
             addShake(10);
@@ -3222,6 +3276,7 @@ class Player {
                 entities.push(new Decoy(this.x, this.y, this.damage * 2));
             }
         }
+        this.dashInputLatch = wantsDash;
 
         let dx = 0; let dy = 0;
         if (this.useKeyboard && (keys['KeyW'] || keys['ArrowUp'])) dy -= 1;
@@ -6276,6 +6331,7 @@ function setUpgradeActionBarState(opts = {}) {
 function triggerBossReward(firstWeaponId) {
     isPaused = true;
     keys['KeyW'] = keys['KeyS'] = keys['KeyA'] = keys['KeyD'] = keys['Space'] = keys['KeyE'] = false;
+    resetTouchGameplayState();
     setUpgradeActionBarState({ visible: false });
 
     const weaponsPool = Object.keys(SPECIAL_WEAPONS_DB);
@@ -6309,6 +6365,8 @@ function triggerBossReward(firstWeaponId) {
             <h3 class="text-2xl font-black mb-3 tracking-wider" style="color: ${w.color}">${w.name}</h3>
             <p class="text-slate-300 text-sm font-bold tracking-wide">${w.desc}</p>
         `;
+        card.addEventListener('pointerdown', e => e.stopPropagation());
+        card.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
         card.onclick = () => { 
             getLivingPlayers().forEach(pl => { pl.activeWeapon = wid; pl.weaponRecharge = 0; });
             floatingTexts.push(new FloatingText(player.x, player.y - 80, `WEAPON: ${w.name}`, w.color));
@@ -6354,6 +6412,7 @@ function triggerLevelUpFor(targetPlayer, options = {}) {
     activeUpgradeGamepadIndex = targetPlayer.gamepadIndex;
     isPaused = true;
     keys['KeyW'] = keys['KeyS'] = keys['KeyA'] = keys['KeyD'] = keys['Space'] = keys['KeyE'] = false;
+    resetTouchGameplayState();
 
     if (grantPoint) addReservePoints(targetPlayer, 1);
     activeLevelUpContext = { targetPlayer, previousPrimary, draftPower, freePick };
@@ -6454,6 +6513,8 @@ function triggerLevelUpFor(targetPlayer, options = {}) {
             <div class="text-[10px] font-black tracking-widest mb-3" style="color:${categoryColor}">LV ${Math.min(currentLevel + 1, maxLevel)}/${maxLevel}</div>
             <p class="text-slate-300 text-xs font-bold tracking-wide leading-relaxed">${upg.desc}</p>
         `;
+        card.addEventListener('pointerdown', e => e.stopPropagation());
+        card.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
         card.onclick = () => {
             if (!freePick && !spendReservePoints(targetPlayer, 1)) {
                 floatingTexts.push(new FloatingText(targetPlayer.x, targetPlayer.y - 70, 'NO RESERVE POINT', '#f97316'));
@@ -6482,6 +6543,7 @@ function resumeGame() {
     const modal = document.getElementById('levelUpModal');
     setUpgradeActionBarState({ visible: false });
     activeLevelUpContext = null;
+    resetTouchGameplayState();
     modal.style.opacity = '0';
     setTimeout(() => { modal.classList.add('hidden'); lastTime = performance.now(); isPaused = false; updateUI(); }, 300);
 }
@@ -6711,6 +6773,8 @@ function triggerPassiveCacheUpgradeFor(targetPlayer) {
             <div class="level-pips" style="color:${c}">${levelPips}</div>
             <div class="text-[10px] font-black tracking-widest mb-3" style="color:${c}">LV ${Math.min(currentLevel + 1, maxLevel)}/${maxLevel}</div>
             <p class="text-slate-300 text-xs font-bold tracking-wide leading-relaxed">${upg.desc}</p>`;
+        card.addEventListener('pointerdown', e => e.stopPropagation());
+        card.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
         card.onclick = () => { applyUpgradeToPlayer(upg, targetPlayer); player = previousPrimary && !previousPrimary.dead ? previousPrimary : (getLivingPlayers()[0] || targetPlayer); resumeGame(); };
         card.onmouseenter = () => { upgradeFocusIndex = index; updateUpgradeFocus(); };
         container.appendChild(card);
@@ -8145,6 +8209,29 @@ function spawnBossAddV4(src, type, count, hpMult = 0.70) {
     }
 }
 
+const BOSS_V4_ORDER = ['construct','sentinel','hypercore','vortex','artillery','hivequeen','mirror','reaper','bulwark','storm'];
+const BOSS_V4_PROFILE = {
+    construct: { hpMul: 1.34, speedMul: 0.86, tempoMul: 1.10, contactBase: 14, contactEnrage: 21, contactTier: 2, phaseA: 0.70, phaseB: 0.30 },
+    sentinel:  { hpMul: 1.46, speedMul: 0.96, tempoMul: 1.02, contactBase: 18, contactEnrage: 26, contactTier: 2, phaseA: 0.74, phaseB: 0.44 },
+    hypercore: { hpMul: 1.54, speedMul: 1.12, tempoMul: 0.98, contactBase: 19, contactEnrage: 28, contactTier: 2, phaseA: 0.74, phaseB: 0.44 },
+    vortex:    { hpMul: 1.58, speedMul: 1.04, tempoMul: 0.96, contactBase: 20, contactEnrage: 29, contactTier: 2, phaseA: 0.72, phaseB: 0.42 },
+    artillery: { hpMul: 1.66, speedMul: 0.94, tempoMul: 0.95, contactBase: 22, contactEnrage: 30, contactTier: 2, phaseA: 0.72, phaseB: 0.40 },
+    hivequeen: { hpMul: 1.72, speedMul: 0.98, tempoMul: 0.93, contactBase: 22, contactEnrage: 31, contactTier: 3, phaseA: 0.70, phaseB: 0.40 },
+    mirror:    { hpMul: 1.82, speedMul: 1.06, tempoMul: 0.91, contactBase: 24, contactEnrage: 33, contactTier: 3, phaseA: 0.70, phaseB: 0.38 },
+    reaper:    { hpMul: 1.90, speedMul: 1.16, tempoMul: 0.90, contactBase: 25, contactEnrage: 35, contactTier: 3, phaseA: 0.68, phaseB: 0.36 },
+    bulwark:   { hpMul: 2.02, speedMul: 0.92, tempoMul: 0.88, contactBase: 27, contactEnrage: 37, contactTier: 3, phaseA: 0.66, phaseB: 0.35 },
+    storm:     { hpMul: 2.14, speedMul: 1.10, tempoMul: 0.84, contactBase: 29, contactEnrage: 40, contactTier: 4, phaseA: 0.64, phaseB: 0.33 }
+};
+
+function getBossV4Rank(type) {
+    const idx = BOSS_V4_ORDER.indexOf(type);
+    return idx >= 0 ? idx : 0;
+}
+
+function getBossV4Profile(type) {
+    return BOSS_V4_PROFILE[type] || BOSS_V4_PROFILE.construct;
+}
+
 function updateBossV4(dt) {
     const target = getNearestLivingPlayer(this.x, this.y);
     if (!target) return;
@@ -8152,6 +8239,8 @@ function updateBossV4(dt) {
 
     if (!this.v4BossInit) {
         this.v4BossInit = true;
+        this.v4BossRank = getBossV4Rank(this.bossType);
+        this.v4BossProfile = getBossV4Profile(this.bossType);
         this.phaseTimer = 0;
         this.attackState = 0;
         this.specialTimer = 1000;
@@ -8161,6 +8250,11 @@ function updateBossV4(dt) {
         this.lastTelegraph = 0;
         this.phaseStep = 0;
         this.passiveFireTimer = 720;
+        this.signatureTimer = 2000;
+        this.hypercoreComboStep = 0;
+        this.hypercoreWarpCount = 0;
+        this.hypercoreRecoverTimer = 0;
+        this.hypercoreAnchors = [];
         this.constructPatternStep = 0;
         this.constructPhase = 1;
         this.constructSpreadTimer = 920;
@@ -8168,10 +8262,13 @@ function updateBossV4(dt) {
         this.constructShockTimer = 3600;
         this.constructLaserTimer = 5000;
         this.constructHazardTimer = 1900;
-        this.hp *= 1.55 + (this.bossTier || 1) * 0.16;
+        const initTier = this.bossTier || Math.max(1, Math.floor(wave / 5));
+        const profile = this.v4BossProfile || BOSS_V4_PROFILE.construct;
+        const rankMul = 1 + (this.v4BossRank || 0) * 0.05;
+        this.hp *= profile.hpMul * (1 + initTier * 0.09) * rankMul;
         this.maxHp = this.hp;
-        if (this.bossType === 'bulwark') { this.hp *= 1.40; this.maxHp = this.hp; }
-        if (this.bossType === 'hypercore' || this.bossType === 'reaper') { this.maxSpeed *= 1.22; }
+        this.maxSpeed *= profile.speedMul;
+        this.signatureTimer = Math.max(1200, 2200 - (this.v4BossRank || 0) * 70);
     }
 
     this.pulse += dt * 0.005;
@@ -8179,19 +8276,28 @@ function updateBossV4(dt) {
     this.actionTimer -= dt;
     this.specialTimer -= dt;
     this.passiveFireTimer -= dt;
+    this.signatureTimer -= dt;
+    if (this.hypercoreRecoverTimer > 0) this.hypercoreRecoverTimer = Math.max(0, this.hypercoreRecoverTimer - dt);
     this.enrage = this.hp < this.maxHp * 0.45;
     const hpRatio = this.maxHp > 0 ? (this.hp / this.maxHp) : 0;
 
     const tier = this.bossTier || Math.max(1, Math.floor(wave / 5));
+    const bossRank = this.v4BossRank || getBossV4Rank(this.bossType);
+    const profile = this.v4BossProfile || getBossV4Profile(this.bossType);
+    const phaseA = profile.phaseA || 0.72;
+    const phaseB = profile.phaseB || 0.40;
+    const phaseC = Math.max(0.18, phaseB - 0.16);
     const dx = target.x - this.x, dy = target.y - this.y;
     const dist = Math.max(1, Math.hypot(dx, dy));
     const angle = Math.atan2(dy, dx);
+    const targetSpeed = Math.hypot(target.vx || 0, target.vy || 0);
+    const circlingSign = Math.sign((dx * (target.vy || 0)) - (dy * (target.vx || 0))) || 1;
     let desiredRange = {
         construct: 460, sentinel: 760, hypercore: 520, vortex: 700, artillery: 980,
         hivequeen: 720, mirror: 650, reaper: 470, bulwark: 560, storm: 760
     }[this.bossType] || 640;
     if (this.bossType === 'construct') {
-        const cPhase = hpRatio <= 0.30 ? 3 : (hpRatio <= 0.70 ? 2 : 1);
+        const cPhase = hpRatio <= phaseB ? 3 : (hpRatio <= phaseA ? 2 : 1);
         desiredRange = cPhase === 1 ? 560 : (cPhase === 2 ? 500 : 430);
     }
 
@@ -8202,7 +8308,7 @@ function updateBossV4(dt) {
     forceX += Math.cos(angle) * this.accel * approach * 0.75 + Math.cos(orbit) * this.accel * 0.38;
     forceY += Math.sin(angle) * this.accel * approach * 0.75 + Math.sin(orbit) * this.accel * 0.38;
     if (this.bossType === 'construct') {
-        const cPhase = hpRatio <= 0.30 ? 3 : (hpRatio <= 0.70 ? 2 : 1);
+        const cPhase = hpRatio <= phaseB ? 3 : (hpRatio <= phaseA ? 2 : 1);
         const trackMul = cPhase === 1 ? 0.52 : (cPhase === 2 ? 0.72 : 0.92);
         const orbitMul = cPhase === 1 ? 0.10 : (cPhase === 2 ? 0.20 : 0.32);
         forceX = Math.cos(angle) * this.accel * approach * trackMul + Math.cos(orbit) * this.accel * orbitMul;
@@ -8213,10 +8319,70 @@ function updateBossV4(dt) {
     const warningCap = Math.max(6, Math.floor(20 * screenPressure));
     const existingWarnings = () => entities.filter(e => e && e.constructor && e.constructor.name === 'BossWarningZoneV4' && !e.dead).length;
     const fireAtTarget = (count=1, spread=0.15, dmg=12, speed=680) => {
-        const lead = Math.min(0.55, dist / 1700);
+        const phaseStep = this.phaseStep || 0;
+        const aimSkill = Math.min(0.46, bossRank * 0.05 + phaseStep * 0.06);
+        const leadBase = Math.max(940, 1700 - bossRank * 85 - phaseStep * 95);
+        const lead = Math.min(0.72, dist / leadBase);
         const a = Math.atan2(target.y + target.vy * lead - this.y, target.x + target.vx * lead - this.x);
         const scaledCount = Math.max(1, Math.floor(count * (0.75 + screenPressure * 0.25)));
-        shootEnemyProjectileV4(this, a, dmg, speed, scaledCount, spread);
+        const smartSpread = Math.max(0.02, spread * (1 - aimSkill));
+        shootEnemyProjectileV4(this, a, dmg, speed, scaledCount, smartSpread);
+    };
+    const fireSentinelLeadBurst = (shots = 3, spread = 0.14, dmg = 11 + tier, speed = 860) => {
+        fireAtTarget(shots, spread, dmg, speed);
+    };
+    const fireSentinelCrossBarrage = (dmg = 10 + tier, speed = 780) => {
+        const lead = Math.min(0.58, dist / 1600);
+        const aim = Math.atan2(target.y + target.vy * lead - this.y, target.x + target.vx * lead - this.x);
+        shootEnemyProjectileV4(this, aim + 0.65, dmg, speed, 3, 0.08);
+        shootEnemyProjectileV4(this, aim - 0.65, dmg, speed, 3, 0.08);
+        setTimeout(() => {
+            if (!this.dead && activeBoss === this) {
+                shootEnemyProjectileV4(this, aim + Math.PI + 0.65, dmg, speed, 2, 0.07);
+                shootEnemyProjectileV4(this, aim + Math.PI - 0.65, dmg, speed, 2, 0.07);
+            }
+        }, 130);
+    };
+    const getHypercoreAdaptiveAngle = (extra = 0) => {
+        if (targetSpeed > 130) return angle + circlingSign * (0.34 + extra);
+        if (targetSpeed < 70) return angle + extra;
+        return angle + circlingSign * (0.20 + extra);
+    };
+    const clampAnchor = (x, y) => ({
+        x: Math.max(120, Math.min(WORLD_WIDTH - 120, x)),
+        y: Math.max(120, Math.min(WORLD_HEIGHT - 120, y))
+    });
+    const buildHypercoreAnchors = () => {
+        const base = getHypercoreAdaptiveAngle(0.05);
+        const d1 = 360 + rnd(0, 120);
+        const d2 = 410 + rnd(20, 140);
+        const a1 = base + 0.95;
+        const a2 = base - 0.95;
+        this.hypercoreAnchors = [
+            clampAnchor(target.x + Math.cos(a1) * d1, target.y + Math.sin(a1) * d1),
+            clampAnchor(target.x + Math.cos(a2) * d2, target.y + Math.sin(a2) * d2)
+        ];
+        entities.push(new BossWarningZoneV4(this.hypercoreAnchors[0].x, this.hypercoreAnchors[0].y, 96, '#facc15', 520, 0));
+        entities.push(new BossWarningZoneV4(this.hypercoreAnchors[1].x, this.hypercoreAnchors[1].y, 96, '#facc15', 520, 0));
+        triggerFlash(0.08, '#facc15');
+    };
+    const hypercoreJumpTo = (anchor, burst = true) => {
+        if (!anchor || this.dead || activeBoss !== this) return;
+        this.x = anchor.x;
+        this.y = anchor.y;
+        if (burst) fireAtTarget(2, 0.11, 10 + tier, 920);
+        createParticles(this.x, this.y, '#facc15', 14, 320);
+    };
+    const startHypercoreRecover = (ms = 1200) => {
+        const wasRecovering = this.hypercoreRecoverTimer > 0;
+        this.hypercoreRecoverTimer = Math.max(this.hypercoreRecoverTimer || 0, ms);
+        this.shieldPhase = 0;
+        this.hypercoreWarpCount = 0;
+        if (!wasRecovering) floatingTexts.push(new FloatingText(this.x, this.y - 96, 'CORE EXPOSED', '#fef08a'));
+    };
+    const registerHypercoreWarp = (count = 1) => {
+        this.hypercoreWarpCount = (this.hypercoreWarpCount || 0) + count;
+        if (this.hypercoreWarpCount >= 3) startHypercoreRecover(1200 + Math.min(420, tier * 30));
     };
 
     const hazardNear = (n, radius, color, damage, arm=900) => {
@@ -8229,20 +8395,20 @@ function updateBossV4(dt) {
     };
 
     const triggerBossPhaseShift = () => {
-        if (hpRatio <= 0.75 && this.phaseStep < 1) {
+        if (hpRatio <= phaseA && this.phaseStep < 1) {
             this.phaseStep = 1;
             this.orbitDir *= -1;
             this.specialTimer = 0;
             hazardNear(3 + Math.floor(tier / 2), 95, this.color, 18 + tier, 680);
             floatingTexts.push(new FloatingText(this.x, this.y - 95, 'PHASE SHIFT I', this.color));
         }
-        if (hpRatio <= 0.5 && this.phaseStep < 2) {
+        if (hpRatio <= phaseB && this.phaseStep < 2) {
             this.phaseStep = 2;
             this.specialTimer = 0;
             spawnBossAddV4(this, this.bossType === 'hivequeen' ? 'sapper' : 'lancer', 2 + Math.floor(tier / 3), 0.62);
             floatingTexts.push(new FloatingText(this.x, this.y - 95, 'PHASE SHIFT II', this.color));
         }
-        if (hpRatio <= 0.25 && this.phaseStep < 3) {
+        if (hpRatio <= phaseC && this.phaseStep < 3) {
             this.phaseStep = 3;
             this.enrage = true;
             this.specialTimer = 0;
@@ -8253,7 +8419,7 @@ function updateBossV4(dt) {
     if (this.bossType !== 'construct') triggerBossPhaseShift();
 
     if (this.bossType === 'construct') {
-        const desiredPhase = hpRatio <= 0.30 ? 3 : (hpRatio <= 0.70 ? 2 : 1);
+        const desiredPhase = hpRatio <= phaseB ? 3 : (hpRatio <= phaseA ? 2 : 1);
         if (desiredPhase !== this.constructPhase) {
             this.constructPhase = desiredPhase;
             this.orbitDir *= -1;
@@ -8312,7 +8478,8 @@ function updateBossV4(dt) {
 
     if (this.bossType !== 'construct' && this.actionTimer <= 0) {
         this.attackState++;
-        const tempo = 1 - Math.min(0.26, tier * 0.03);
+        const aggressionRamp = Math.max(0.78, 1 - bossRank * 0.015 - (1 - hpRatio) * 0.09);
+        const tempo = (1 - Math.min(0.26, tier * 0.03)) * (profile.tempoMul || 1) * (1 - Math.min(0.08, bossRank * 0.01)) * aggressionRamp;
         const fast = (this.enrage ? 0.70 : 0.92) * tempo;
 
         if (this.bossType === 'construct') {
@@ -8355,16 +8522,118 @@ function updateBossV4(dt) {
             }
         } else if (this.bossType === 'sentinel') {
             const move = this.attackState % 4;
-            if (move === 0) { this.actionTimer = 3200*fast; this.shieldPhase = 1500; floatingTexts.push(new FloatingText(this.x, this.y-95, 'SHIELD MATRIX', '#38bdf8')); spawnBossAddV4(this, 'blockader', 2 + Math.floor(tier/2), 0.62); }
-            else if (move === 1) { this.actionTimer = 2400*fast; radialBurstV4(this, 16, 10 + tier, 330, performance.now()*0.002); }
-            else if (move === 2) { this.actionTimer = 2800*fast; entities.push(new LockdownZone(target.x, target.y)); hazardNear(3, 95, '#38bdf8', 20 + tier, 780); }
-            else { this.actionTimer = 2100*fast; fireAtTarget(5, 0.28, 11+tier, 620); }
+            if (move === 0) {
+                this.actionTimer = 1750 * fast;
+                floatingTexts.push(new FloatingText(this.x, this.y - 95, 'LEAD BURST', '#38bdf8'));
+                fireSentinelLeadBurst(this.phaseStep >= 2 ? 4 : 3, this.phaseStep >= 2 ? 0.16 : 0.13, 10 + tier, 860);
+            } else if (move === 1) {
+                this.actionTimer = 2450 * fast;
+                floatingTexts.push(new FloatingText(this.x, this.y - 95, 'CROSS BARRAGE', '#60a5fa'));
+                fireSentinelCrossBarrage(9 + tier, 780 + tier * 8);
+                if (this.phaseStep >= 2) setTimeout(() => { if (!this.dead && activeBoss === this) fireSentinelCrossBarrage(10 + tier, 820 + tier * 8); }, 260);
+            } else if (move === 2) {
+                this.actionTimer = 3000 * fast;
+                floatingTexts.push(new FloatingText(this.x, this.y - 95, 'LOCK-ON DASH', '#22d3ee'));
+                const lead = Math.min(0.42, dist / 1700);
+                const lockX = target.x + target.vx * lead;
+                const lockY = target.y + target.vy * lead;
+                entities.push(new BossWarningZoneV4(lockX, lockY, 130, '#22d3ee', 760, 18 + tier));
+                setTimeout(() => {
+                    if (!this.dead && activeBoss === this) {
+                        const dashA = Math.atan2(lockY - this.y, lockX - this.x);
+                        this.vx += Math.cos(dashA) * (1700 + tier * 90);
+                        this.vy += Math.sin(dashA) * (1700 + tier * 90);
+                    }
+                }, 720);
+            } else {
+                this.actionTimer = 2650 * fast;
+                floatingTexts.push(new FloatingText(this.x, this.y - 95, 'PULSE BREAK', '#38bdf8'));
+                this.shieldPhase = 900 + (this.phaseStep >= 2 ? 300 : 0);
+                radialBurstV4(this, this.phaseStep >= 2 ? 14 : 10, 9 + tier, 460, performance.now() * 0.003);
+                if (this.phaseStep >= 1) spawnBossAddV4(this, 'blockader', 1 + Math.floor(tier / 4), 0.62);
+            }
         } else if (this.bossType === 'hypercore') {
-            const move = this.attackState % 4;
-            if (move === 0) { this.actionTimer = 1250*fast; this.vx += Math.cos(angle)*2300; this.vy += Math.sin(angle)*2300; addShake(12); }
-            else if (move === 1) { this.actionTimer = 1900*fast; for(let s=0;s<4;s++) setTimeout(()=>{ if(!this.dead && activeBoss===this) fireAtTarget(2, 0.10, 10+tier, 980); }, s*120); }
-            else if (move === 2) { this.actionTimer = 1900*fast; const a = rnd(0,Math.PI*2); this.x = Math.max(120, Math.min(WORLD_WIDTH-120, target.x + Math.cos(a)*rnd(460,680))); this.y = Math.max(120, Math.min(WORLD_HEIGHT-120, target.y + Math.sin(a)*rnd(460,680))); triggerFlash(0.15, '#facc15'); radialBurstV4(this, 8, 11+tier, 520, a); }
-            else { this.actionTimer = 2200*fast; hazardNear(5, 95, '#facc15', 20, 600); }
+            const phase = this.phaseStep >= 2 ? 3 : (this.phaseStep >= 1 ? 2 : 1);
+            const sequence = phase === 1
+                ? ['mark', 'warpSlash', 'leadBurst', 'recover']
+                : (phase === 2
+                    ? ['mark', 'anchors', 'warpChain', 'crossCut', 'recover']
+                    : ['mark', 'anchors', 'fakeWarp', 'warpChain', 'finisher', 'recover']);
+            const step = sequence[(this.hypercoreComboStep || 0) % sequence.length];
+            this.hypercoreComboStep = (this.hypercoreComboStep || 0) + 1;
+
+            if (step === 'mark') {
+                this.actionTimer = 1350 * fast;
+                const lead = Math.min(0.46, dist / 1700);
+                const mx = target.x + target.vx * lead;
+                const my = target.y + target.vy * lead;
+                this.hypercoreMark = clampAnchor(mx, my);
+                entities.push(new BossWarningZoneV4(this.hypercoreMark.x, this.hypercoreMark.y, 130, '#facc15', 720, 18 + tier));
+                floatingTexts.push(new FloatingText(this.x, this.y - 95, 'LOCK SIGNATURE', '#facc15'));
+            } else if (step === 'warpSlash') {
+                this.actionTimer = 1780 * fast;
+                const mark = this.hypercoreMark || clampAnchor(target.x, target.y);
+                entities.push(new BossWarningZoneV4(mark.x, mark.y, 125, '#fde047', 680, 20 + tier));
+                setTimeout(() => {
+                    if (!this.dead && activeBoss === this) {
+                        const dashA = Math.atan2(mark.y - this.y, mark.x - this.x);
+                        this.vx += Math.cos(dashA) * (1820 + tier * 85);
+                        this.vy += Math.sin(dashA) * (1820 + tier * 85);
+                        fireAtTarget(2, 0.10, 10 + tier, 940);
+                        registerHypercoreWarp(1);
+                    }
+                }, 700);
+            } else if (step === 'leadBurst') {
+                this.actionTimer = 1500 * fast;
+                floatingTexts.push(new FloatingText(this.x, this.y - 95, 'TRACK BURST', '#fde047'));
+                for (let s = 0; s < (phase >= 2 ? 4 : 3); s++) {
+                    setTimeout(() => { if (!this.dead && activeBoss === this) fireAtTarget(2, 0.11, 10 + tier, 980); }, s * 120);
+                }
+            } else if (step === 'anchors') {
+                this.actionTimer = 1500 * fast;
+                floatingTexts.push(new FloatingText(this.x, this.y - 95, 'WARP ANCHORS', '#fcd34d'));
+                buildHypercoreAnchors();
+            } else if (step === 'warpChain') {
+                this.actionTimer = 1900 * fast;
+                if (!this.hypercoreAnchors || this.hypercoreAnchors.length < 2) buildHypercoreAnchors();
+                setTimeout(() => { if (!this.dead && activeBoss === this) { hypercoreJumpTo(this.hypercoreAnchors[0], true); registerHypercoreWarp(1); } }, 320);
+                setTimeout(() => { if (!this.dead && activeBoss === this) { hypercoreJumpTo(this.hypercoreAnchors[1], true); registerHypercoreWarp(1); } }, 760);
+            } else if (step === 'crossCut') {
+                this.actionTimer = 1650 * fast;
+                floatingTexts.push(new FloatingText(this.x, this.y - 95, 'INTERCEPT CUT', '#fde047'));
+                const aim = getHypercoreAdaptiveAngle(0.04);
+                shootEnemyProjectileV4(this, aim + 0.58, 11 + tier, 840, 3, 0.08);
+                shootEnemyProjectileV4(this, aim - 0.58, 11 + tier, 840, 3, 0.08);
+            } else if (step === 'fakeWarp') {
+                this.actionTimer = 1960 * fast;
+                if (!this.hypercoreAnchors || this.hypercoreAnchors.length < 2) buildHypercoreAnchors();
+                const fake = this.hypercoreAnchors[0];
+                const real = this.hypercoreAnchors[1];
+                entities.push(new BossWarningZoneV4(fake.x, fake.y, 120, '#fbbf24', 520, 14 + tier));
+                setTimeout(() => {
+                    if (!this.dead && activeBoss === this) {
+                        hypercoreJumpTo(real, false);
+                        fireAtTarget(3, 0.10, 11 + tier, 980);
+                        registerHypercoreWarp(1);
+                    }
+                }, 520);
+            } else if (step === 'finisher') {
+                this.actionTimer = 2050 * fast;
+                floatingTexts.push(new FloatingText(this.x, this.y - 95, 'OVERCLOCK FINISH', '#fde68a'));
+                entities.push(new BossWarningZoneV4(target.x, target.y, 145, '#facc15', 740, 22 + tier));
+                setTimeout(() => {
+                    if (!this.dead && activeBoss === this) {
+                        const finA = getHypercoreAdaptiveAngle(0.08);
+                        this.vx += Math.cos(finA) * (2050 + tier * 95);
+                        this.vy += Math.sin(finA) * (2050 + tier * 95);
+                        radialBurstV4(this, 8, 11 + tier, 760, finA);
+                        registerHypercoreWarp(1);
+                    }
+                }, 720);
+            } else {
+                this.actionTimer = 1250 * fast;
+                startHypercoreRecover(1200 + (phase * 120));
+            }
         } else if (this.bossType === 'vortex') {
             const move = this.attackState % 4;
             if (move === 0) { this.actionTimer = 2600*fast; entities.push(new Anomaly(this.x + rnd(-180,180), this.y + rnd(-180,180))); }
@@ -8430,6 +8699,10 @@ function updateBossV4(dt) {
         forceX += Math.cos(angle) * this.accel * 0.35;
         forceY += Math.sin(angle) * this.accel * 0.35;
     }
+    if (this.bossType === 'hypercore' && this.hypercoreRecoverTimer > 0) {
+        forceX *= 0.42;
+        forceY *= 0.42;
+    }
     if (this.bossType === 'construct' && this.constructPhase !== undefined && this.constructPhase < 3 && dist < 560 && this.specialTimer <= 0) {
         this.specialTimer = Math.max(1400, 2600 - tier * 120);
         hazardNear(2 + Math.floor(tier / 2), 110, '#fb7185', 22 + tier, 620);
@@ -8439,22 +8712,27 @@ function updateBossV4(dt) {
         if (this.bossType === 'construct' && this.constructPhase === undefined) {
             fireAtTarget(2 + Math.floor(tier / 2), 0.08, 8 + tier, 760);
         } else if (this.bossType === 'sentinel') {
-            shootEnemyProjectileV4(this, angle + Math.PI / 2, 8 + tier, 720, 1, 0);
-            shootEnemyProjectileV4(this, angle - Math.PI / 2, 8 + tier, 720, 1, 0);
+            fireSentinelLeadBurst(this.phaseStep >= 2 ? 2 : 1, 0.09, 8 + tier, 760);
         } else if (this.bossType === 'reaper') {
             fireAtTarget(2, 0.18, 10 + tier, 860);
         }
     }
     if (this.bossType === 'sentinel' && this.specialTimer <= 0) {
-        this.specialTimer = Math.max(1800, 3200 - tier * 120);
-        shootEnemyProjectileV4(this, angle + Math.PI / 2, 10 + tier, 760, 2, 0.24);
-        shootEnemyProjectileV4(this, angle - Math.PI / 2, 10 + tier, 760, 2, 0.24);
+        this.specialTimer = Math.max(1950, 3400 - tier * 130);
+        entities.push(new BossWarningZoneV4(target.x, target.y, 120, '#38bdf8', 680, 16 + tier));
+        fireSentinelCrossBarrage(9 + tier, 800 + tier * 8);
     }
     if (this.bossType === 'hypercore' && this.specialTimer <= 0) {
-        this.specialTimer = Math.max(1650, 3000 - tier * 120);
-        const dashA = angle + rnd(-0.22, 0.22);
-        this.vx += Math.cos(dashA) * (920 + tier * 65);
-        this.vy += Math.sin(dashA) * (920 + tier * 65);
+        this.specialTimer = Math.max(1650, 3100 - tier * 130);
+        if (targetSpeed > 125) {
+            const intercept = getHypercoreAdaptiveAngle(0.10);
+            entities.push(new BossWarningZoneV4(target.x, target.y, 120, '#facc15', 620, 15 + tier));
+            this.vx += Math.cos(intercept) * (960 + tier * 70);
+            this.vy += Math.sin(intercept) * (960 + tier * 70);
+        } else {
+            entities.push(new BossWarningZoneV4(target.x, target.y, 140, '#facc15', 620, 18 + tier));
+            fireAtTarget(2, 0.08, 10 + tier, 920);
+        }
     }
     if (this.bossType === 'hivequeen' && this.specialTimer <= 0) {
         this.specialTimer = Math.max(2000, 3400 - tier * 130);
@@ -8486,6 +8764,49 @@ function updateBossV4(dt) {
         this.specialTimer = Math.max(1550, 2800 - tier * 120);
         entities.push(new BossWarningZoneV4(target.x, target.y, 230, '#a855f7', 820, 22 + tier, 760));
     }
+    if (this.signatureTimer <= 0) {
+        this.signatureTimer = Math.max(1200, 3200 - tier * 130 - bossRank * 80 - (this.enrage ? 240 : 0));
+        if (this.bossType === 'construct' && this.constructPhase >= 3) {
+            hazardNear(3, 110, '#ef4444', 20 + tier, 600);
+        } else if (this.bossType === 'sentinel' && this.phaseStep >= 1) {
+            entities.push(new BossWarningZoneV4(target.x, target.y, 145, '#38bdf8', 700, 16 + tier));
+            fireSentinelLeadBurst(this.phaseStep >= 2 ? 3 : 2, 0.12, 9 + tier, 820);
+            fireSentinelCrossBarrage(9 + tier, 820 + tier * 8);
+        } else if (this.bossType === 'hypercore' && this.phaseStep >= 2) {
+            if (!this.hypercoreAnchors || this.hypercoreAnchors.length < 2) buildHypercoreAnchors();
+            hypercoreJumpTo(this.hypercoreAnchors[0], false);
+            fireAtTarget(2, 0.10, 10 + tier, 940);
+            setTimeout(() => {
+                if (!this.dead && activeBoss === this) {
+                    hypercoreJumpTo(this.hypercoreAnchors[1], false);
+                    radialBurstV4(this, 8, 10 + tier, 700, getHypercoreAdaptiveAngle(0.02));
+                    registerHypercoreWarp(1);
+                }
+            }, 240);
+        } else if (this.bossType === 'vortex' && this.phaseStep >= 2) {
+            entities.push(new BossWarningZoneV4(target.x + rnd(-120, 120), target.y + rnd(-120, 120), 220, '#a855f7', 760, 20 + tier, 680));
+        } else if (this.bossType === 'artillery' && this.phaseStep >= 1) {
+            hazardNear(4, 120, '#f8fafc', 22 + tier, 720);
+        } else if (this.bossType === 'hivequeen' && this.phaseStep >= 1) {
+            spawnBossAddV4(this, Math.random() < 0.5 ? 'weaver' : 'sapper', 2 + Math.floor(tier / 4), 0.56);
+        } else if (this.bossType === 'mirror' && this.phaseStep >= 2) {
+            const back = angle + Math.PI;
+            shootEnemyProjectileV4(this, back, 12 + tier, 820, 5, 0.26);
+        } else if (this.bossType === 'reaper' && this.phaseStep >= 2) {
+            const rushA = angle + rnd(-0.18, 0.18);
+            this.vx += Math.cos(rushA) * (1020 + tier * 62);
+            this.vy += Math.sin(rushA) * (1020 + tier * 62);
+        } else if (this.bossType === 'bulwark' && this.phaseStep >= 1) {
+            this.shieldPhase = Math.max(this.shieldPhase || 0, 900);
+            radialBurstV4(this, 10, 9 + tier, 560, performance.now() * 0.004);
+        } else if (this.bossType === 'storm' && this.phaseStep >= 2) {
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    if (!this.dead && activeBoss === this) radialBurstV4(this, 7, 10 + tier, 760, performance.now() * 0.006);
+                }, i * 120);
+            }
+        }
+    }
     if (this.bossType === 'construct' && this.constructPhase === undefined && dist > 340) {
         forceX += Math.cos(angle) * this.accel * 0.60;
         forceY += Math.sin(angle) * this.accel * 0.60;
@@ -8495,7 +8816,8 @@ function updateBossV4(dt) {
     this.vy += forceY * (dt/1000);
     const speed = Math.hypot(this.vx, this.vy);
     const constructSpeedMul = this.bossType === 'construct' ? (((this.constructPhase || 1) >= 3) ? 1.30 : (((this.constructPhase || 1) === 2) ? 1.10 : 0.88)) : 1;
-    const cap = this.maxSpeed * constructSpeedMul * (this.enrage ? 1.18 : 1.0);
+    const hypercoreRecoverMul = (this.bossType === 'hypercore' && this.hypercoreRecoverTimer > 0) ? 0.62 : 1;
+    const cap = this.maxSpeed * constructSpeedMul * hypercoreRecoverMul * (this.enrage ? 1.18 : 1.0);
     if (speed > cap) { this.vx = this.vx / speed * cap; this.vy = this.vy / speed * cap; }
     this.x = Math.max(this.radius, Math.min(WORLD_WIDTH - this.radius, this.x + this.vx * (dt/1000)));
     this.y = Math.max(this.radius, Math.min(WORLD_HEIGHT - this.radius, this.y + this.vy * (dt/1000)));
@@ -8504,7 +8826,8 @@ function updateBossV4(dt) {
     updateEnemyFacingFromMotion(this, angle, dt, 7);
 
     if (entityCollidersOverlap(this, target, -2)) {
-        const bossContact = ((this.enrage ? 34 : 24) + tier * 3) * (directorV2.enemyDamageMul || 1);
+        const baseContact = this.enrage ? (profile.contactEnrage || 34) : (profile.contactBase || 24);
+        const bossContact = (baseContact + tier * (profile.contactTier || 3)) * (directorV2.enemyDamageMul || 1);
         target.takeDamage(bossContact);
     }
 }
@@ -8679,6 +9002,7 @@ Enemy.prototype.takeDamage = function(amount) {
             amount *= (this.bossType === 'bulwark') ? 0.30 : 0.46;
             if (Math.random() < 0.12) floatingTexts.push(new FloatingText(this.x, this.y - this.radius - 15, 'ARMORED', this.color));
         }
+        if (this.bossType === 'hypercore' && this.hypercoreRecoverTimer > 0) amount *= 1.30;
         if (this.enrage && (this.bossType === 'reaper' || this.bossType === 'hypercore')) amount *= 0.84;
     }
     return __enemyTakeDamageV4Previous.call(this, amount);
